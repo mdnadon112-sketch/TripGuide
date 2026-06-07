@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5.2 Sign-In Hard Fix</title>
+<title>Final Trip — Mobile Google Maps Guide v5.3 Auth Return Fix</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -85,7 +85,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 <body>
 <div class="wrap">
   <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB</span>
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • AUTH FIX v5.3</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
     <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
@@ -252,8 +252,10 @@ function loadPlacePhoto(query, card){
 }
 function initApp(){
   mapsReady = true; geocoder = new google.maps.Geocoder(); directionsService = new google.maps.DirectionsService();
+  ensureLiveAvatarOverlayClass();
   const serviceDiv = document.createElement('div'); document.body.appendChild(serviceDiv); placesService = new google.maps.places.PlacesService(serviceDiv);
   renderStatic(); initOverviewMap(); initLazyDayMaps(); precomputeRouteMetrics();
+  if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay);
 }
 window.initApp = initApp;
 function initOverviewMap(){
@@ -475,8 +477,11 @@ function initFirebaseTracker(){
     if(!window.firebase){ setTrackerStatus('Tracker unavailable','offline'); return; }
     if(!firebase.apps.length) firebase.initializeApp(TRACKER_CONFIG);
     trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH);
+    // LOCAL persistence keeps the signed-in state after the Google Auth return.
+    try{ trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); }catch(_){}
     bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip();
     trackerAuth.onAuthStateChanged(handleAuthState);
+    finishSignInFromRedirect();
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
@@ -487,7 +492,29 @@ function bindHubControls(){
   bindClick('adminBadge', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
-function signInWithGoogle(){
+function resetSignInButton(){ const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; } }
+async function finishSignInFromRedirect(){
+  if(!trackerAuth || !trackerAuth.getRedirectResult) return;
+  try{
+    const result = await trackerAuth.getRedirectResult();
+    if(result && result.user){
+      currentUser = result.user;
+      updateAuthUI();
+      setTrackerMessage('Signed in as ' + (result.user.displayName || result.user.email || 'Google user') + '.');
+    }
+  }catch(e){
+    const code = (e && e.code) ? e.code : '';
+    if(code === 'auth/unauthorized-domain'){
+      setTrackerMessage('Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains.');
+    }else{
+      setTrackerMessage('Google Sign-In return failed: ' + (code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
+    }
+  }finally{
+    resetSignInButton();
+  }
+}
+async function signInWithGoogle(){
+  const btn = document.getElementById('signInBtn');
   try{
     if(!trackerAuth){
       try{ initFirebaseTracker(); }catch(_){}
@@ -495,22 +522,36 @@ function signInWithGoogle(){
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({prompt:'select_account'});
-    setTrackerMessage('Redirecting to Google Sign-In…');
-    const btn = document.getElementById('signInBtn');
-    if(btn){ btn.textContent = 'Redirecting to Google…'; btn.disabled = true; }
-    // Redirect is more reliable than popups on Chrome, iPhone, Android, and in-app browsers.
-    trackerAuth.signInWithRedirect(provider).catch(e=>{
+    if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
+    setTrackerMessage('Opening Google Sign-In…');
+    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+
+    // GitHub Pages is non-Firebase hosting. Popup avoids the Firebase redirect return/storage issue; redirect remains a fallback.
+    try{
+      const result = await trackerAuth.signInWithPopup(provider);
+      if(result && result.user){
+        currentUser = result.user;
+        updateAuthUI();
+        setTrackerMessage('Signed in as ' + (result.user.displayName || result.user.email || 'Google user') + '.');
+      }
+    }catch(e){
       const code = (e && e.code) ? e.code : '';
+      if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
+        setTrackerMessage('Popup did not complete. Redirecting to Google Sign-In…');
+        if(btn){ btn.textContent = 'Redirecting to Google…'; }
+        await trackerAuth.signInWithRedirect(provider);
+        return;
+      }
       if(code === 'auth/unauthorized-domain'){
-        setTrackerMessage('Google Sign-In blocked: this domain is not authorized in Firebase Authentication settings. Add mdnadon112-sketch.github.io under Authentication → Settings → Authorized domains.');
+        setTrackerMessage('Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains.');
       } else {
         setTrackerMessage((code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
       }
-      if(btn){ btn.textContent = 'Sign in with Google'; btn.disabled = false; }
-    });
+    }
   }catch(e){
     setTrackerMessage('Sign-In setup error: ' + (e && e.message ? e.message : String(e)));
-    const btn = document.getElementById('signInBtn'); if(btn){ btn.textContent = 'Sign in with Google'; btn.disabled = false; }
+  }finally{
+    if(!currentUser) resetSignInButton();
   }
 }
 function tripGuideSignInClick(event){
@@ -526,9 +567,9 @@ document.addEventListener('click', function(e){
 }, true);
 function handleAuthState(user){
   cleanupSecureListeners(); currentUser = user || null; isAdmin = !!(user && ADMIN_EMAILS.includes(String(user.email||'').toLowerCase())); isApproved = false;
-  updateAuthUI();
+  updateAuthUI(); resetSignInButton();
   if(!user){ setTrackerStatus('Sign in required','offline'); showAccessPanel(false); showProtectedHub(false); return; }
-  setTrackerStatus('Checking access','offline');
+  setTrackerStatus('Signed in — checking access','live');
   if(isAdmin){ isApproved = true; setTrackerStatus('Admin signed in','live'); showAccessPanel(false); enableProtectedHub(); listenAdminRequests(); return; }
   ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`); ownRequestRef.on('value', snap => renderOwnRequest(snap.val()));
   trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`).on('value', snap => {
@@ -680,17 +721,23 @@ function updateProgressBanner(progress, data){
 function createProgressMini(){ if(document.getElementById('progressMini')) return; const el=document.createElement('div'); el.id='progressMini'; el.className='progress-mini'; el.textContent='Waiting for live location'; document.body.appendChild(el); }
 function createWatcherStrip(){ const shell=document.querySelector('.overview-map'); if(shell && !document.getElementById('watcherStrip')){ const el=document.createElement('div'); el.id='watcherStrip'; el.className='watcher-strip'; shell.appendChild(el); } }
 function registerTrackableMap(key, map){ if(!key||!map)return; trackableMaps.set(key,map); if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay); }
-class LiveAvatarOverlay extends google.maps.OverlayView{
-  constructor(pos, data){ super(); this.position=pos; this.data=data; this.div=null; }
-  onAdd(){ this.div=document.createElement('div'); this.div.className='live-avatar-marker'; this.div.innerHTML=this.html(); this.getPanes().overlayMouseTarget.appendChild(this.div); }
-  draw(){ if(!this.div)return; const p=this.getProjection().fromLatLngToDivPixel(this.position); if(p){ this.div.style.left=p.x+'px'; this.div.style.top=p.y+'px'; } }
-  onRemove(){ if(this.div){ this.div.remove(); this.div=null; } }
-  setPosition(pos){ this.position=pos; this.draw(); }
-  setData(data){ this.data=data; if(this.div) this.div.innerHTML=this.html(); }
-  html(){ const name=this.data.driverName||'Driver'; const photo=this.data.driverPhotoURL||''; const initials=String(name).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'D'; return `<div class="live-avatar-core">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:`<span class="live-avatar-initials">${esc(initials)}</span>`}</div><div class="live-avatar-label">Driver</div>`; }
+let LiveAvatarOverlay = null;
+function ensureLiveAvatarOverlayClass(){
+  if(LiveAvatarOverlay) return true;
+  if(!window.google || !google.maps || !google.maps.OverlayView) return false;
+  LiveAvatarOverlay = class extends google.maps.OverlayView{
+    constructor(pos, data){ super(); this.position=pos; this.data=data; this.div=null; }
+    onAdd(){ this.div=document.createElement('div'); this.div.className='live-avatar-marker'; this.div.innerHTML=this.html(); this.getPanes().overlayMouseTarget.appendChild(this.div); }
+    draw(){ if(!this.div)return; const p=this.getProjection().fromLatLngToDivPixel(this.position); if(p){ this.div.style.left=p.x+'px'; this.div.style.top=p.y+'px'; } }
+    onRemove(){ if(this.div){ this.div.remove(); this.div=null; } }
+    setPosition(pos){ this.position=pos; this.draw(); }
+    setData(data){ this.data=data; if(this.div) this.div.innerHTML=this.html(); }
+    html(){ const name=this.data.driverName||'Driver'; const photo=this.data.driverPhotoURL||''; const initials=String(name).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'D'; return `<div class="live-avatar-core">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:`<span class="live-avatar-initials">${esc(initials)}</span>`}</div><div class="live-avatar-label">Driver</div>`; }
+  };
+  return true;
 }
 function updateLiveMarkerEverywhere(data, activeDay){ if(!window.google||!google.maps)return; const activeKey='day-'+(activeDay||data.activeDay||1); for(const [key,map] of trackableMaps.entries()){ if(key==='overview' || key===activeKey) updateLiveMarkerOnMap(key,map,data); else removeLiveMarker(key); } }
-function updateLiveMarkerOnMap(key,map,data){ const pos=new google.maps.LatLng(Number(data.lat),Number(data.lng)); let overlay=liveDriverMarkers.get(key); if(!overlay){ overlay=new LiveAvatarOverlay(pos,data); overlay.setMap(map); liveDriverMarkers.set(key,overlay); } else { overlay.setPosition(pos); overlay.setData(data); }
+function updateLiveMarkerOnMap(key,map,data){ if(!ensureLiveAvatarOverlayClass()) return; const pos=new google.maps.LatLng(Number(data.lat),Number(data.lng)); let overlay=liveDriverMarkers.get(key); if(!overlay){ overlay=new LiveAvatarOverlay(pos,data); overlay.setMap(map); liveDriverMarkers.set(key,overlay); } else { overlay.setPosition(pos); overlay.setData(data); }
   let circle=liveAccuracyCircles.get(key); if(!circle){ circle=new google.maps.Circle({map,center:pos,radius:Number(data.accuracy||0),strokeColor:'#dc2626',strokeOpacity:.55,strokeWeight:2,fillColor:'#dc2626',fillOpacity:.08,zIndex:9998}); liveAccuracyCircles.set(key,circle); } else { circle.setMap(map); circle.setCenter(pos); circle.setRadius(Number(data.accuracy||0)); }
 }
 function removeLiveMarker(key){ const overlay=liveDriverMarkers.get(key); if(overlay){ overlay.setMap(null); liveDriverMarkers.delete(key); } const c=liveAccuracyCircles.get(key); if(c){ c.setMap(null); liveAccuracyCircles.delete(key); } }
