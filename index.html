@@ -2107,7 +2107,7 @@ async function ensureTripGuideServiceWorkerRegistration(){
   if(tripGuideServiceWorkerPromise) return tripGuideServiceWorkerPromise;
   pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registering…', error: '', attempted: true };
   renderPushDiagnostics();
-  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=swfix3', { scope: './' })
+  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=swfix4', { scope: './' })
     .then(registration => {
       tripGuideServiceWorkerRegistration = registration;
       pushDiagnosticsState.serviceWorker = { registered: true, scope: registration.scope || '—', error: '', attempted: true };

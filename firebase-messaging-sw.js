@@ -37,8 +37,6 @@ try {
   console.error('[TripGuide SW] Firebase initialization failed:', err);
 }
 
-let messaging = null;
-
 try {
   if (firebase && firebase.messaging && firebase.messaging.isSupported) {
     firebase.messaging.isSupported()
@@ -48,7 +46,7 @@ try {
           return;
         }
 
-        messaging = firebase.messaging();
+        const messaging = firebase.messaging();
 
         messaging.onBackgroundMessage((payload) => {
           const notification = payload.notification || {};
