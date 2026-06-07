@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5.20 Access Flow Fixed</title>
+<title>Final Trip — Mobile Google Maps Guide v5.26 Stable Repair</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -253,7 +253,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 
 
   <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • PUSH READY + UNIQUE ICON PINS v5.24</span>
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • STABLE REPAIR v5.26</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
     <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
@@ -429,7 +429,7 @@ function renderKindLegend(items, extraClass){
   if(!kinds.length) return '';
   return `<div class="legend ${esc(extraClass || '')}">${kinds.map(k => `<span><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i>${esc(pinKindName(k))}</span>`).join('')}</div>`;
 }
-function renderDayPinLegend(d)function renderDayPinLegend(d){
+function renderDayPinLegend(d){
   // Legacy detailed pin list kept as a no-op so older references cannot break.
   return '';
 }
@@ -444,7 +444,7 @@ function renderFoodCard(f,day,index){
   window.__foodLookup = window.__foodLookup || {}; window.__foodLookup[key] = f;
   return `<article class="food-card" id="food-${esc(key)}" data-food-card data-vote-key="${esc(key)}" data-day="${day}" data-query="${esc(f.query)}" data-kind="food"><div class="food-photo" onclick="openFoodPreview('${esc(key)}')"><img loading="lazy" referrerpolicy="no-referrer" src="${FALLBACKS.food}" alt="${esc(f.name)} photo"><span class="photo-badge">${esc(f.displayLabel)}</span></div><div class="food-body"><h4 onclick="openFoodPreview('${esc(key)}')"><span class="food-id">${esc(f.displayLabel)}</span>${esc(f.name)}</h4><div class="vote-row"><span class="leader-badge" id="leader-${esc(key)}">Current leader</span><span class="vote-count" id="votes-${esc(key)}">0 votes</span></div><div class="voter-bubbles" id="voters-${esc(key)}"></div><p>${esc(f.note || 'Tap the photo to preview. Approved viewers can vote.')}</p><div class="food-links"><button class="btn btn-go btn-small" type="button" onclick="voteForFood(${day}, '${esc(key)}', '${esc(f.name)}')">Vote</button><button class="btn btn-food btn-small hidden" id="remove-vote-${esc(key)}" type="button" onclick="removeFoodVote(${day})">Remove Vote</button><a class="btn btn-food btn-small" href="${esc(f.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(f.waze)}" target="_blank" rel="noopener">Waze</a></div></div></article>`;
 }
-function hydrateFoodCard(card)function hydrateFoodCard(card){
+function hydrateFoodCard(card){
   const query = card.dataset.query;
   if (!query) return;
   if (!('IntersectionObserver' in window)) { return; }
@@ -484,7 +484,7 @@ function initOverviewMap(){
   updateOverviewFoodMarkerVisibility();
   markLoaded(el);
 }
-function initLazyDayMaps()function initLazyDayMaps(){
+function initLazyDayMaps(){
   const shells = document.querySelectorAll('.day .map-shell');
   if (!('IntersectionObserver' in window)) { TRIP.days.forEach(d=>initDayMap(d.day)); return; }
   const obs = new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting){ const sec=e.target.closest('.day'); if(sec) initDayMap(Number(sec.dataset.day)); } }); },{rootMargin:'700px 0px'});
@@ -510,7 +510,7 @@ function drawDayRoute(map, d, opacity, onFail){
     if(status==='OK') renderer.setDirections(res); else if(typeof onFail === 'function') onFail(status);
   });
 }
-function markLoaded(mapEl)function markLoaded(mapEl){ const shell = mapEl.closest('[data-map-shell]'); if(shell) shell.classList.add('map-loaded'); }
+function markLoaded(mapEl){ const shell = mapEl.closest('[data-map-shell]'); if(shell) shell.classList.add('map-loaded'); }
 function geocodeMarker(map,s,options){
   options = options || {};
   geocoder.geocode({address:s.query}, (results,status)=>{
@@ -542,7 +542,7 @@ function openInfo(map, marker, s){
     });
   }
 }
-function fitMarkersOnly(map, stops)function fitMarkersOnly(map, stops){
+function fitMarkersOnly(map, stops){
   const bounds = new google.maps.LatLngBounds(); let count=0;
   stops.forEach(s=>geocoder.geocode({address:s.query},(r,st)=>{if(st==='OK'&&r&&r[0]){bounds.extend(r[0].geometry.location); count++; if(count>=2) map.fitBounds(bounds);}}));
 }
@@ -774,7 +774,11 @@ function initFirebaseTracker(){
   if(trackerInitialized) return;
   trackerInitialized = true;
   try{
-    if(!window.firebase){ setTrackerStatus('Tracker unavailable','offline'); return; }
+    if(!window.firebase){
+      setTrackerStatus('Tracker unavailable','offline');
+      setLoginGate(true, 'Firebase did not load. Check internet connection, ad/script blockers, and GitHub Pages HTTPS.');
+      return;
+    }
     if(!firebase.apps.length) firebase.initializeApp(TRACKER_CONFIG);
     trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH); liveTrackersRef = trackerDb.ref(LIVE_TRACKERS_PATH);
     // LOCAL persistence keeps the signed-in state after the Google Auth return.
@@ -783,7 +787,12 @@ function initFirebaseTracker(){
     setLoginGate(true, 'Checking existing Firebase session…');
     trackerAuth.onAuthStateChanged(handleAuthState);
     finishSignInFromRedirect();
-  }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
+  }catch(e){
+    const setupMsg = e && e.message ? e.message : String(e);
+    setTrackerStatus('Tracker setup error','offline');
+    setTrackerMessage(setupMsg);
+    setLoginGate(true, 'Tracker setup error: ' + setupMsg);
+  }
 }
 function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
@@ -1906,6 +1915,7 @@ document.addEventListener('click', function(e){
 
 normalizeTripPinLabels();
 renderStatic();
+try{ bindPushButton(); }catch(_){}
 initFirebaseTracker();
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places,geometry&callback=initApp&loading=async"></script>
