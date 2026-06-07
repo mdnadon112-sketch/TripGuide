@@ -236,7 +236,10 @@ async function cleanupFirebase() {
 
   try {
     const apps = admin.apps || [];
-    await Promise.all(apps.map((app) => app.delete()));
+    await Promise.race([
+      Promise.all(apps.map((app) => app.delete())),
+      new Promise((resolve) => setTimeout(resolve, 2000))
+    ]);
   } catch (error) {
     console.warn('Firebase app cleanup warning:', error && error.message ? error.message : error);
   }
