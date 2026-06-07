@@ -387,8 +387,9 @@ function geocodeQuery(query){
   const key = normalizeGeoKey(query);
   if(!key || !geocoder) return Promise.resolve(null);
   if(geocodeCache.has(key)) return geocodeCache.get(key);
+  const address = String(query || '').trim();
   const promise = new Promise(resolve=>{
-    geocoder.geocode({address:query}, (results,status)=>{
+    geocoder.geocode({address}, (results,status)=>{
       if(status === 'OK' && results && results[0]) resolve(results[0].geometry.location);
       else resolve(null);
     });
@@ -488,6 +489,7 @@ function getFoodPhotoObserver(){
   return foodPhotoObserver;
 }
 function loadPlacePhoto(query, card){
+  if (!query) return;
   const img = card.querySelector('img');
   if (!mapsReady || !placesService || !img) return;
   if (foodPhotoCache.has(query)) { const url = foodPhotoCache.get(query); if(url) img.src = url; return; }
