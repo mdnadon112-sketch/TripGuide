@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5 Secure Hub</title>
+<title>Final Trip — Mobile Google Maps Guide v5.1 Secure Hub</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -487,7 +487,34 @@ function bindHubControls(){
   bindClick('adminBadge', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
-function signInWithGoogle(){ const provider = new firebase.auth.GoogleAuthProvider(); trackerAuth.signInWithPopup(provider).catch(e=>setTrackerMessage(e.message || String(e))); }
+function signInWithGoogle(){
+  try{
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh and try again.'); return; }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:'select_account'});
+    setTrackerMessage('Opening Google Sign-In…');
+    const btn = document.getElementById('signInBtn');
+    if(btn) btn.textContent = 'Opening Google…';
+    trackerAuth.signInWithPopup(provider).catch(e=>{
+      const code = (e && e.code) ? e.code : '';
+      const popupProblem = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'].includes(code);
+      if(code === 'auth/unauthorized-domain'){
+        setTrackerMessage('Google Sign-In blocked: this domain is not authorized in Firebase Authentication settings.');
+        if(btn) btn.textContent = 'Sign in with Google';
+        return;
+      }
+      if(popupProblem){
+        setTrackerMessage('Popup was blocked or closed. Redirecting to Google Sign-In…');
+        return trackerAuth.signInWithRedirect(provider);
+      }
+      setTrackerMessage((code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
+      if(btn) btn.textContent = 'Sign in with Google';
+    });
+  }catch(e){
+    setTrackerMessage('Sign-In setup error: ' + (e && e.message ? e.message : String(e)));
+    const btn = document.getElementById('signInBtn'); if(btn) btn.textContent = 'Sign in with Google';
+  }
+}
 function handleAuthState(user){
   cleanupSecureListeners(); currentUser = user || null; isAdmin = !!(user && ADMIN_EMAILS.includes(String(user.email||'').toLowerCase())); isApproved = false;
   updateAuthUI();
