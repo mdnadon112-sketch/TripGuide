@@ -148,7 +148,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
     </div>
     <div class="login-debug" id="gateAuthMessage">Checking existing Firebase session…</div>
-    <div class="login-note">Use Google sign-in. Mike can approve viewers, remove access, or promote signed-in accounts to admin from the admin panel.</div>
+    <div class="login-note">Use Google sign-in. Admins can approve viewers, remove access, or promote any signed-in account to admin without that person requesting admin privileges.</div>
   </div>
 </div>
 <div class="wrap">
@@ -211,7 +211,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         </div>
         <div class="admin-panel hidden" id="adminPanel">
           <h3>Admin and access manager</h3>
-          <p>Approve viewers, remove access, or assign any signed-in Firebase UID as admin. Best workflow: the other account signs in once, then use Assign Admin beside their name or paste their UID below.</p>
+          <p>Approve viewers, remove access, or assign any signed-in account as admin. The other person only needs to sign in once; they do not need to request admin privileges.</p>
           <div class="admin-tool-grid admin-manager-grid">
             <input class="login-input" id="manualAdminUid" placeholder="Firebase UID">
             <input class="login-input" id="manualAdminEmail" type="email" inputmode="email" placeholder="Email label, optional">
@@ -223,7 +223,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             <button class="btn btn-food btn-small" type="button" id="manualRemoveAccessBtn">Remove Access</button>
             <button class="btn btn-ghost btn-small" type="button" id="manualRemoveAdminBtn">Remove Admin</button>
           </div>
-          <p class="admin-tool-note">Admin assignment is UID-based. Email alone is only a label; the person must sign in once so Firebase gives them a UID.</p>
+          <p class="admin-tool-note">Admin assignment is automatic after you click Make Admin or Assign Admin. It is UID-based, so the person only needs to sign in once so Firebase creates their UID.</p>
           <div class="request-list" id="requestList"></div>
         </div>
         <div class="message-board" id="messageBoard">
@@ -317,7 +317,7 @@ function foodKey(day, name, index){ return 'day' + day + '-' + String(index) + '
 function renderFoodCard(f,day,index){
   const key = foodKey(day, f.name, index);
   f.voteKey = key; f.day = day; window.__foodLookup = window.__foodLookup || {}; window.__foodLookup[key] = f;
-  return `<article class="food-card" id="food-${esc(key)}" data-food-card data-vote-key="${esc(key)}" data-day="${day}" data-query="${esc(f.query)}" data-kind="food"><div class="food-photo" onclick="openFoodPreview('${esc(key)}')"><img loading="lazy" referrerpolicy="no-referrer" src="${FALLBACKS.food}" alt="${esc(f.name)} photo"><span class="photo-badge">Food option</span></div><div class="food-body"><h4 onclick="openFoodPreview('${esc(key)}')">${esc(f.name)}</h4><div class="vote-row"><span class="leader-badge" id="leader-${esc(key)}">Current leader</span><span class="vote-count" id="votes-${esc(key)}">0 votes</span></div><div class="voter-bubbles" id="voters-${esc(key)}"></div><p>${esc(f.note || 'Tap the photo to preview. Approved viewers can vote.')}</p><div class="food-links"><button class="btn btn-go btn-small" type="button" onclick="voteForFood(${day}, '${esc(key)}', '${esc(f.name)}')">Vote</button><a class="btn btn-food btn-small" href="${esc(f.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(f.waze)}" target="_blank" rel="noopener">Waze</a></div></div></article>`;
+  return `<article class="food-card" id="food-${esc(key)}" data-food-card data-vote-key="${esc(key)}" data-day="${day}" data-query="${esc(f.query)}" data-kind="food"><div class="food-photo" onclick="openFoodPreview('${esc(key)}')"><img loading="lazy" referrerpolicy="no-referrer" src="${FALLBACKS.food}" alt="${esc(f.name)} photo"><span class="photo-badge">Food option</span></div><div class="food-body"><h4 onclick="openFoodPreview('${esc(key)}')">${esc(f.name)}</h4><div class="vote-row"><span class="leader-badge" id="leader-${esc(key)}">Current leader</span><span class="vote-count" id="votes-${esc(key)}">0 votes</span></div><div class="voter-bubbles" id="voters-${esc(key)}"></div><p>${esc(f.note || 'Tap the photo to preview. Approved viewers can vote.')}</p><div class="food-links"><button class="btn btn-go btn-small" type="button" onclick="voteForFood(${day}, '${esc(key)}', '${esc(f.name)}')">Vote</button><button class="btn btn-food btn-small hidden" id="remove-vote-${esc(key)}" type="button" onclick="removeFoodVote(${day})">Remove Vote</button><a class="btn btn-food btn-small" href="${esc(f.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(f.waze)}" target="_blank" rel="noopener">Waze</a></div></div></article>`;
 }
 function hydrateFoodCard(card){
   const query = card.dataset.query;
@@ -564,6 +564,28 @@ const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com','mdnadon11
 function isEmailAdminUser(user){ return !!(user && ADMIN_EMAILS.includes(authEmail(user))); }
 function adminUidRef(uid){ return trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`); }
 function adminRecordLooksAdmin(val){ return !!(val && val.admin === true); }
+function signedInUserRef(uid){ return trackerDb.ref(`${TRACKER_BASE}/users/${uid}`); }
+function userProfileForWrite(user){
+  const email = authEmail(user) || canonicalEmail(user && user.email);
+  return {
+    uid: String(user && user.uid || ''),
+    email: email || '',
+    name: (user && (user.displayName || email || user.email)) || 'Google user',
+    photoURL: (user && user.photoURL) || '',
+    emailVerified: !!(user && user.emailVerified),
+    provider: ((user && user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'firebase'),
+    lastSignedInAt: Date.now(),
+    lastSeen: Date.now(),
+    updatedAt: Date.now()
+  };
+}
+function upsertSignedInUserProfile(user){
+  if(!trackerDb || !user || !user.uid) return Promise.resolve();
+  const ref = signedInUserRef(user.uid);
+  const profile = userProfileForWrite(user);
+  return ref.transaction(existing => Object.assign({}, existing || {}, profile, {createdAt: (existing && existing.createdAt) || Date.now()}))
+    .catch(e => { setTrackerMessage('Signed-in profile write failed: ' + (e.message || String(e))); });
+}
 const TRACKER_BASE = 'tripGuide';
 const TRACKER_PATH = TRACKER_BASE + '/live';
 const OFF_ROUTE_METERS = 16093.44;
@@ -571,7 +593,7 @@ let trackerDb = null, trackerAuth = null, trackerRef = null, currentUser = null,
 let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
 let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
 let adminExtraListenerRefs = [];
-let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}};
+let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}, users:{}};
 let viewerAccessInitialized = false;
 let allVotes = {}, foodPreviewKey = null;
 let currentPresenceViewers = [];
@@ -762,6 +784,7 @@ function handleAuthState(user){
   const email = authEmail(user) || user.displayName || 'Google user';
   setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Checking admin override'));
   setTrackerStatus('Signed in — checking access','live');
+  upsertSignedInUserProfile(user);
 
   if(isAdmin){ enterAdminSession('email admin'); return; }
 
@@ -785,6 +808,7 @@ function enterAdminSession(reason){
   setLoginGate(false);
   setTrackerMessage('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user') + ' • Admin' + (reason ? ' (' + reason + ')' : ''));
   setTrackerStatus('Admin signed in','live');
+  upsertSignedInUserProfile(currentUser);
   showAccessPanel(false);
   enableProtectedHub();
   listenAdminRequests();
@@ -803,7 +827,7 @@ function enterViewerAccessFlow(){
 }
 function cleanupSecureListeners(){
   try{ if(accessListenerRef){ accessListenerRef.off(); accessListenerRef=null; } }catch(e){}
-  try{ (adminExtraListenerRefs||[]).forEach(ref=>{ try{ ref.off(); }catch(_){} }); adminExtraListenerRefs=[]; adminSnapshots={requests:{}, approved:{}, admins:{}, presence:{}}; }catch(e){}
+  try{ (adminExtraListenerRefs||[]).forEach(ref=>{ try{ ref.off(); }catch(_){} }); adminExtraListenerRefs=[]; adminSnapshots={requests:{}, approved:{}, admins:{}, presence:{}, users:{}}; }catch(e){}
   try{ if(ownRequestRef){ ownRequestRef.off(); ownRequestRef=null; } }catch(e){}
   try{ if(approvedUserRef){ approvedUserRef.off(); approvedUserRef=null; } }catch(e){}
   try{ if(adminUidListenerRef){ adminUidListenerRef.off(); adminUidListenerRef=null; } }catch(e){}
@@ -850,6 +874,7 @@ function listenAdminRequests(){
   wire('approvedUsers','approved','Approved users');
   wire('admins','admins','Admins');
   wire('presence','presence','Presence');
+  wire('users','users','Signed-in users');
 }
 function mergeAdminUser(map, raw, source){
   if(!raw || !raw.uid) return;
@@ -862,6 +887,7 @@ function mergeAdminUser(map, raw, source){
   if(source==='approved'){ existing.approved = raw.approved === true; }
   if(source==='admin'){ existing.admin = raw.admin === true; }
   if(source==='presence'){ existing.present = true; existing.role = raw.role || existing.role; }
+  if(source==='user'){ existing.signedIn = true; existing.profileSeen = raw.lastSeen || raw.lastSignedInAt || raw.updatedAt || existing.profileSeen; }
   map.set(uid, existing);
 }
 function adminUserMap(){
@@ -870,6 +896,7 @@ function adminUserMap(){
   Object.entries(adminSnapshots.approved||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'approved'));
   Object.entries(adminSnapshots.admins||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'admin'));
   Object.entries(adminSnapshots.presence||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'presence'));
+  Object.entries(adminSnapshots.users||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'user'));
   return map;
 }
 function isBuiltInAdminEmail(email){ return ADMIN_EMAILS.includes(canonicalEmail(email)); }
@@ -888,7 +915,7 @@ function renderAdminManager(){
   const users=Array.from(adminUserMap().values()).filter(u=>u.uid);
   const pending=users.filter(u=>u.requestStatus==='pending');
   badge.textContent = pending.length + ' pending'; badge.classList.toggle('show', pending.length>0 && isAdmin);
-  if(!users.length){ list.innerHTML='<div class="request-card">No users yet. Have the other Google account sign in and tap Request Access. Their UID will appear here.</div>'; return; }
+  if(!users.length){ list.innerHTML='<div class="request-card">No users yet. Have the other Google account sign in once. They do not need to request access; their UID will appear here automatically.</div>'; return; }
   users.sort((a,b)=>{
     const ap=(a.requestStatus==='pending')?1:0, bp=(b.requestStatus==='pending')?1:0;
     if(ap!==bp) return bp-ap;
@@ -903,9 +930,9 @@ function renderAdminUserCard(u){
   const hard=isBuiltInAdminEmail(email);
   const effectiveAdmin=!!u.admin || hard;
   const approved=!!u.approved;
-  const status=u.requestStatus || (approved?'approved':(effectiveAdmin?'admin':'no request'));
+  const status=u.requestStatus || (approved?'approved':(effectiveAdmin?'admin':(u.signedIn?'signed in':'no request')));
   const photo=u.photoURL || '';
-  const when = u.lastSeen ? 'last seen ' + formatAge(Date.now()-Number(u.lastSeen)) : (u.requestedAt ? 'requested ' + formatAge(Date.now()-Number(u.requestedAt)) : 'no recent presence');
+  const when = u.lastSeen ? 'last seen ' + formatAge(Date.now()-Number(u.lastSeen)) : (u.profileSeen ? 'signed in ' + formatAge(Date.now()-Number(u.profileSeen)) : (u.requestedAt ? 'requested ' + formatAge(Date.now()-Number(u.requestedAt)) : 'no recent presence'));
   const classes = ['request-card']; if(effectiveAdmin) classes.push('is-admin'); else if(approved) classes.push('is-approved');
   const buttons = [];
   if(!approved) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${safeUidArg(uid)}')">Grant Viewer</button>`);
@@ -926,13 +953,21 @@ function approveAccess(uid){ return grantViewerAccess(uid); }
 function grantViewerAccess(uid, seed){
   if(!isAdmin || !uid) return;
   const r=userRecordForWrite(uid, seed);
-  return Promise.all([
-    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set(Object.assign({approved:true,approvedAt:Date.now(),approvedBy:adminActor()}, r)),
-    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update(Object.assign({status:'approved',decidedAt:Date.now(),decidedBy:adminActor()}, r))
-  ]).then(()=>setTrackerMessage('Viewer access granted for ' + (r.email || r.name || uid) + '.')).catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e))));
+  const now=Date.now();
+  const approvedRecord=Object.assign({approved:true,approvedAt:now,approvedBy:adminActor()}, r);
+  const requestRecord=Object.assign({status:'approved',decidedAt:now,decidedBy:adminActor()}, r);
+  adminSnapshots.approved = adminSnapshots.approved || {}; adminSnapshots.approved[uid] = approvedRecord; renderAdminManager();
+  const updates={};
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=approvedRecord;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}`]=requestRecord;
+  updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users?.[uid] || {}, r, {updatedAt:now});
+  return trackerDb.ref().update(updates)
+    .then(()=>setTrackerMessage('Viewer access granted for ' + (r.email || r.name || uid) + '.'))
+    .catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e)) + '. Check that the v5.13 database rules are published.'));
 }
 function removeViewerAccess(uid){
   if(!isAdmin || !uid) return;
+  if(adminSnapshots.approved){ delete adminSnapshots.approved[uid]; } renderAdminManager();
   return Promise.all([
     trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(),
     trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'revoked',revokedAt:Date.now(),revokedBy:adminActor(),approved:false})
@@ -942,16 +977,30 @@ function makeAdminFromRequest(uid){ return makeAdminByUid(uid); }
 function makeAdminByUid(uid, seed){
   if(!isAdmin || !uid) return;
   const r=userRecordForWrite(uid, seed);
-  return Promise.all([
-    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).set(Object.assign({admin:true,createdAt:Date.now(),createdBy:adminActor()}, r)),
-    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set(Object.assign({approved:true,approvedAt:Date.now(),approvedBy:adminActor()}, r)),
-    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update(Object.assign({status:'approved',admin:true,decidedAt:Date.now(),decidedBy:adminActor()}, r))
-  ]).then(()=>setTrackerMessage('Admin assigned for ' + (r.email || r.name || uid) + '. Have that account reload.')).catch(e=>setTrackerMessage('Make Admin failed: ' + (e.message||String(e))));
+  const now=Date.now();
+  const adminRecord=Object.assign({admin:true,createdAt:now,createdBy:adminActor()}, r);
+  const approvedRecord=Object.assign({approved:true,approvedAt:now,approvedBy:adminActor()}, r);
+  const requestRecord=Object.assign({status:'approved',admin:true,decidedAt:now,decidedBy:adminActor()}, r);
+  const userRecord=Object.assign({updatedAt:now,lastSeen:now}, r);
+  // Optimistic UI so the card immediately flips to Admin: yes while Firebase confirms the write.
+  adminSnapshots.admins = adminSnapshots.admins || {}; adminSnapshots.admins[uid] = adminRecord;
+  adminSnapshots.approved = adminSnapshots.approved || {}; adminSnapshots.approved[uid] = approvedRecord;
+  adminSnapshots.users = adminSnapshots.users || {}; adminSnapshots.users[uid] = Object.assign({}, adminSnapshots.users[uid] || {}, userRecord);
+  renderAdminManager();
+  const updates={};
+  updates[`${TRACKER_BASE}/admins/${uid}`]=adminRecord;
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=approvedRecord;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}`]=requestRecord;
+  updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users[uid] || {}, userRecord);
+  return trackerDb.ref().update(updates)
+    .then(()=>{ renderAdminManager(); setTrackerMessage('Admin assigned for ' + (r.email || r.name || uid) + '. If that account is currently open, it should change to admin automatically.'); })
+    .catch(e=>{ setTrackerMessage('Make Admin failed: ' + (e.message||String(e)) + '. Check that the v5.13 database rules are published.'); renderAdminManager(); });
 }
 function removeAdmin(uid){
   if(!isAdmin || !uid) return;
   const r=adminSeedForUid(uid);
   if(isBuiltInAdminEmail(r.email)){ setTrackerMessage((r.email || uid) + ' is a built-in email admin. Remove it from ADMIN_EMAILS and database rules to fully revoke admin.'); return; }
+  if(adminSnapshots.admins){ delete adminSnapshots.admins[uid]; } renderAdminManager();
   return Promise.all([
     trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
     trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()})
@@ -1133,8 +1182,18 @@ function renderWatcherModalList(){
     const lastSeen=v.lastSeen ? formatAge(Date.now()-Number(v.lastSeen)) : 'recently';
     const photo=v.photoURL || '';
     const uid=v.uid || '';
-    const actions=(isAdmin && uid) ? `<div class="watcher-actions"><button class="btn btn-go btn-small" onclick="grantViewerAccess('${esc(uid)}')">Grant Viewer</button><button class="btn btn-dark btn-small" onclick="makeAdminByUid('${esc(uid)}')">Make Admin</button><button class="btn btn-food btn-small" onclick="removeViewerAccess('${esc(uid)}')">Remove Access</button></div>` : '';
-    return `<div class="watcher-row"><div class="watcher-avatar">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:esc(watcherInitials(name))}</div><div><div class="watcher-name">${esc(name)}</div>${email?`<div class="watcher-email">${esc(email)}</div>`:''}${uid?`<div class="watcher-email">UID: ${esc(uid)}</div>`:''}</div><span class="watcher-role">${esc(role)}</span><div class="watcher-last">Last seen ${esc(lastSeen)}</div>${actions}</div>`;
+    const effectiveAdmin = isBuiltInAdminEmail(email) || adminRecordLooksAdmin(adminSnapshots.admins?.[uid]);
+    const approved = !!(adminSnapshots.approved?.[uid] && adminSnapshots.approved[uid].approved === true);
+    let actions = '';
+    if(isAdmin && uid){
+      const buttons=[];
+      if(!approved && !effectiveAdmin) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${esc(uid)}')">Grant Viewer</button>`);
+      if(!effectiveAdmin) buttons.push(`<button class="btn btn-dark btn-small" onclick="makeAdminByUid('${esc(uid)}')">Make Admin</button>`);
+      if(effectiveAdmin && !isBuiltInAdminEmail(email)) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${esc(uid)}')">Remove Admin</button>`);
+      if(approved || effectiveAdmin) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${esc(uid)}')">Remove Access</button>`);
+      actions = buttons.length ? `<div class="watcher-actions">${buttons.join('')}</div>` : '';
+    }
+    return `<div class="watcher-row"><div class="watcher-avatar">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:esc(watcherInitials(name))}</div><div><div class="watcher-name">${esc(name)}</div>${email?`<div class="watcher-email">${esc(email)}</div>`:''}${uid?`<div class="watcher-email">UID: ${esc(uid)}</div>`:''}<div class="watcher-email">Admin: ${effectiveAdmin?'yes':'no'} • Viewer: ${approved?'approved':'not approved'}</div></div><span class="watcher-role">${effectiveAdmin?'admin':esc(role)}</span><div class="watcher-last">Last seen ${esc(lastSeen)}</div>${actions}</div>`;
   }).join('');
 }
 function openWatcherModal(){
@@ -1189,15 +1248,17 @@ function renderMessages(data){ const list=document.getElementById('messageList')
 function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g,'<a class="suggestion-link" target="_blank" rel="noopener" href="$1">Open link</a>'); }
 function deleteMessage(id){ if(isAdmin && id) trackerDb.ref(`${TRACKER_BASE}/messages/${id}`).remove(); } window.deleteMessage=deleteMessage;
 function listenVotes(){ if(votesListenerRef) return; votesListenerRef=trackerDb.ref(`${TRACKER_BASE}/votes`); votesListenerRef.on('value', snap=>{ allVotes=snap.val()||{}; renderVotes(); }, err=>setTrackerMessage(err.message||String(err))); }
-function voteForFood(day,key,name){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before voting.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).set({uid:currentUser.uid,email:authEmail(currentUser)||currentUser.email||'',name:currentUser.displayName||authEmail(currentUser)||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',foodKey:key,foodName:name,updatedAt:Date.now()}).catch(e=>setTrackerMessage(e.message||String(e))); }
-window.voteForFood=voteForFood;
-function renderVotes(){ document.querySelectorAll('[data-vote-key]').forEach(card=>{ const key=card.dataset.voteKey, day=card.dataset.day; const dayVotes=allVotes[day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); const count=document.getElementById('votes-'+key), bubbles=document.getElementById('voters-'+key), leader=document.getElementById('leader-'+key); if(count)count.textContent=voters.length+' vote'+(voters.length===1?'':'s'); if(bubbles)bubbles.innerHTML=voters.map(v=>profileBubble(v.photoURL,v.name||v.email||'Viewer')).join(''); card.classList.toggle('vote-selected', !!(currentUser && dayVotes[currentUser.uid] && dayVotes[currentUser.uid].foodKey===key)); });
+function voteForFood(day,key,name){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before voting.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).set({uid:currentUser.uid,email:authEmail(currentUser)||currentUser.email||'',name:currentUser.displayName||authEmail(currentUser)||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',foodKey:key,foodName:name,updatedAt:Date.now()}).then(()=>setTrackerMessage('Vote saved.')).catch(e=>setTrackerMessage(e.message||String(e))); }
+function removeFoodVote(day){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before changing votes.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).remove().then(()=>setTrackerMessage('Vote removed.')).catch(e=>setTrackerMessage('Remove vote failed: '+(e.message||String(e)))); }
+window.voteForFood=voteForFood; window.removeFoodVote=removeFoodVote;
+function renderVotes(){ document.querySelectorAll('[data-vote-key]').forEach(card=>{ const key=card.dataset.voteKey, day=card.dataset.day; const dayVotes=allVotes[day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); const selected=!!(currentUser && dayVotes[currentUser.uid] && dayVotes[currentUser.uid].foodKey===key); const count=document.getElementById('votes-'+key), bubbles=document.getElementById('voters-'+key), leader=document.getElementById('leader-'+key), removeBtn=document.getElementById('remove-vote-'+key); if(count)count.textContent=voters.length+' vote'+(voters.length===1?'':'s'); if(bubbles)bubbles.innerHTML=voters.map(v=>profileBubble(v.photoURL,v.name||v.email||'Viewer')).join(''); if(removeBtn) removeBtn.classList.toggle('hidden', !selected); card.classList.toggle('vote-selected', selected); });
   // leader pass without pipeline for browser safety
   document.querySelectorAll('.leader-badge').forEach(x=>x.classList.remove('show'));
   for(const [day, votes] of Object.entries(allVotes||{})){ const counts={}; Object.values(votes||{}).forEach(v=>{ if(v.foodKey) counts[v.foodKey]=(counts[v.foodKey]||0)+1; }); const max=Math.max(0,...Object.values(counts)); if(max>0){ Object.entries(counts).forEach(([key,c])=>{ const el=document.getElementById('leader-'+key); if(el && c===max) el.classList.add('show'); }); } }
+  if(foodPreviewKey && document.getElementById('foodPhotoModal')?.classList.contains('show')) openFoodPreview(foodPreviewKey);
 }
 function createPhotoModal(){ if(document.getElementById('foodPhotoModal')) return; const el=document.createElement('div'); el.className='photo-modal'; el.id='foodPhotoModal'; el.addEventListener('click',e=>{if(e.target===el)closeFoodPreview();}); el.innerHTML='<div class="photo-modal-card"><img id="modalFoodImg" alt=""><div class="photo-modal-body"><h3 id="modalFoodName"></h3><p id="modalFoodVotes"></p><div class="photo-modal-actions"><button class="btn btn-go" id="modalVoteBtn">Vote</button><a class="btn btn-google" id="modalGoogleBtn" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" id="modalWazeBtn" target="_blank" rel="noopener">Waze</a><button class="btn btn-ghost" type="button" onclick="closeFoodPreview()">Close</button></div></div></div>'; document.body.appendChild(el); }
-function openFoodPreview(key){ const f=window.__foodLookup?.[key]; const card=document.getElementById('food-'+key); if(!f||!card)return; foodPreviewKey=key; const img=card.querySelector('img')?.src||FALLBACKS.food; document.getElementById('modalFoodImg').src=img; document.getElementById('modalFoodName').textContent=f.name; const dayVotes=allVotes[f.day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); document.getElementById('modalFoodVotes').textContent=voters.length+' vote'+(voters.length===1?'':'s'); document.getElementById('modalGoogleBtn').href=f.google; document.getElementById('modalWazeBtn').href=f.waze; document.getElementById('modalVoteBtn').onclick=()=>voteForFood(f.day,key,f.name); document.getElementById('foodPhotoModal').classList.add('show'); }
+function openFoodPreview(key){ const f=window.__foodLookup?.[key]; const card=document.getElementById('food-'+key); if(!f||!card)return; foodPreviewKey=key; const img=card.querySelector('img')?.src||FALLBACKS.food; document.getElementById('modalFoodImg').src=img; document.getElementById('modalFoodName').textContent=f.name; const dayVotes=allVotes[f.day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); const selected=!!(currentUser && dayVotes[currentUser.uid] && dayVotes[currentUser.uid].foodKey===key); document.getElementById('modalFoodVotes').textContent=voters.length+' vote'+(voters.length===1?'':'s')+(selected?' • your vote':''); document.getElementById('modalGoogleBtn').href=f.google; document.getElementById('modalWazeBtn').href=f.waze; const voteBtn=document.getElementById('modalVoteBtn'); if(voteBtn){ voteBtn.textContent=selected?'Remove Vote':'Vote'; voteBtn.className=selected?'btn btn-food':'btn btn-go'; voteBtn.onclick=()=> selected ? removeFoodVote(f.day) : voteForFood(f.day,key,f.name); } document.getElementById('foodPhotoModal').classList.add('show'); }
 function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classList.remove('show'); } window.openFoodPreview=openFoodPreview; window.closeFoodPreview=closeFoodPreview;
 
 renderStatic();
