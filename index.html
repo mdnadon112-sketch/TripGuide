@@ -2282,7 +2282,7 @@ async function ensureTripGuideServiceWorkerRegistration(){
   if(tripGuideServiceWorkerPromise) return tripGuideServiceWorkerPromise;
   pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registering…', error: '', attempted: true };
   renderPushDiagnostics();
-  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=minsw1', { scope: './' })
+  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=pushhandler1', { scope: './' })
     .then(registration => {
       tripGuideServiceWorkerRegistration = registration;
       pushDiagnosticsState.serviceWorker = { registered: true, scope: registration.scope || '—', error: '', attempted: true };
