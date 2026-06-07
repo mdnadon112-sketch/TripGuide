@@ -541,7 +541,7 @@ function toggleMapSize(dayNum, btn){
 window.toggleMapSize = toggleMapSize;
 
 
-/* PATCH v5.9: Firebase Auth, approval, live tracker, mileage progress, votes, messages */
+/* PATCH v5.15: Firebase Auth, live admin promotion, approval, live tracker, mileage progress, votes, messages */
 const TRACKER_CONFIG = {
   apiKey: "AIzaSyD4juSgEvK9CBX0ROiMnmmJrYYkSwI_2U4",
   authDomain: "tripguide-f5056.firebaseapp.com",
@@ -807,12 +807,14 @@ function enterAdminSession(reason){
   if(!currentUser) return;
   isAdmin = true; isApproved = true; viewerAccessInitialized = false;
   updateAuthUI();
+  forceAdminControlsVisible();
   setLoginGate(false);
   setTrackerMessage('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user') + ' • Admin' + (reason ? ' (' + reason + ')' : ''));
   setTrackerStatus('Admin signed in','live');
   upsertSignedInUserProfile(currentUser);
   showAccessPanel(false);
   enableProtectedHub();
+  forceAdminControlsVisible();
   listenAdminRequests();
 }
 function enterViewerAccessFlow(){
@@ -820,9 +822,18 @@ function enterViewerAccessFlow(){
   viewerAccessInitialized = true;
   const user = currentUser;
   setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + ' • Viewer pending approval');
-  ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`); ownRequestRef.on('value', snap => renderOwnRequest(snap.val()));
+  ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`);
+  ownRequestRef.on('value', snap => {
+    const req = snap.val();
+    // Fallback admin promotion signal. This lets a live browser upgrade immediately
+    // even if its /admins/{uid} listener is delayed or was blocked by older rules.
+    if(req && req.admin === true){ enterAdminSession('admin approval record'); return; }
+    renderOwnRequest(req);
+  });
   approvedUserRef = trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`); approvedUserRef.on('value', snap => {
-    isApproved = !!(snap.val() && snap.val().approved === true);
+    const approvedRecord = snap.val();
+    if(approvedRecord && approvedRecord.admin === true){ enterAdminSession('approved admin record'); return; }
+    isApproved = !!(approvedRecord && approvedRecord.approved === true);
     if(isApproved){ setTrackerStatus('Approved viewer','live'); showAccessPanel(false); enableProtectedHub(); }
     else { setTrackerStatus('Access required','offline'); showProtectedHub(false); showAccessPanel(true); }
   }, err => setTrackerMessage(err.message || String(err)));
@@ -845,6 +856,19 @@ function updateAuthUI(){
   const userEl=document.getElementById('authUser'); userEl?.classList.toggle('hidden', !signed);
   if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || authEmail(currentUser) || 'Signed in') + ' — ' + (authEmail(currentUser) || 'no email') + (isAdmin ? ' • Admin' : ''); }
   document.getElementById('driverModeBtn')?.classList.toggle('hidden', !isAdmin); document.getElementById('adminBadge')?.classList.toggle('show', false);
+  if(isAdmin) forceAdminControlsVisible();
+}
+function forceAdminControlsVisible(){
+  // Admin promotion can happen live while the other browser is already open.
+  // This aggressively removes the viewer-only state and exposes every admin tool.
+  const driverBtn = document.getElementById('driverModeBtn');
+  const driverPanel = document.getElementById('driverPanel');
+  const adminPanel = document.getElementById('adminPanel');
+  const protectedHub = document.getElementById('protectedHub');
+  if(driverBtn) driverBtn.classList.remove('hidden');
+  if(driverPanel) driverPanel.classList.add('open');
+  if(adminPanel) adminPanel.classList.remove('hidden');
+  if(protectedHub) protectedHub.classList.remove('hidden');
 }
 function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
 function showProtectedHub(show){ document.getElementById('protectedHub')?.classList.toggle('hidden', !show); document.getElementById('progressMini')?.classList.toggle('show', !!show && !!lastValidProgress); }
@@ -861,10 +885,12 @@ function requestTrackerAccess(){
   trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set({uid:u.uid,email:authEmail(u)||u.email||'',name:u.displayName||authEmail(u)||u.email||'Google user',photoURL:u.photoURL||'',status:'pending',requestedAt:Date.now()}).then(()=>setTrackerMessage('Access request sent.')).catch(e=>setTrackerMessage(e.message || String(e)));
 }
 function enableProtectedHub(){
-  showProtectedHub(true); updateAuthUI(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes();
+  showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes();
 }
 function listenAdminRequests(){
   const panel=document.getElementById('adminPanel'); panel?.classList.remove('hidden');
+  forceAdminControlsVisible();
+  if(accessListenerRef){ renderAdminManager(); return; }
   // Keep one live admin-management view backed by requests, approved users, admins, and current presence.
   accessListenerRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests`);
   accessListenerRef.on('value', snap => { adminSnapshots.requests = snap.val() || {}; renderAdminManager(); }, err => { setTrackerMessage('Admin requests failed: ' + (err.message || err)); });
@@ -965,7 +991,7 @@ function grantViewerAccess(uid, seed){
   updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users?.[uid] || {}, r, {updatedAt:now});
   return trackerDb.ref().update(updates)
     .then(()=>setTrackerMessage('Viewer access granted for ' + (r.email || r.name || uid) + '.'))
-    .catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e)) + '. Check that the v5.13 database rules are published.'));
+    .catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e)) + '. Check that the v5.15 database rules are published.'));
 }
 function removeViewerAccess(uid){
   if(!isAdmin || !uid) return;
@@ -981,7 +1007,9 @@ function makeAdminByUid(uid, seed){
   const r=userRecordForWrite(uid, seed);
   const now=Date.now();
   const adminRecord=Object.assign({admin:true,createdAt:now,createdBy:adminActor()}, r);
-  const approvedRecord=Object.assign({approved:true,approvedAt:now,approvedBy:adminActor()}, r);
+  // Duplicate the admin flag onto approvedUsers and accessRequests as a live fallback.
+  // The canonical admin source remains /tripGuide/admins/{uid}.
+  const approvedRecord=Object.assign({approved:true,admin:true,approvedAt:now,approvedBy:adminActor()}, r);
   const requestRecord=Object.assign({status:'approved',admin:true,decidedAt:now,decidedBy:adminActor()}, r);
   const userRecord=Object.assign({updatedAt:now,lastSeen:now}, r);
   // Optimistic UI so the card immediately flips to Admin: yes while Firebase confirms the write.
@@ -996,7 +1024,7 @@ function makeAdminByUid(uid, seed){
   updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users[uid] || {}, userRecord);
   return trackerDb.ref().update(updates)
     .then(()=>{ renderAdminManager(); setTrackerMessage('Admin assigned for ' + (r.email || r.name || uid) + '. If that account is currently open, it should change to admin automatically.'); })
-    .catch(e=>{ setTrackerMessage('Make Admin failed: ' + (e.message||String(e)) + '. Check that the v5.13 database rules are published.'); renderAdminManager(); });
+    .catch(e=>{ setTrackerMessage('Make Admin failed: ' + (e.message||String(e)) + '. Check that the v5.15 database rules are published.'); renderAdminManager(); });
 }
 function removeAdmin(uid){
   if(!isAdmin || !uid) return;
@@ -1005,6 +1033,7 @@ function removeAdmin(uid){
   if(adminSnapshots.admins){ delete adminSnapshots.admins[uid]; } renderAdminManager();
   return Promise.all([
     trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
+    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()}),
     trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()})
   ]).then(()=>setTrackerMessage('Admin removed.')).catch(e=>setTrackerMessage('Remove admin failed: ' + (e.message||String(e))));
 }
