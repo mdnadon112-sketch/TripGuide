@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5.1 Secure Hub</title>
+<title>Final Trip — Mobile Google Maps Guide v5.2 Sign-In Hard Fix</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -100,7 +100,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
       </div>
       <div class="auth-panel" id="authPanel">
         <div class="auth-row">
-          <button class="btn btn-google" type="button" id="signInBtn">Sign in with Google</button>
+          <button class="btn btn-google" type="button" id="signInBtn" onclick="tripGuideSignInClick(event)">Sign in with Google</button>
           <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
           <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
         </div>
@@ -489,32 +489,41 @@ function bindHubControls(){
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
 function signInWithGoogle(){
   try{
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh and try again.'); return; }
+    if(!trackerAuth){
+      try{ initFirebaseTracker(); }catch(_){}
+    }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({prompt:'select_account'});
-    setTrackerMessage('Opening Google Sign-In…');
+    setTrackerMessage('Redirecting to Google Sign-In…');
     const btn = document.getElementById('signInBtn');
-    if(btn) btn.textContent = 'Opening Google…';
-    trackerAuth.signInWithPopup(provider).catch(e=>{
+    if(btn){ btn.textContent = 'Redirecting to Google…'; btn.disabled = true; }
+    // Redirect is more reliable than popups on Chrome, iPhone, Android, and in-app browsers.
+    trackerAuth.signInWithRedirect(provider).catch(e=>{
       const code = (e && e.code) ? e.code : '';
-      const popupProblem = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'].includes(code);
       if(code === 'auth/unauthorized-domain'){
-        setTrackerMessage('Google Sign-In blocked: this domain is not authorized in Firebase Authentication settings.');
-        if(btn) btn.textContent = 'Sign in with Google';
-        return;
+        setTrackerMessage('Google Sign-In blocked: this domain is not authorized in Firebase Authentication settings. Add mdnadon112-sketch.github.io under Authentication → Settings → Authorized domains.');
+      } else {
+        setTrackerMessage((code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
       }
-      if(popupProblem){
-        setTrackerMessage('Popup was blocked or closed. Redirecting to Google Sign-In…');
-        return trackerAuth.signInWithRedirect(provider);
-      }
-      setTrackerMessage((code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
-      if(btn) btn.textContent = 'Sign in with Google';
+      if(btn){ btn.textContent = 'Sign in with Google'; btn.disabled = false; }
     });
   }catch(e){
     setTrackerMessage('Sign-In setup error: ' + (e && e.message ? e.message : String(e)));
-    const btn = document.getElementById('signInBtn'); if(btn) btn.textContent = 'Sign in with Google';
+    const btn = document.getElementById('signInBtn'); if(btn){ btn.textContent = 'Sign in with Google'; btn.disabled = false; }
   }
 }
+function tripGuideSignInClick(event){
+  if(event){ event.preventDefault(); event.stopPropagation(); }
+  setTrackerMessage('Sign-in button clicked. Opening Google…');
+  signInWithGoogle();
+}
+window.tripGuideSignInClick = tripGuideSignInClick;
+// Capture-phase backup in case another element steals or blocks the button handler.
+document.addEventListener('click', function(e){
+  const btn = e.target && e.target.closest ? e.target.closest('#signInBtn') : null;
+  if(btn){ tripGuideSignInClick(e); }
+}, true);
 function handleAuthState(user){
   cleanupSecureListeners(); currentUser = user || null; isAdmin = !!(user && ADMIN_EMAILS.includes(String(user.email||'').toLowerCase())); isApproved = false;
   updateAuthUI();
