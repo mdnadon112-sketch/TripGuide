@@ -1,87 +1,54 @@
-/* TripGuide minimal service worker with raw push notification handling */
-console.log('[TripGuide SW] worker evaluating');
+importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging-compat.js');
 
-self.addEventListener('install', () => {
-  console.log('[TripGuide SW] install');
-  self.skipWaiting();
+firebase.initializeApp({
+  apiKey: 'AIzaSyD4juSgEvK9CBX0ROiMnmmJrYYkSwI_2U4',
+  authDomain: 'tripguide-f5056.firebaseapp.com',
+  databaseURL: 'https://tripguide-f5056-default-rtdb.firebaseio.com',
+  projectId: 'tripguide-f5056',
+  storageBucket: 'tripguide-f5056.firebasestorage.app',
+  messagingSenderId: '890615280609',
+  appId: '1:890615280609:web:4f77c8e37fa7ec622418a0'
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('[TripGuide SW] activate');
-  event.waitUntil(self.clients.claim());
-});
+const messaging = firebase.messaging();
 
-self.addEventListener('push', (event) => {
-  let payload = {};
-
-  try {
-    payload = event.data ? event.data.json() : {};
-  } catch (err) {
-    try {
-      payload = { data: { body: event.data ? event.data.text() : '' } };
-    } catch (_) {
-      payload = {};
-    }
-  }
-
-  const notification = payload.notification || {};
-  const data = payload.data || {};
-  const webpush = payload.webpush || {};
-  const fcmOptions = payload.fcmOptions || {};
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] Background message:', payload);
 
   const title =
-    notification.title ||
-    data.title ||
-    payload.title ||
+    (payload.notification && payload.notification.title) ||
+    (payload.data && payload.data.title) ||
     'TripGuide';
 
-  const body =
-    notification.body ||
-    data.body ||
-    payload.body ||
-    'Trip update available.';
-
-  const url =
-    data.url ||
-    fcmOptions.link ||
-    (webpush.fcm_options && webpush.fcm_options.link) ||
-    '/TripGuide/';
-
   const options = {
-    body,
-    icon: data.icon || notification.icon || './icon-192.png',
-    badge: data.badge || './icon-192.png',
+    body:
+      (payload.notification && payload.notification.body) ||
+      (payload.data && payload.data.body) ||
+      'New TripGuide update',
+    icon: '/TripGuide/icon-192.png',
+    badge: '/TripGuide/icon-192.png',
     data: {
-      url
+      url: (payload.data && payload.data.url) || 'https://mdnadon112-sketch.github.io/TripGuide/'
     }
   };
 
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+  self.registration.showNotification(title, options);
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const notificationData = (event.notification && event.notification.data) || {};
-  const targetUrl = notificationData.url || '/TripGuide/';
+  const url =
+    (event.notification && event.notification.data && event.notification.data.url) ||
+    'https://mdnadon112-sketch.github.io/TripGuide/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      const normalizedTarget = new URL(targetUrl, self.location.origin);
-
       for (const client of clientList) {
-        const clientUrl = new URL(client.url);
-        if (clientUrl.pathname.indexOf('/TripGuide/') !== -1 && 'focus' in client) {
-          return client.focus();
-        }
+        if ('focus' in client) return client.focus();
       }
-
-      if (clients.openWindow) {
-        return clients.openWindow(normalizedTarget.href);
-      }
-
+      if (clients.openWindow) return clients.openWindow(url);
       return undefined;
     })
   );
