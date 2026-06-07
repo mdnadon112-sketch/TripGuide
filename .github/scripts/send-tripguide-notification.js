@@ -223,22 +223,11 @@ async function main() {
 
   console.log(`attempted=${selected.length} success=${successCount} failure=${failureCount} cleaned=${cleanedCount}`);
 
-  try {
-    if (admin.database) {
-      admin.database().goOffline();
-    }
-  } catch (_) {}
-
   process.exit(0);
 }
 
 main()
   .catch((err) => {
     console.error(err);
-    try {
-      if (admin.database) {
-        admin.database().goOffline();
-      }
-    } catch (_) {}
     process.exit(1);
   });
