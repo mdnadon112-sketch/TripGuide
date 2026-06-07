@@ -13,6 +13,8 @@ const ADMIN_EMAILS = new Set([
 
 const MAX_TOKEN_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 const FCM_BATCH_SIZE = 500;
+const LIVE_STALE_MS = 15 * 60 * 1000;
+const LIVE_STALE_REPEAT_MS = 60 * 60 * 1000;
 
 function required(name) {
   const value = String(process.env[name] || '').trim();
@@ -42,6 +44,15 @@ function cleanEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+function canonicalEmail(value) {
+  return cleanEmail(value).replace(/@googlemail\.com$/, '@gmail.com');
+}
+
+function cleanText(value, fallback = '') {
+  const text = String(value || '').trim();
+  return text || fallback;
+}
+
 function batches(items, size) {
   const out = [];
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
@@ -59,50 +70,104 @@ function isTokenActive(record, now) {
   return now - lastSeen <= MAX_TOKEN_AGE_MS;
 }
 
-async function loadTokens(db, target = 'all') {
+function isBlockedRecord(record) {
+  if (!record) return false;
+  if (record === true) return true;
+  if (typeof record === 'object') {
+    if (record.blocked === false) return false;
+    if (record.blocked === true) return true;
+    if (record.status === 'blocked') return true;
+    if (record.isBlocked === true) return true;
+    return true;
+  }
+  return false;
+}
+
+function buildRoleSets(admins, approvedUsers, blockedUsers) {
+  const adminUids = new Set();
+  const approvedUids = new Set();
+  const blockedUids = new Set();
+
+  Object.entries(admins || {}).forEach(([uid, record]) => {
+    if (record && record.admin === true) adminUids.add(uid);
+  });
+
+  Object.entries(approvedUsers || {}).forEach(([uid, record]) => {
+    if (record && (record.approved === true || record.admin === true)) approvedUids.add(uid);
+    if (record && record.admin === true) adminUids.add(uid);
+  });
+
+  adminUids.forEach((uid) => approvedUids.add(uid));
+
+  Object.entries(blockedUsers || {}).forEach(([uid, record]) => {
+    if (isBlockedRecord(record)) blockedUids.add(uid);
+  });
+
+  return { adminUids, approvedUids, blockedUids };
+}
+
+function classifySendError(code) {
+  const value = String(code || '');
+  if (value.includes('registration-token-not-registered')) return { reason: 'not-registered', disable: true };
+  if (value.includes('invalid-registration-token')) return { reason: 'invalid-token', disable: true };
+  return { reason: 'send-failed', disable: false };
+}
+
+function collectTargetTokenRecords(context, target, targetUid, options = {}) {
   const now = Date.now();
+  const allowUnapprovedSingleUser = options.allowUnapprovedSingleUser === true;
+  const dedup = new Map();
 
-  const [tokensSnap, adminsSnap] = await Promise.all([
-    db.ref(`${TRACKER_BASE}/pushTokens`).get(),
-    db.ref(`${TRACKER_BASE}/admins`).get()
-  ]);
+  Object.entries(context.pushTokens || {}).forEach(([uid, tokenMap]) => {
+    const isBlocked = context.roles.blockedUids.has(uid);
+    if (isBlocked) return;
 
-  const rawTokens = tokensSnap.val() || {};
-  const admins = adminsSnap.val() || {};
-  const tokens = [];
+    const adminByUid = context.roles.adminUids.has(uid);
+    const approvedByUid = context.roles.approvedUids.has(uid);
 
-  Object.entries(rawTokens).forEach(([uid, tokenMap]) => {
-    const adminByUid = !!(admins[uid] && admins[uid].admin === true);
-
-    Object.values(tokenMap || {}).forEach((record) => {
+    Object.entries(tokenMap || {}).forEach(([tokenId, record]) => {
       if (!isTokenActive(record, now)) return;
 
-      const email = cleanEmail(record.email);
-      const adminByEmail = ADMIN_EMAILS.has(email);
+      const token = String(record.token || '').trim();
+      if (!token) return;
 
-      if (target === 'admins' && !adminByUid && !adminByEmail) return;
+      const adminByEmail = ADMIN_EMAILS.has(canonicalEmail(record.email));
+      let include = false;
 
-      tokens.push(String(record.token).trim());
+      if (target === 'admins') {
+        include = adminByUid || adminByEmail;
+      } else if (target === 'all') {
+        include = adminByUid || approvedByUid;
+      } else if (target === 'singleUser') {
+        include = uid === targetUid && (allowUnapprovedSingleUser || adminByUid || approvedByUid);
+      }
+
+      if (!include) return;
+      if (!dedup.has(token)) dedup.set(token, { uid, tokenId, token });
     });
   });
 
-  return [...new Set(tokens)];
+  return Array.from(dedup.values());
 }
 
-async function sendPush(db, messaging, target, title, body, url = SITE_URL) {
-  const tokens = await loadTokens(db, target);
+async function sendPush(context, messaging, target, title, body, url = SITE_URL, options = {}) {
+  const tokenRecords = collectTargetTokenRecords(context, target, options.uid || '', {
+    allowUnapprovedSingleUser: options.allowUnapprovedSingleUser === true
+  });
 
-  if (!tokens.length) {
-    console.log(`No tokens for target=${target}: ${title}`);
-    return { attempted: 0, success: 0, failure: 0 };
+  if (!tokenRecords.length) {
+    console.log(`sent target=${target} attempted=0 success=0 failure=0 cleaned=0 title="${title}"`);
+    return { attempted: 0, success: 0, failure: 0, cleaned: 0 };
   }
 
   let success = 0;
   let failure = 0;
+  let cleaned = 0;
+  const cleanupUpdates = {};
 
-  for (const batch of batches(tokens, FCM_BATCH_SIZE)) {
+  for (const batch of batches(tokenRecords, FCM_BATCH_SIZE)) {
     const response = await messaging.sendEachForMulticast({
-      tokens: batch,
+      tokens: batch.map((entry) => entry.token),
       notification: {
         title,
         body
@@ -114,7 +179,8 @@ async function sendPush(db, messaging, target, title, body, url = SITE_URL) {
         notification: {
           title,
           body,
-          icon: '/TripGuide/icon-192.png'
+          icon: '/TripGuide/icon-192.png',
+          badge: '/TripGuide/icon-192.png'
         }
       },
       data: {
@@ -128,11 +194,50 @@ async function sendPush(db, messaging, target, title, body, url = SITE_URL) {
 
     success += response.successCount;
     failure += response.failureCount;
+
+    response.responses.forEach((result, idx) => {
+      if (result.success) return;
+      const item = batch[idx];
+      if (!item) return;
+
+      const code = result.error && result.error.code;
+      const sendError = classifySendError(code);
+      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureReason`] = sendError.reason;
+      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureAt`] = Date.now();
+      cleanupUpdates[`${item.uid}/${item.tokenId}/lastErrorCode`] = String(code || 'unknown-error');
+
+      if (sendError.disable) {
+        cleanupUpdates[`${item.uid}/${item.tokenId}/enabled`] = false;
+        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupReason`] = sendError.reason;
+        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupAt`] = Date.now();
+        cleaned += 1;
+      }
+    });
   }
 
-  console.log(`sent target=${target} attempted=${tokens.length} success=${success} failure=${failure} title="${title}"`);
+  if (Object.keys(cleanupUpdates).length > 0) {
+    await context.db.ref(`${TRACKER_BASE}/pushTokens`).update(cleanupUpdates);
+  }
 
-  return { attempted: tokens.length, success, failure };
+  console.log(`sent target=${target} attempted=${tokenRecords.length} success=${success} failure=${failure} cleaned=${cleaned} title="${title}"`);
+  return { attempted: tokenRecords.length, success, failure, cleaned };
+}
+
+function newestLiveTimestamp(live, liveTrackers) {
+  const fields = ['updatedAt', 'lastUpdated', 'lastSeen', 'timestamp', 'sentAt'];
+  let newest = 0;
+
+  fields.forEach((field) => {
+    newest = Math.max(newest, toEpoch(live && live[field]));
+  });
+
+  Object.values(liveTrackers || {}).forEach((record) => {
+    fields.forEach((field) => {
+      newest = Math.max(newest, toEpoch(record && record[field]));
+    });
+  });
+
+  return newest;
 }
 
 async function main() {
@@ -147,72 +252,88 @@ async function main() {
     const db = admin.database();
     const messaging = admin.messaging();
 
-    const [liveSnap, messagesSnap, requestsSnap, stateSnap] = await Promise.all([
+    const [
+      liveSnap,
+      liveTrackersSnap,
+      messagesSnap,
+      requestsSnap,
+      adminsSnap,
+      approvedSnap,
+      blockedSnap,
+      pushTokensSnap,
+      stateSnap
+    ] = await Promise.all([
       db.ref(`${TRACKER_BASE}/live`).get(),
-      db.ref(`${TRACKER_BASE}/messages`).orderByChild('createdAt').limitToLast(5).get(),
+      db.ref(`${TRACKER_BASE}/liveTrackers`).get(),
+      db.ref(`${TRACKER_BASE}/messages`).orderByChild('createdAt').limitToLast(25).get(),
       db.ref(`${TRACKER_BASE}/accessRequests`).get(),
+      db.ref(`${TRACKER_BASE}/admins`).get(),
+      db.ref(`${TRACKER_BASE}/approvedUsers`).get(),
+      db.ref(`${TRACKER_BASE}/blockedUsers`).get(),
+      db.ref(`${TRACKER_BASE}/pushTokens`).get(),
       db.ref(`${TRACKER_BASE}/notificationState`).get()
     ]);
 
     const live = liveSnap.val() || {};
+    const liveTrackers = liveTrackersSnap.val() || {};
     const messages = messagesSnap.val() || {};
     const requests = requestsSnap.val() || {};
+    const admins = adminsSnap.val() || {};
+    const approvedUsers = approvedSnap.val() || {};
+    const blockedUsers = blockedSnap.val() || {};
+    const pushTokens = pushTokensSnap.val() || {};
     const state = stateSnap.val() || {};
-    const updates = {};
 
     const now = Date.now();
+    const updates = {};
+    let changed = false;
 
-    // 1. Trip started / stopped
+    const context = {
+      db,
+      pushTokens,
+      admins,
+      approvedUsers,
+      blockedUsers,
+      roles: buildRoleSets(admins, approvedUsers, blockedUsers)
+    };
+
+    // A/B: tracking started/stopped.
     const trackingActive = live.trackingActive === true;
     const previousTrackingActive = state.trackingActive === true;
 
     if (trackingActive !== previousTrackingActive) {
       if (trackingActive) {
-        await sendPush(
-          db,
-          messaging,
-          'all',
-          'TripGuide: tracking started',
-          'Mike and Lauren are live on the trip map.',
-          SITE_URL
-        );
+        await sendPush(context, messaging, 'all', 'TripGuide: tracking started', 'Mike and Lauren are live on the trip map.', SITE_URL);
       } else if (state.trackingActiveSeenOnce === true) {
-        await sendPush(
-          db,
-          messaging,
-          'all',
-          'TripGuide: tracking stopped',
-          'Live tracking has stopped for now.',
-          SITE_URL
-        );
+        await sendPush(context, messaging, 'all', 'TripGuide: tracking stopped', 'Live tracking has stopped for now.', SITE_URL);
       }
-
       updates.trackingActive = trackingActive;
       updates.trackingActiveSeenOnce = true;
       updates.trackingActiveChangedAt = now;
+      changed = true;
     }
 
-    // 2. Active day changed
+    // C: active day changed.
     const activeDay = Number(live.activeDay || 0);
     const previousActiveDay = Number(state.activeDay || 0);
 
     if (activeDay >= 1 && activeDay <= 9 && activeDay !== previousActiveDay) {
       await sendPush(
-        db,
+        context,
         messaging,
         'all',
         `TripGuide: Day ${activeDay} active`,
-        `The live trip tracker is now on Day ${activeDay}.`,
+        `The trip tracker is now on Day ${activeDay}.`,
         `${SITE_URL}#day-${activeDay}`
       );
 
       updates.activeDay = activeDay;
       updates.activeDayChangedAt = now;
+      changed = true;
     }
 
-    // 3. New message posted
+    // E: new message posted.
     let newestMessage = null;
-
     Object.entries(messages).forEach(([id, msg]) => {
       const createdAt = toEpoch(msg && msg.createdAt);
       if (!createdAt) return;
@@ -220,8 +341,8 @@ async function main() {
         newestMessage = {
           id,
           createdAt,
-          name: msg.name || msg.displayName || 'Someone',
-          text: String(msg.text || msg.message || '').trim()
+          name: cleanText(msg && (msg.name || msg.displayName), 'Someone'),
+          text: cleanText(msg && (msg.text || msg.message), 'New trip message posted.')
         };
       }
     });
@@ -231,26 +352,27 @@ async function main() {
       newestMessage.id !== state.lastMessageId &&
       newestMessage.createdAt > toEpoch(state.lastMessageAt)
     ) {
-      const preview = newestMessage.text.slice(0, 120) || 'New trip message posted.';
-
       await sendPush(
-        db,
+        context,
         messaging,
         'all',
         `TripGuide message from ${newestMessage.name}`,
-        preview,
+        newestMessage.text.slice(0, 120),
         SITE_URL
       );
 
       updates.lastMessageId = newestMessage.id;
       updates.lastMessageAt = newestMessage.createdAt;
+      changed = true;
     }
 
-    // 4. New access request
+    // D: new pending access request.
     let newestPendingRequest = null;
-
     Object.entries(requests).forEach(([uid, req]) => {
-      if (!req || req.status !== 'pending') return;
+      if (!req) return;
+      const status = cleanText(req.status).toLowerCase();
+      const isPending = status ? status === 'pending' : req.approved !== true;
+      if (!isPending) return;
 
       const requestedAt = toEpoch(req.requestedAt || req.createdAt);
       if (!requestedAt) return;
@@ -259,18 +381,17 @@ async function main() {
         newestPendingRequest = {
           uid,
           requestedAt,
-          name: req.name || req.displayName || req.email || 'New viewer'
+          name: cleanText(req.displayName || req.email || req.name, 'New viewer')
         };
       }
     });
 
     if (
       newestPendingRequest &&
-      newestPendingRequest.uid !== state.lastAccessRequestUid &&
-      newestPendingRequest.requestedAt > toEpoch(state.lastAccessRequestAt)
+      (newestPendingRequest.uid !== state.lastAccessRequestUid || newestPendingRequest.requestedAt > toEpoch(state.lastAccessRequestAt))
     ) {
       await sendPush(
-        db,
+        context,
         messaging,
         'admins',
         'TripGuide access request',
@@ -280,13 +401,99 @@ async function main() {
 
       updates.lastAccessRequestUid = newestPendingRequest.uid;
       updates.lastAccessRequestAt = newestPendingRequest.requestedAt;
+      changed = true;
     }
 
-    if (Object.keys(updates).length) {
+    // F/G: live signal stale / restored.
+    const latestLiveAt = newestLiveTimestamp(live, liveTrackers);
+    const liveAgeMs = latestLiveAt > 0 ? now - latestLiveAt : Number.POSITIVE_INFINITY;
+    const liveIsStale = trackingActive && liveAgeMs > LIVE_STALE_MS;
+    const liveWasStale = state.liveWasStale === true;
+    const lastStaleAlertAt = toEpoch(state.lastStaleAlertAt);
+
+    if (liveIsStale) {
+      if (!liveWasStale || (now - lastStaleAlertAt) >= LIVE_STALE_REPEAT_MS) {
+        await sendPush(
+          context,
+          messaging,
+          'admins',
+          'TripGuide live signal stale',
+          'The live location has not updated in over 15 minutes.',
+          SITE_URL
+        );
+        updates.lastStaleAlertAt = now;
+        changed = true;
+      }
+      if (!liveWasStale) {
+        updates.liveWasStale = true;
+        changed = true;
+      }
+    } else if (liveWasStale && trackingActive && latestLiveAt > 0 && liveAgeMs <= LIVE_STALE_MS) {
+      await sendPush(
+        context,
+        messaging,
+        'admins',
+        'TripGuide live signal restored',
+        'Live location updates are coming through again.',
+        SITE_URL
+      );
+      updates.liveWasStale = false;
+      updates.lastRecoveredAt = now;
+      changed = true;
+    }
+
+    // H: optional user approval notifications.
+    const approvalNotices = Object.assign({}, state.approvalNotices || {});
+    for (const [uid, record] of Object.entries(approvedUsers)) {
+      const approved = !!(record && (record.approved === true || record.admin === true));
+      if (!approved) continue;
+      if (approvalNotices[uid]) continue;
+      if (context.roles.blockedUids.has(uid)) continue;
+
+      await sendPush(
+        context,
+        messaging,
+        'singleUser',
+        'TripGuide access approved',
+        'You can now view Mike and Lauren\'s live trip hub.',
+        SITE_URL,
+        { uid, allowUnapprovedSingleUser: true }
+      );
+
+      approvalNotices[uid] = now;
+      changed = true;
+    }
+
+    // I: optional blocked-user admin notifications.
+    const blockedNotices = Object.assign({}, state.blockedNotices || {});
+    for (const [uid, record] of Object.entries(blockedUsers)) {
+      if (!isBlockedRecord(record)) continue;
+      if (blockedNotices[uid]) continue;
+
+      const name = cleanText(record && (record.displayName || record.email || record.name), 'A user');
+      await sendPush(
+        context,
+        messaging,
+        'admins',
+        'TripGuide user blocked',
+        `${name} was blocked from the live trip hub.`,
+        SITE_URL
+      );
+
+      blockedNotices[uid] = now;
+      changed = true;
+    }
+
+    updates.approvalNotices = approvalNotices;
+    updates.blockedNotices = blockedNotices;
+
+    if (Object.keys(updates).length > 0) {
       updates.updatedAt = now;
       await db.ref(`${TRACKER_BASE}/notificationState`).update(updates);
       console.log('notificationState updated');
-    } else {
+    }
+
+    if (!changed) {
       console.log('No notification changes.');
     }
   } finally {
