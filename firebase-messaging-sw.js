@@ -1,39 +1,43 @@
-importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging-compat.js');
+/* TripGuide service worker: raw push handler (import-free, registration-safe) */
 
-firebase.initializeApp({
-  apiKey: 'AIzaSyD4juSgEvK9CBX0ROiMnmmJrYYkSwI_2U4',
-  authDomain: 'tripguide-f5056.firebaseapp.com',
-  databaseURL: 'https://tripguide-f5056-default-rtdb.firebaseio.com',
-  projectId: 'tripguide-f5056',
-  storageBucket: 'tripguide-f5056.firebasestorage.app',
-  messagingSenderId: '890615280609',
-  appId: '1:890615280609:web:4f77c8e37fa7ec622418a0'
+self.addEventListener('install', () => {
+  self.skipWaiting();
 });
 
-const messaging = firebase.messaging();
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
 
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Background message:', payload);
+self.addEventListener('push', (event) => {
+  let payload = {};
 
-  const title =
-    (payload.notification && payload.notification.title) ||
-    (payload.data && payload.data.title) ||
-    'TripGuide';
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (_) {
+    try {
+      payload = { data: { body: event.data ? event.data.text() : '' } };
+    } catch (_) {
+      payload = {};
+    }
+  }
+
+  const notification = payload.notification || {};
+  const data = payload.data || {};
+  const webpush = payload.webpush || {};
+  const fcmOptions = payload.fcmOptions || {};
+
+  const title = notification.title || data.title || payload.title || 'TripGuide';
+  const body = notification.body || data.body || payload.body || 'New TripGuide update';
+  const url = data.url || fcmOptions.link || (webpush.fcm_options && webpush.fcm_options.link) || 'https://mdnadon112-sketch.github.io/TripGuide/';
 
   const options = {
-    body:
-      (payload.notification && payload.notification.body) ||
-      (payload.data && payload.data.body) ||
-      'New TripGuide update',
-    icon: '/TripGuide/icon-192.png',
-    badge: '/TripGuide/icon-192.png',
-    data: {
-      url: (payload.data && payload.data.url) || 'https://mdnadon112-sketch.github.io/TripGuide/'
-    }
+    body,
+    icon: data.icon || notification.icon || '/TripGuide/icon-192.png',
+    badge: data.badge || '/TripGuide/icon-192.png',
+    data: { url }
   };
 
-  self.registration.showNotification(title, options);
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {

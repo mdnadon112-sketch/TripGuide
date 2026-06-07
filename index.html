@@ -2315,7 +2315,7 @@ async function ensureTripGuideServiceWorkerRegistration(){
   if(tripGuideServiceWorkerPromise) return tripGuideServiceWorkerPromise;
   pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registering…', error: '', attempted: true };
   renderPushDiagnostics();
-  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=pushhandler2', { scope: './' })
+  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=pushhandler3', { scope: './' })
     .then(registration => {
       tripGuideServiceWorkerRegistration = registration;
       pushDiagnosticsState.serviceWorker = { registered: true, scope: registration.scope || '—', error: '', attempted: true };
@@ -2429,7 +2429,7 @@ async function enableTripGuidePush(){
     throw new Error('Notification permission was not granted.');
   }
 
-  const swReg = await navigator.serviceWorker.register('/TripGuide/firebase-messaging-sw.js');
+  const swReg = await navigator.serviceWorker.register('/TripGuide/firebase-messaging-sw.js?v=pushhandler3');
 
   await navigator.serviceWorker.ready;
 
