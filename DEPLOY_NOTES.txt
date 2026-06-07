@@ -17,3 +17,16 @@ After deployment:
 Do not put private Firebase service account credentials in this public web app. Actual push sending must be handled by a trusted backend such as Firebase Cloud Functions.
 
 For iPhone/iPad testing, add the web app to the Home Screen first, then open it from the Home Screen and enable notifications there.
+
+Firebase Cloud Functions sender setup (new):
+- Files added: firebase.json, functions/package.json, functions/index.js
+- Deploy Functions backend:
+  1. npm --prefix functions install
+  2. firebase login
+  3. firebase use <your-project-id>
+  4. firebase deploy --only functions:sendTripGuideNotification
+- Required Firebase products/APIs:
+  - Firebase Authentication
+  - Realtime Database
+  - Cloud Functions for Firebase
+  - Firebase Cloud Messaging (FCM)
