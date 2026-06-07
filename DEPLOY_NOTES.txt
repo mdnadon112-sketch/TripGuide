@@ -30,3 +30,33 @@ Firebase Cloud Functions sender setup (new):
   - Realtime Database
   - Cloud Functions for Firebase
   - Firebase Cloud Messaging (FCM)
+
+GitHub Actions manual sender setup (Blaze not required):
+- Files added:
+  - .github/workflows/send-tripguide-notification.yml
+  - .github/scripts/send-tripguide-notification.js
+- This manual sender does not require deploying Cloud Functions.
+- Trigger method: GitHub Actions workflow_dispatch (Run workflow button)
+- Notification behavior:
+  - Reads tokens from tripGuide/pushTokens
+  - Only sends to records where enabled=true and lastSeen (or createdAt) is within 90 days
+  - Supports targets: allActive, adminsOnly, approvedViewers, singleUser
+  - Automatically disables invalid or unregistered tokens
+  - Prints attempted/success/failure/cleaned counts in the Actions logs
+
+Required secure secret setup:
+1. Firebase Console -> Project Settings -> Service Accounts
+2. Generate new private key
+3. GitHub repo -> Settings -> Secrets and variables -> Actions
+4. Add secret FIREBASE_SERVICE_ACCOUNT_JSON
+5. Paste entire JSON as the secret value
+6. Run workflow manually from GitHub Actions tab
+
+Security rules:
+- Never commit Firebase service account JSON to this repo.
+- Never expose private credentials in browser code or public files.
+- Never expose server keys in index.html.
+- Use only GitHub Actions secrets for FIREBASE_SERVICE_ACCOUNT_JSON.
+
+Optional troubleshooting:
+- If your Realtime Database is not reachable on the default URL pattern, add FIREBASE_DATABASE_URL as an additional GitHub Actions secret.

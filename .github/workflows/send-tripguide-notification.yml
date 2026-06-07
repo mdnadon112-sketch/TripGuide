@@ -1,0 +1,70 @@
+name: Send TripGuide Notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: Notification title
+        required: true
+        type: string
+      body:
+        description: Notification body
+        required: true
+        type: string
+      targetType:
+        description: Audience selector
+        required: true
+        type: choice
+        options:
+          - allActive
+          - adminsOnly
+          - approvedViewers
+          - singleUser
+      uid:
+        description: Optional user UID (required for singleUser)
+        required: false
+        type: string
+      url:
+        description: Click URL
+        required: false
+        default: /TripGuide/
+        type: string
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+      INPUT_TITLE: ${{ github.event.inputs.title }}
+      INPUT_BODY: ${{ github.event.inputs.body }}
+      INPUT_TARGETTYPE: ${{ github.event.inputs.targetType }}
+      INPUT_UID: ${{ github.event.inputs.uid }}
+      INPUT_URL: ${{ github.event.inputs.url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install sender dependencies
+        working-directory: .github/scripts
+        run: |
+          npm init -y
+          npm install firebase-admin@^12 --no-audit --no-fund
+
+      - name: Validate secret is configured
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "Missing FIREBASE_SERVICE_ACCOUNT_JSON secret."
+            exit 1
+          fi
+
+      - name: Send FCM web push notifications
+        run: node .github/scripts/send-tripguide-notification.js
