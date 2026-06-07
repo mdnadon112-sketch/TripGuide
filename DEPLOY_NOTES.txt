@@ -1,0 +1,19 @@
+TripGuide v5.27 PUSH KEY READY
+
+Deploy these files to the same GitHub Pages folder:
+- index.html
+- firebase-messaging-sw.js
+
+This build inserts the Firebase Web Push public VAPID key into index.html.
+
+After deployment:
+1. Open the GitHub Pages TripGuide URL.
+2. Sign in with an approved/admin account.
+3. Click Enable Notifications.
+4. Allow notifications.
+5. Confirm a new entry appears in Firebase Realtime Database at:
+   tripGuide/pushTokens/{uid}/{tokenId}
+
+Do not put private Firebase service account credentials in this public web app. Actual push sending must be handled by a trusted backend such as Firebase Cloud Functions.
+
+For iPhone/iPad testing, add the web app to the Home Screen first, then open it from the Home Screen and enable notifications there.
