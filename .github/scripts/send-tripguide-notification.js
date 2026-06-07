@@ -229,9 +229,7 @@ async function main() {
     }
   } catch (_) {}
 
-  setTimeout(() => {
-    process.exit(0);
-  }, 50);
+  process.exit(0);
 }
 
 main()
@@ -242,7 +240,5 @@ main()
         admin.database().goOffline();
       }
     } catch (_) {}
-    setTimeout(() => {
-      process.exit(1);
-    }, 50);
+    process.exit(1);
   });
