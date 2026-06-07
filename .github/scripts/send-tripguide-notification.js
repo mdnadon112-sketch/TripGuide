@@ -3,231 +3,135 @@
 const admin = require('firebase-admin');
 
 const TRACKER_BASE = 'tripGuide';
-const TARGET_TYPES = new Set(['allActive', 'adminsOnly', 'approvedViewers', 'singleUser']);
-const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
-const FCM_BATCH_SIZE = 500;
-const MAX_TITLE = 80;
-const MAX_BODY = 240;
+const SITE_URL = 'https://mdnadon112-sketch.github.io/TripGuide/';
+const BATCH_SIZE = 500;
 
-function normalizeString(value, maxLen, fieldName) {
-  const normalized = String(value || '').trim();
-  if (!normalized) {
-    throw new Error(`${fieldName} is required.`);
-  }
-  if (normalized.length > maxLen) {
-    throw new Error(`${fieldName} must be <= ${maxLen} chars.`);
-  }
-  return normalized;
+function input(name, fallback = '') {
+  return String(process.env[name] || fallback).trim();
 }
 
-function normalizeUrl(value) {
-  const normalized = String(value || '').trim();
-  if (!normalized) {
-    return '/TripGuide/';
-  }
-  if (normalized.length > 2048) {
-    throw new Error('url is too long.');
-  }
-  return normalized;
-}
-
-function toEpoch(value) {
-  const num = Number(value || 0);
-  return Number.isFinite(num) ? num : 0;
-}
-
-function isActiveTokenRecord(record, now) {
-  if (!record || record.enabled !== true) return false;
-  if (typeof record.token !== 'string' || !record.token.trim()) return false;
-  const lastSeen = toEpoch(record.lastSeen || record.createdAt);
-  return lastSeen > 0 && (now - lastSeen) <= NINETY_DAYS_MS;
-}
-
-function classifySendError(code) {
-  const value = String(code || '');
-  if (value.includes('registration-token-not-registered')) {
-    return { reason: 'not-registered', disable: true };
-  }
-  if (value.includes('invalid-registration-token')) {
-    return { reason: 'invalid-token', disable: true };
-  }
-  return { reason: 'send-failed', disable: false };
-}
-
-function toBatches(items, size) {
-  const batches = [];
-  for (let i = 0; i < items.length; i += size) {
-    batches.push(items.slice(i, i + size));
-  }
-  return batches;
-}
-
-async function loadRoleSets(db) {
-  const [adminsSnap, approvedSnap] = await Promise.all([
-    db.ref(`${TRACKER_BASE}/admins`).get(),
-    db.ref(`${TRACKER_BASE}/approvedUsers`).get()
-  ]);
-
-  const admins = new Set();
-  Object.entries(adminsSnap.val() || {}).forEach(([uid, record]) => {
-    if (record && record.admin === true) {
-      admins.add(uid);
-    }
-  });
-
-  const approved = new Set();
-  Object.entries(approvedSnap.val() || {}).forEach(([uid, record]) => {
-    if (record && (record.approved === true || record.admin === true)) {
-      approved.add(uid);
-    }
-  });
-
-  return { admins, approved };
-}
-
-function getInput(name, fallback = '') {
-  const envName = `INPUT_${name.replace(/ /g, '_').toUpperCase()}`;
-  return process.env[envName] || fallback;
+function required(name) {
+  const value = input(name);
+  if (!value) throw new Error(`Missing ${name}`);
+  return value;
 }
 
 function resolveDatabaseUrl(serviceAccount) {
-  const envDatabaseUrl = String(process.env.FIREBASE_DATABASE_URL || '').trim();
-  const jsonDatabaseUrl = String(serviceAccount.database_url || '').trim();
-  const projectId = String(serviceAccount.project_id || '').trim();
+  if (process.env.FIREBASE_DATABASE_URL) return process.env.FIREBASE_DATABASE_URL.trim();
+  if (serviceAccount.database_url) return String(serviceAccount.database_url).trim();
+  if (serviceAccount.project_id) {
+    return `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`;
+  }
+  throw new Error('Missing Firebase database URL.');
+}
 
-  if (envDatabaseUrl) return envDatabaseUrl;
-  if (jsonDatabaseUrl) return jsonDatabaseUrl;
-  if (!projectId) return '';
+function resolveUrl(value) {
+  const raw = input('INPUT_URL', value || SITE_URL);
+  try {
+    return new URL(raw, SITE_URL).href;
+  } catch {
+    return SITE_URL;
+  }
+}
 
-  // Most RTDB instances use the -default-rtdb hostname; firebaseio.com is kept as fallback.
-  return `https://${projectId}-default-rtdb.firebaseio.com`;
+function batches(items, size) {
+  const out = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
 }
 
 async function main() {
-  const title = normalizeString(getInput('title'), MAX_TITLE, 'title');
-  const body = normalizeString(getInput('body'), MAX_BODY, 'body');
-  const targetType = String(getInput('targetType')).trim();
-  const uid = String(getInput('uid')).trim();
-  const url = normalizeUrl(getInput('url', '/TripGuide/'));
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const title = required('INPUT_TITLE');
+  const body = required('INPUT_BODY');
+  const link = resolveUrl(SITE_URL);
 
-  if (!TARGET_TYPES.has(targetType)) {
-    throw new Error('targetType must be one of allActive, adminsOnly, approvedViewers, singleUser.');
-  }
-  if (targetType === 'singleUser' && !uid) {
-    throw new Error('uid is required when targetType is singleUser.');
-  }
-  if (!serviceAccountJson) {
-    throw new Error('Missing FIREBASE_SERVICE_ACCOUNT_JSON secret.');
-  }
+  const serviceAccountJson = required('FIREBASE_SERVICE_ACCOUNT_JSON');
 
   let serviceAccount;
   try {
     serviceAccount = JSON.parse(serviceAccountJson);
-  } catch (error) {
+  } catch {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.');
   }
 
-  const databaseURL = resolveDatabaseUrl(serviceAccount);
-  if (!databaseURL) {
-    throw new Error('Unable to determine Realtime Database URL. Add database_url in the service account JSON or set FIREBASE_DATABASE_URL secret.');
-  }
-
-  admin.initializeApp({
+  const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL
+    databaseURL: resolveDatabaseUrl(serviceAccount)
   });
 
-  const db = admin.database();
-  const messaging = admin.messaging();
+  try {
+    const db = admin.database();
+    const messaging = admin.messaging();
 
-  const now = Date.now();
-  const tokensSnap = await db.ref(`${TRACKER_BASE}/pushTokens`).get();
-  const rawTokens = tokensSnap.val() || {};
+    const snap = await db.ref(`${TRACKER_BASE}/pushTokens`).get();
+    const raw = snap.val() || {};
 
-  const needsRoles = targetType === 'adminsOnly' || targetType === 'approvedViewers';
-  const roles = needsRoles ? await loadRoleSets(db) : { admins: new Set(), approved: new Set() };
+    const tokens = [];
 
-  const selected = [];
-  Object.entries(rawTokens).forEach(([tokenUid, tokenMap]) => {
-    const includeUid = (
-      targetType === 'allActive' ||
-      (targetType === 'singleUser' && tokenUid === uid) ||
-      (targetType === 'adminsOnly' && roles.admins.has(tokenUid)) ||
-      (targetType === 'approvedViewers' && (roles.admins.has(tokenUid) || roles.approved.has(tokenUid)))
-    );
+    Object.values(raw).forEach((tokenMap) => {
+      Object.values(tokenMap || {}).forEach((record) => {
+        if (!record) return;
+        if (record.enabled === false) return;
+        if (typeof record.token !== 'string') return;
 
-    if (!includeUid) return;
-
-    Object.entries(tokenMap || {}).forEach(([tokenId, record]) => {
-      if (!isActiveTokenRecord(record, now)) return;
-      selected.push({ uid: tokenUid, tokenId, token: String(record.token).trim() });
-    });
-  });
-
-  if (!selected.length) {
-    console.log('attempted=0 success=0 failure=0 cleaned=0');
-    console.log('No active tokens matched the selected target.');
-    return;
-  }
-
-  const sentAt = String(now);
-  let successCount = 0;
-  let failureCount = 0;
-  let cleanedCount = 0;
-  const cleanupUpdates = {};
-
-  const batches = toBatches(selected, FCM_BATCH_SIZE);
-
-  for (const batch of batches) {
-    const response = await messaging.sendEachForMulticast({
-      tokens: batch.map((item) => item.token),
-      notification: { title, body },
-      webpush: {
-        notification: { title, body, click_action: url },
-        fcmOptions: { link: url }
-      },
-      data: {
-        type: 'tripGuide',
-        url,
-        sentAt
-      }
+        const token = record.token.trim();
+        if (token) tokens.push(token);
+      });
     });
 
-    successCount += response.successCount;
-    failureCount += response.failureCount;
+    const uniqueTokens = [...new Set(tokens)];
 
-    response.responses.forEach((result, idx) => {
-      if (result.success) return;
+    if (!uniqueTokens.length) {
+      console.log('attempted=0 success=0 failure=0');
+      console.log('No push tokens found at tripGuide/pushTokens.');
+      return;
+    }
 
-      const item = batch[idx];
-      const code = result.error && result.error.code;
-      const failure = classifySendError(code);
+    let success = 0;
+    let failure = 0;
 
-      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureReason`] = failure.reason;
-      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureAt`] = now;
-      cleanupUpdates[`${item.uid}/${item.tokenId}/lastErrorCode`] = String(code || 'unknown-error');
+    for (const batch of batches(uniqueTokens, BATCH_SIZE)) {
+      const response = await messaging.sendEachForMulticast({
+        tokens: batch,
+        notification: {
+          title,
+          body
+        },
+        webpush: {
+          fcmOptions: {
+            link
+          },
+          notification: {
+            title,
+            body
+          }
+        },
+        data: {
+          type: 'tripGuide',
+          url: link,
+          sentAt: String(Date.now())
+        }
+      });
 
-      if (failure.disable) {
-        cleanupUpdates[`${item.uid}/${item.tokenId}/enabled`] = false;
-        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupReason`] = failure.reason;
-        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupAt`] = now;
-        cleanedCount += 1;
-      }
-    });
+      success += response.successCount;
+      failure += response.failureCount;
+
+      response.responses.forEach((r, i) => {
+        if (!r.success) {
+          console.log(`failed token ${i}: ${r.error?.code || 'unknown-error'}`);
+        }
+      });
+    }
+
+    console.log(`attempted=${uniqueTokens.length} success=${success} failure=${failure}`);
+  } finally {
+    await app.delete();
   }
-
-  if (Object.keys(cleanupUpdates).length > 0) {
-    await db.ref(`${TRACKER_BASE}/pushTokens`).update(cleanupUpdates);
-  }
-
-  console.log(`attempted=${selected.length} success=${successCount} failure=${failureCount} cleaned=${cleanedCount}`);
-
-  process.exit(0);
 }
 
 main()
+  .then(() => process.exit(0))
   .catch((err) => {
-    console.error(err);
+    console.error(err.message || err);
     process.exit(1);
   });
