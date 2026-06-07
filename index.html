@@ -69,9 +69,9 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 /* PATCH v4: live viewer/driver tracker */
 .tracker-panel{margin-top:16px;background:rgba(8,20,38,.94);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:14px;box-shadow:0 18px 50px rgba(8,20,38,.18)}
 .tracker-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.tracker-top h2{margin:0;font-size:22px;letter-spacing:-.02em}.tracker-top p{margin:4px 0 0;color:#cbd5e1;font-weight:700;font-size:13px}.tracker-status-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 11px;font-weight:950;font-size:12px}.tracker-dot{width:10px;height:10px;border-radius:999px;background:#64748b;box-shadow:0 0 0 4px rgba(100,116,139,.16)}.tracker-dot.live{background:#22c55e;box-shadow:0 0 0 5px rgba(34,197,94,.22)}.tracker-dot.offline{background:#f97316;box-shadow:0 0 0 5px rgba(249,115,22,.18)}
-.tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.tracker-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:10px}.tracker-card b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}.tracker-card span{display:block;margin-top:4px;font-weight:950;font-size:15px;color:#fff}.tracker-modes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tracker-modes .btn{box-shadow:none}.driver-panel{display:none;margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.driver-panel.open{display:block}.driver-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.driver-input,.driver-select{width:100%;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.95);color:#0f172a;padding:10px 12px;font-weight:900;font-size:16px}.driver-help{margin:8px 0 0;color:#cbd5e1;font-size:12px;font-weight:700}.tracker-alert{margin-top:10px;color:#fde68a;font-size:12px;font-weight:850}.auth-debug{display:block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 10px;min-height:34px}.tracker-mini-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.live-driver-label{position:absolute;transform:translate(-50%,-100%);background:#0f172a;color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px;box-shadow:0 8px 22px rgba(15,23,42,.25)}
-@media(max-width:900px){.tracker-grid{grid-template-columns:repeat(2,1fr)}.driver-row{grid-template-columns:1fr}.driver-row .btn{width:100%}}
-@media(max-width:430px){.tracker-grid{grid-template-columns:1fr}.tracker-panel{border-radius:20px;padding:12px}.tracker-top h2{font-size:20px}.tracker-status-pill{width:100%;justify-content:center}}
+.tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.tracker-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:10px}.tracker-card b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}.tracker-card span{display:block;margin-top:4px;font-weight:950;font-size:15px;color:#fff}.tracker-modes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tracker-modes .btn{box-shadow:none}.driver-panel{display:none;margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.driver-panel.open{display:block}.driver-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.driver-input,.driver-select{width:100%;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.95);color:#0f172a;padding:10px 12px;font-weight:900;font-size:16px}.driver-help{margin:8px 0 0;color:#cbd5e1;font-size:12px;font-weight:700}.tracker-alert{margin-top:10px;color:#fde68a;font-size:12px;font-weight:850}.auth-debug{display:block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 10px;min-height:34px}.tracker-mini-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.live-driver-label{position:absolute;transform:translate(-50%,-100%);background:#0f172a;color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px;box-shadow:0 8px 22px rgba(15,23,42,.25)}.push-diagnostics{margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.push-diagnostics h3,.push-diagnostics h4{margin:0 0 7px}.push-diagnostics p{margin:0;color:#cbd5e1;font-size:13px;font-weight:700}.push-diagnostics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}.push-diagnostics-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:10px}.push-diagnostics-list{display:grid;gap:8px}.push-diag-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}.push-diag-row:last-child{border-bottom:0;padding-bottom:0}.push-diag-label{color:#94a3b8;font-size:12px;font-weight:800}.push-diag-value{color:#fff;font-size:13px;font-weight:900;text-align:right;word-break:break-word}.push-diag-error{margin-top:8px;color:#fde68a;font-size:12px;font-weight:850;word-break:break-word}.push-diagnostics-admin{margin-top:10px}.push-diagnostics-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.push-token-list{display:grid;gap:8px;max-height:260px;overflow:auto;margin-top:10px}.push-token-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:15px;padding:10px}.push-token-item b{display:block}.push-token-item span{display:block;margin-top:4px;color:#cbd5e1;font-size:12px;font-weight:700}.push-token-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}.push-token-meta small{display:block;color:#94a3b8;font-size:11px;font-weight:800}.push-token-meta strong{display:block;color:#fff;font-size:12px;font-weight:900}.push-token-empty{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:15px;padding:10px;color:#cbd5e1;font-size:13px;font-weight:700}
+@media(max-width:900px){.tracker-grid{grid-template-columns:repeat(2,1fr)}.driver-row{grid-template-columns:1fr}.driver-row .btn{width:100%}.push-diagnostics-grid,.push-diagnostics-summary,.push-token-meta{grid-template-columns:1fr}}
+@media(max-width:430px){.tracker-grid{grid-template-columns:1fr}.tracker-panel{border-radius:20px;padding:12px}.tracker-top h2{font-size:20px}.tracker-status-pill{width:100%;justify-content:center}.push-diag-row{flex-direction:column}.push-diag-value{text-align:left}}
 @media print{.tracker-panel{display:none!important}}
 
 
@@ -225,6 +225,49 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center Live Marker</button>
           <button class="btn btn-google" type="button" id="enablePushBtn">Enable Notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
+        </div>
+        <div class="push-diagnostics" id="pushDiagnosticsPanel">
+          <div><h3>Push Diagnostics</h3><p>Checks browser readiness, service worker registration, and saved push tokens for this device.</p></div>
+          <div class="push-diagnostics-grid">
+            <div class="push-diagnostics-card">
+              <h4>Browser support</h4>
+              <div class="push-diagnostics-list">
+                <div class="push-diag-row"><span class="push-diag-label">Service Worker supported</span><span class="push-diag-value" id="pushSupportServiceWorker">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Notification API supported</span><span class="push-diag-value" id="pushSupportNotification">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Firebase Messaging available</span><span class="push-diag-value" id="pushSupportMessaging">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Permission</span><span class="push-diag-value" id="pushPermissionStatus">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Platform hint</span><span class="push-diag-value" id="pushPlatformHint">—</span></div>
+              </div>
+            </div>
+            <div class="push-diagnostics-card">
+              <h4>Service worker</h4>
+              <div class="push-diagnostics-list">
+                <div class="push-diag-row"><span class="push-diag-label">Registered successfully</span><span class="push-diag-value" id="pushSwRegistered">No</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Scope</span><span class="push-diag-value" id="pushSwScope">Not attempted yet</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Registration error</span><span class="push-diag-value" id="pushSwError">—</span></div>
+              </div>
+            </div>
+            <div class="push-diagnostics-card">
+              <h4>Current user token</h4>
+              <div class="push-diagnostics-list">
+                <div class="push-diag-row"><span class="push-diag-label">Token saved</span><span class="push-diag-value" id="pushTokenSaved">No</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">createdAt</span><span class="push-diag-value" id="pushTokenCreatedAt">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">lastSeen</span><span class="push-diag-value" id="pushTokenLastSeen">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">enabled</span><span class="push-diag-value" id="pushTokenEnabled">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Masked token</span><span class="push-diag-value" id="pushTokenMasked">—</span></div>
+              </div>
+              <div class="push-diag-error" id="pushTokenError"></div>
+            </div>
+          </div>
+          <div class="push-diagnostics-admin hidden" id="pushDiagnosticsAdmin">
+            <h4>Admin token overview</h4>
+            <p>Admins can confirm which devices have saved push tokens and whether they are still enabled.</p>
+            <div class="push-diagnostics-summary">
+              <div class="tracker-card"><b>Total users with tokens</b><span id="pushAdminUserCount">0</span></div>
+              <div class="tracker-card"><b>Total enabled tokens</b><span id="pushAdminEnabledCount">0</span></div>
+            </div>
+            <div class="push-token-list" id="pushAdminTokenList"><div class="push-token-empty">Admin token details load after an admin signs in.</div></div>
+          </div>
         </div>
         <div class="driver-panel" id="driverPanel">
           <div class="driver-row">
@@ -1115,10 +1158,15 @@ function cleanupSecureListeners(){
   try{ if(liveListenerRef){ liveListenerRef.off(); liveListenerRef=null; } }catch(e){}
   try{ if(messagesListenerRef){ messagesListenerRef.off(); messagesListenerRef=null; } }catch(e){}
   try{ if(votesListenerRef){ votesListenerRef.off(); votesListenerRef=null; } }catch(e){}
+  stopCurrentUserPushTokenListener();
+  stopAdminPushTokenListener();
   if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
   viewerAccessInitialized = false;
   currentUserBlocked = false;
   latestOwnRequest = null;
+  pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
+  pushDiagnosticsState.admin = { usersWithTokens: 0, enabledTokens: 0, entries: [] };
+  renderPushDiagnostics();
 }
 function updateAuthUI(){
   const signed=!!currentUser; document.getElementById('signInBtn')?.classList.toggle('hidden', signed); document.getElementById('signOutBtn')?.classList.toggle('hidden', !signed);
@@ -1179,7 +1227,7 @@ function requestTrackerAccess(){
   trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set(req).then(()=>setTrackerMessage('Access request sent.')).catch(e=>{ setTrackerMessage(e.message || String(e)); applyViewerNoAccessState(); });
 }
 function enableProtectedHub(){
-  showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes();
+  showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes(); startPushDiagnostics();
 }
 function listenAdminRequests(){
   const panel=document.getElementById('adminPanel'); panel?.classList.remove('hidden');
@@ -1904,42 +1952,294 @@ function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classLis
 /* PATCH v5.24: Firebase web push notifications - runtime code only */
 const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b8_KdG9yoywu4VQfz4jdP8nTsvbCrbfIRXYg9NT8B8NwGc';
 let tripGuideMessaging = null;
+let tripGuideServiceWorkerRegistration = null, tripGuideServiceWorkerPromise = null, currentUserPushTokenRef = null, adminPushTokensRef = null;
+let pushDiagnosticsState = createPushDiagnosticsState();
+
+function createPushDiagnosticsState(){
+  return {
+    browser: {
+      serviceWorkerSupported: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
+      notificationSupported: typeof window !== 'undefined' && 'Notification' in window,
+      firebaseMessagingAvailable: !!(window.firebase && firebase.messaging),
+      permission: typeof Notification !== 'undefined' ? Notification.permission : 'unsupported',
+      platform: detectPushPlatformHint()
+    },
+    serviceWorker: { registered: false, scope: 'Not attempted yet', error: '', attempted: false },
+    currentToken: { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' },
+    admin: { usersWithTokens: 0, enabledTokens: 0, entries: [] }
+  };
+}
+function detectPushPlatformHint(){
+  const ua = String((navigator && navigator.userAgent) || '').toLowerCase();
+  const platform = String((navigator && navigator.platform) || '').toLowerCase();
+  const maxTouch = Number((navigator && navigator.maxTouchPoints) || 0);
+  if(ua.includes('android')) return 'Android';
+  if(/iphone|ipad|ipod/.test(ua) || (platform.includes('mac') && maxTouch > 1)) return 'iOS';
+  if(/win|mac|linux|cros/.test(platform) || /windows|macintosh|linux|x11|cros/.test(ua)) return 'Desktop';
+  return 'Unknown';
+}
+function yesNoText(value){ return value ? 'Yes' : 'No'; }
+function boolText(value){ return value === true ? 'true' : (value === false ? 'false' : '—'); }
+function formatPushTimestamp(value){
+  const num = Number(value || 0);
+  if(!num) return '—';
+  try{ return new Date(num).toLocaleString(); }catch(_){ return String(num); }
+}
+function safePushError(err){
+  if(!err) return 'Unknown error';
+  const code = err.code ? String(err.code) : '';
+  const message = err.message ? String(err.message) : String(err);
+  return code && !message.includes(code) ? `${code}: ${message}` : message;
+}
+function maskPushToken(token){
+  const value = String(token || '').trim();
+  if(!value) return '—';
+  if(value.length <= 16) return value;
+  return `${value.slice(0,10)}…${value.slice(-6)}`;
+}
+function setText(id, value){ const el=document.getElementById(id); if(el) el.textContent = value; }
+function renderPushDiagnostics(){
+  const state = pushDiagnosticsState || createPushDiagnosticsState();
+  setText('pushSupportServiceWorker', yesNoText(!!state.browser.serviceWorkerSupported));
+  setText('pushSupportNotification', yesNoText(!!state.browser.notificationSupported));
+  setText('pushSupportMessaging', yesNoText(!!state.browser.firebaseMessagingAvailable));
+  setText('pushPermissionStatus', state.browser.permission || 'unsupported');
+  setText('pushPlatformHint', state.browser.platform || 'Unknown');
+  setText('pushSwRegistered', yesNoText(!!state.serviceWorker.registered));
+  setText('pushSwScope', state.serviceWorker.scope || '—');
+  setText('pushSwError', state.serviceWorker.error || '—');
+  setText('pushTokenSaved', yesNoText(!!state.currentToken.saved));
+  setText('pushTokenCreatedAt', formatPushTimestamp(state.currentToken.createdAt));
+  setText('pushTokenLastSeen', formatPushTimestamp(state.currentToken.lastSeen));
+  setText('pushTokenEnabled', boolText(state.currentToken.enabled));
+  setText('pushTokenMasked', state.currentToken.masked || '—');
+  const tokenErrorEl = document.getElementById('pushTokenError');
+  if(tokenErrorEl) tokenErrorEl.textContent = state.currentToken.error || '';
+  const adminWrap = document.getElementById('pushDiagnosticsAdmin');
+  if(adminWrap) adminWrap.classList.toggle('hidden', !isAdmin);
+  setText('pushAdminUserCount', String(state.admin.usersWithTokens || 0));
+  setText('pushAdminEnabledCount', String(state.admin.enabledTokens || 0));
+  const list = document.getElementById('pushAdminTokenList');
+  if(list){
+    if(!isAdmin){
+      list.innerHTML = '<div class="push-token-empty">Admin token details are shown only for admin accounts.</div>';
+    } else if(!(state.admin.entries || []).length){
+      list.innerHTML = '<div class="push-token-empty">No saved push tokens found yet.</div>';
+    } else {
+      list.innerHTML = state.admin.entries.map(entry => `<div class="push-token-item"><b>${esc(entry.name || entry.email || entry.uid || 'TripGuide user')}</b><span>${esc(entry.email || 'no email saved')} • ${esc(entry.platform || 'unknown platform')}</span><div class="push-token-meta"><div><small>createdAt</small><strong>${esc(formatPushTimestamp(entry.createdAt))}</strong></div><div><small>lastSeen</small><strong>${esc(formatPushTimestamp(entry.lastSeen))}</strong></div><div><small>enabled</small><strong>${esc(boolText(entry.enabled))}</strong></div><div><small>Token</small><strong>${esc(maskPushToken(entry.token))}</strong></div></div></div>`).join('');
+    }
+  }
+}
+async function refreshPushBrowserDiagnostics(){
+  pushDiagnosticsState.browser.serviceWorkerSupported = 'serviceWorker' in navigator;
+  pushDiagnosticsState.browser.notificationSupported = 'Notification' in window;
+  pushDiagnosticsState.browser.permission = ('Notification' in window && Notification.permission) ? Notification.permission : 'unsupported';
+  pushDiagnosticsState.browser.platform = detectPushPlatformHint();
+  let available = !!(window.firebase && firebase.messaging);
+  if(available && firebase.messaging.isSupported){
+    try{ available = !!(await firebase.messaging.isSupported()); }catch(_){ available = false; }
+  }
+  pushDiagnosticsState.browser.firebaseMessagingAvailable = available;
+  renderPushDiagnostics();
+  return pushDiagnosticsState.browser;
+}
+async function ensureTripGuideServiceWorkerRegistration(){
+  if(!('serviceWorker' in navigator)){
+    pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Unavailable', error: 'Service Worker is not supported in this browser.', attempted: true };
+    renderPushDiagnostics();
+    throw new Error('Service Worker is not supported in this browser.');
+  }
+  if(tripGuideServiceWorkerRegistration){
+    pushDiagnosticsState.serviceWorker = { registered: true, scope: tripGuideServiceWorkerRegistration.scope || '—', error: '', attempted: true };
+    renderPushDiagnostics();
+    return tripGuideServiceWorkerRegistration;
+  }
+  if(tripGuideServiceWorkerPromise) return tripGuideServiceWorkerPromise;
+  pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registering…', error: '', attempted: true };
+  renderPushDiagnostics();
+  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js')
+    .then(registration => {
+      tripGuideServiceWorkerRegistration = registration;
+      pushDiagnosticsState.serviceWorker = { registered: true, scope: registration.scope || '—', error: '', attempted: true };
+      renderPushDiagnostics();
+      return registration;
+    })
+    .catch(err => {
+      pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registration failed', error: safePushError(err), attempted: true };
+      renderPushDiagnostics();
+      throw err;
+    })
+    .finally(() => { tripGuideServiceWorkerPromise = null; });
+  return tripGuideServiceWorkerPromise;
+}
+function latestPushTokenRecord(records){
+  const entries = Object.entries(records || {}).map(([tokenId, value]) => Object.assign({ tokenId }, value || {})).filter(entry => entry && entry.token);
+  if(!entries.length) return null;
+  entries.sort((a,b) => Number(b.lastSeen || b.createdAt || 0) - Number(a.lastSeen || a.createdAt || 0));
+  return entries[0];
+}
+function stopCurrentUserPushTokenListener(){
+  try{ if(currentUserPushTokenRef){ currentUserPushTokenRef.off(); currentUserPushTokenRef = null; } }catch(_){ currentUserPushTokenRef = null; }
+}
+function stopAdminPushTokenListener(){
+  try{ if(adminPushTokensRef){ adminPushTokensRef.off(); adminPushTokensRef = null; } }catch(_){ adminPushTokensRef = null; }
+}
+function listenCurrentUserPushToken(){
+  stopCurrentUserPushTokenListener();
+  pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
+  renderPushDiagnostics();
+  if(!trackerDb || !currentUser || !currentUser.uid) return;
+  currentUserPushTokenRef = trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}`);
+  currentUserPushTokenRef.on('value', snap => {
+    const latest = latestPushTokenRecord(snap.val() || {});
+    pushDiagnosticsState.currentToken = latest ? {
+      saved: true,
+      createdAt: latest.createdAt || null,
+      lastSeen: latest.lastSeen || null,
+      enabled: latest.enabled === true,
+      masked: maskPushToken(latest.token),
+      error: ''
+    } : { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
+    renderPushDiagnostics();
+  }, err => {
+    pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token read failed: ' + safePushError(err) };
+    renderPushDiagnostics();
+  });
+}
+function listenAdminPushTokens(){
+  stopAdminPushTokenListener();
+  pushDiagnosticsState.admin = { usersWithTokens: 0, enabledTokens: 0, entries: [] };
+  renderPushDiagnostics();
+  if(!trackerDb || !isAdmin) return;
+  adminPushTokensRef = trackerDb.ref(`${TRACKER_BASE}/pushTokens`);
+  adminPushTokensRef.on('value', snap => {
+    const raw = snap.val() || {};
+    const entries = [];
+    Object.entries(raw).forEach(([uid, tokenMap]) => {
+      Object.values(tokenMap || {}).forEach(record => {
+        if(record && record.token){
+          entries.push({
+            uid,
+            name: record.name || '',
+            email: record.email || '',
+            platform: record.platform || 'unknown',
+            createdAt: record.createdAt || null,
+            lastSeen: record.lastSeen || null,
+            enabled: record.enabled === true,
+            token: record.token
+          });
+        }
+      });
+    });
+    entries.sort((a,b) => Number(b.lastSeen || b.createdAt || 0) - Number(a.lastSeen || a.createdAt || 0));
+    pushDiagnosticsState.admin = {
+      usersWithTokens: new Set(entries.map(entry => entry.uid)).size,
+      enabledTokens: entries.filter(entry => entry.enabled).length,
+      entries
+    };
+    renderPushDiagnostics();
+  }, err => {
+    pushDiagnosticsState.admin = { usersWithTokens: 0, enabledTokens: 0, entries: [{ name: 'Admin token read failed', email: safePushError(err), platform: 'error', createdAt: null, lastSeen: null, enabled: false, token: '' }] };
+    renderPushDiagnostics();
+  });
+}
+function startPushDiagnostics(){
+  refreshPushBrowserDiagnostics().catch(()=>{});
+  listenCurrentUserPushToken();
+  if(isAdmin) listenAdminPushTokens(); else stopAdminPushTokenListener();
+  ensureTripGuideServiceWorkerRegistration().catch(()=>{});
+  renderPushDiagnostics();
+}
 
 async function enableTripGuidePush(){
   try{
+    await refreshPushBrowserDiagnostics();
     if(!currentUser || !trackerDb){ setTrackerMessage('Sign in before enabling notifications.'); return; }
-    if(!('serviceWorker' in navigator)){ setTrackerMessage('Push notifications require service worker support.'); return; }
-    if(!('Notification' in window)){ setTrackerMessage('This browser does not support notifications.'); return; }
-    if(!firebase.messaging){ setTrackerMessage('Firebase Messaging script is missing.'); return; }
+    if(!pushDiagnosticsState.browser.serviceWorkerSupported){ setTrackerMessage('Push notifications are not available here because this browser does not support service workers.'); return; }
+    if(!pushDiagnosticsState.browser.notificationSupported){ setTrackerMessage('Push notifications are not available here because this browser does not support the Notification API.'); return; }
+    if(!firebase.messaging){
+      pushDiagnosticsState.browser.firebaseMessagingAvailable = false;
+      renderPushDiagnostics();
+      setTrackerMessage('Firebase Messaging is missing in this browser session.');
+      return;
+    }
     if(TRIPGUIDE_WEB_PUSH_VAPID_KEY.includes('PASTE_')){ setTrackerMessage('Add the Firebase Web Push VAPID key before enabling notifications.'); return; }
 
     const supported = firebase.messaging.isSupported ? await firebase.messaging.isSupported() : true;
-    if(!supported){ setTrackerMessage('Firebase web push is not supported in this browser.'); return; }
+    pushDiagnosticsState.browser.firebaseMessagingAvailable = !!supported;
+    renderPushDiagnostics();
+    if(!supported){ setTrackerMessage('Firebase web push is not supported on this browser/device.'); return; }
 
-    const permission = await Notification.requestPermission();
-    if(permission !== 'granted'){ setTrackerMessage('Notifications were not allowed.'); return; }
+    let permission = Notification.permission || 'default';
+    pushDiagnosticsState.browser.permission = permission;
+    renderPushDiagnostics();
+    if(permission === 'denied'){
+      setTrackerMessage('Notifications are blocked for this site. Reset the browser/site notification permission, then try again.');
+      return;
+    }
+    if(permission !== 'granted'){
+      permission = await Notification.requestPermission();
+      pushDiagnosticsState.browser.permission = permission;
+      renderPushDiagnostics();
+    }
+    if(permission === 'denied'){
+      setTrackerMessage('Notifications are blocked for this site. Reset the browser/site notification permission, then try again.');
+      return;
+    }
+    if(permission !== 'granted'){
+      setTrackerMessage('Notifications were not enabled because permission was not granted.');
+      return;
+    }
 
-    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    const registration = await ensureTripGuideServiceWorkerRegistration();
     tripGuideMessaging = firebase.messaging();
-    const token = await tripGuideMessaging.getToken({
-      vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
-      serviceWorkerRegistration: registration
-    });
+    let token = '';
+    try{
+      token = await tripGuideMessaging.getToken({
+        vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
+        serviceWorkerRegistration: registration
+      });
+    }catch(tokenError){
+      const safeError = safePushError(tokenError);
+      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token generation failed: ' + safeError };
+      renderPushDiagnostics();
+      setTrackerMessage('Notification token generation failed: ' + safeError);
+      return;
+    }
 
-    if(!token){ setTrackerMessage('No notification token returned.'); return; }
+    if(!token){
+      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token generation failed: No notification token returned.' };
+      renderPushDiagnostics();
+      setTrackerMessage('Notification token generation failed: No notification token returned.');
+      return;
+    }
+
+    const now = Date.now();
     const tokenId = token.replace(/[^a-zA-Z0-9_-]/g, '_').slice(-120);
-    await trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}/${tokenId}`).set({
+    const tokenRecord = {
       token,
-      platform: 'web',
+      platform: detectPushPlatformHint().toLowerCase(),
       email: authEmail(currentUser) || currentUser.email || '',
       name: currentUser.displayName || authEmail(currentUser) || 'TripGuide user',
       enabled: true,
-      createdAt: Date.now(),
-      lastSeen: Date.now()
-    });
+      createdAt: now,
+      lastSeen: now
+    };
+    try{
+      await trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}/${tokenId}`).set(tokenRecord);
+    }catch(writeError){
+      const safeError = safePushError(writeError);
+      pushDiagnosticsState.currentToken = { saved: false, createdAt: now, lastSeen: now, enabled: true, masked: maskPushToken(token), error: 'Token created but save failed: ' + safeError };
+      renderPushDiagnostics();
+      setTrackerMessage('Notification token created, but it could not be saved: ' + safeError);
+      return;
+    }
+
+    pushDiagnosticsState.currentToken = { saved: true, createdAt: now, lastSeen: now, enabled: true, masked: maskPushToken(token), error: '' };
+    renderPushDiagnostics();
     setTrackerMessage('Notifications enabled for this device.');
   }catch(e){
-    setTrackerMessage('Enable notifications failed: ' + (e.message || String(e)));
+    setTrackerMessage('Enable notifications failed: ' + safePushError(e));
   }
 }
 
@@ -1958,6 +2258,8 @@ document.addEventListener('click', function(e){
 
 normalizeTripPinLabels();
 renderStatic();
+renderPushDiagnostics();
+refreshPushBrowserDiagnostics().catch(()=>{});
 try{ bindPushButton(); }catch(_){}
 initFirebaseTracker();
 </script>
