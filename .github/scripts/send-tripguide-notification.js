@@ -233,11 +233,15 @@ async function cleanupFirebase() {
       }
     }
   } catch (error) {
-    console.error(error && error.message ? error.message : error);
+    console.warn('Firebase database cleanup warning:', error && error.message ? error.message : error);
   }
 
-  if (Array.isArray(admin.apps) && admin.apps.length > 0) {
-    await Promise.all(admin.apps.map((app) => app.delete()));
+  try {
+    if (Array.isArray(admin.apps) && admin.apps.length > 0) {
+      await Promise.all(admin.apps.map((app) => app.delete()));
+    }
+  } catch (error) {
+    console.warn('Firebase app cleanup warning:', error && error.message ? error.message : error);
   }
 }
 
@@ -250,12 +254,7 @@ async function run() {
     exitCode = 1;
     console.error(error && error.stack ? error.stack : (error && error.message ? error.message : error));
   } finally {
-    try {
-      await cleanupFirebase();
-    } catch (error) {
-      exitCode = 1;
-      console.error(error && error.stack ? error.stack : (error && error.message ? error.message : error));
-    }
+    await cleanupFirebase();
 
     if (exitCode === 0) {
       process.exit(0);
