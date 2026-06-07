@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide</title>
+<title>Final Trip — Mobile Google Maps Guide v3</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -24,6 +24,8 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.stat{background:rgba(255,255,255,.84);border:1px solid rgba(15,23,42,.08);border-radius:18px;padding:14px}.stat b{font-size:22px;display:block}.stat span{font-size:12px;color:var(--muted);font-weight:700}
 .map-shell{position:relative;overflow:hidden;border-radius:24px;border:1px solid var(--line);background:#dfe8f2;box-shadow:0 10px 30px rgba(15,23,42,.08)}.map{height:min(66vh,620px);min-height:390px;width:100%}.overview-map{height:min(68vh,660px);min-height:420px;margin-top:18px}.map-loading{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#e5edf6,#f8fafc);color:#334155;font-weight:900;text-align:center;padding:24px;z-index:1}.map-loaded .map-loading{display:none}.map-chip{position:absolute;left:12px;top:12px;z-index:2;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(15,23,42,.08);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;box-shadow:0 8px 24px rgba(15,23,42,.10)}
 .quick-nav{position:sticky;top:0;z-index:20;margin:14px -14px 18px;padding:10px 14px;background:rgba(244,247,251,.86);backdrop-filter:blur(16px);border-bottom:1px solid rgba(15,23,42,.07);overflow-x:auto;display:flex;gap:8px;scrollbar-width:none}.quick-nav::-webkit-scrollbar{display:none}.quick-nav a{flex:0 0 auto;background:white;border:1px solid var(--line);border-radius:999px;padding:9px 12px;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+.quick-nav a.active{background:#0f172a;color:white;border-color:#0f172a;box-shadow:0 8px 20px rgba(15,23,42,.18)}
+
 .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-title h2{font-size:26px;margin:0;letter-spacing:-.02em}.section-title p{margin:4px 0 0;color:var(--muted);font-weight:700}
 .day{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;margin:22px 0;box-shadow:var(--shadow);scroll-margin-top:88px}.day-head{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:6px 6px 14px;border-bottom:1px solid var(--line)}.day-kicker{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;font-size:12px;font-weight:900;padding:6px 9px}.day h2{font-size:clamp(24px,5vw,36px);line-height:1.02;margin:0;letter-spacing:-.035em}.day-sub{color:var(--muted);font-weight:750;margin:7px 0 0}.go-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.day .go-main{font-size:22px;min-width:112px;min-height:58px;border-radius:18px}
 .day-grid{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(320px,.72fr);gap:14px;margin-top:14px}.side{display:grid;gap:12px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:12px}.info b{display:block;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.info span{display:block;margin-top:5px;font-weight:850}.warn{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-left:5px solid var(--orange);border-radius:18px;padding:13px;font-weight:850;font-size:13px}
@@ -38,6 +40,31 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 @media(max-width:900px){.wrap{padding-left:10px;padding-right:10px}.stats{grid-template-columns:repeat(2,1fr)}.day{border-radius:24px;padding:10px}.day-head,.day-grid{grid-template-columns:1fr}.go-stack{justify-content:stretch}.go-stack .btn{flex:1}.food-grid{grid-template-columns:1fr}.food-photo{height:210px}.info-grid{grid-template-columns:1fr 1fr}.map{height:min(62vh,560px);min-height:360px}.overview-map{height:min(64vh,580px);min-height:390px}.bottom-bar{display:flex}}
 @media(max-width:430px){.stats,.info-grid{grid-template-columns:1fr}.hero{border-radius:24px;padding:18px}.food-photo{height:190px}.map{min-height:330px}.overview-map{min-height:360px}.quick-nav{top:0}}
 @media print{.quick-nav,.bottom-bar,.go-stack,.btn,.drawer{display:none!important}body{background:white}.wrap{max-width:none;padding:0}.hero,.day{box-shadow:none;border-radius:0;border:0;page-break-after:always}.map{height:520px}.overview-map{height:610px}.food-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* PATCH v2: wife-safe mobile behavior */
+.map{height:min(46vh,430px);min-height:300px;}
+.overview-map{height:min(54vh,500px);min-height:330px;}
+.map-expand{position:absolute;right:12px;top:12px;z-index:3;border:1px solid rgba(15,23,42,.10);border-radius:999px;background:rgba(255,255,255,.94);color:#0f172a;font-weight:950;font-size:12px;padding:8px 11px;box-shadow:0 8px 22px rgba(15,23,42,.12);}
+.map-chip{max-width:calc(100% - 130px);}
+.map-shell.expanded .map{height:min(76vh,700px);min-height:520px;}
+.bottom-bar{transform:translateZ(0);}
+.bottom-bar .btn{min-height:54px;border-radius:18px;font-size:16px;}
+.bottom-day{font-size:15px;min-width:72px;}
+@media(max-width:900px){
+  .map{height:300px;min-height:260px;}
+  .overview-map{height:350px;min-height:300px;}
+  .map-shell.expanded .map{height:72vh;min-height:480px;}
+  .bottom-bar{display:flex;}
+}
+@media(max-width:430px){
+  .map{height:270px;min-height:240px;}
+  .overview-map{height:320px;min-height:280px;}
+  .map-shell.expanded .map{height:72vh;min-height:450px;}
+  .bottom-bar{gap:7px;padding-left:8px;padding-right:8px;}
+  .bottom-bar .btn{min-height:52px;font-size:15px;border-radius:16px;}
+  .bottom-day{min-width:60px;font-size:14px;}
+}
+
 </style>
 </head>
 <body>
@@ -71,6 +98,7 @@ let placesService = null;
 let geocoder = null;
 let directionsService = null;
 let initialized = new Set();
+let dayMaps = new Map();
 let foodPhotoCache = new Map();
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function colorFor(kind){return COLORS[kind] || COLORS.stop;}
@@ -99,7 +127,7 @@ function renderDay(d){
       <div class="go-stack"><a class="btn btn-go go-main" href="${esc(d.google_full)}" target="_blank" rel="noopener">GO</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><button class="btn btn-google" type="button" onclick="focusMap(${d.day})">Map</button></div>
     </header>
     <div class="day-grid">
-      <div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div>
+      <div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><button class="map-expand" type="button" onclick="toggleMapSize(${d.day}, this)">Expand map</button><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div>
       <aside class="side"><div class="info-grid"><div class="info"><b>Overnight</b><span>${esc(d.overnight)}</span></div><div class="info"><b>Drive</b><span>${esc(d.drive)}</span></div></div><div class="warn">${esc(d.warning)}</div><div class="todo"><h3>What we’re doing</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="route-list">${d.stops.map(s=>renderRouteItem(s)).join('')}</div></aside>
     </div>
     <section class="food-section"><div class="food-head"><h3>Dinner / food options</h3><span class="pill">Photos load from Google Places</span></div><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section>
@@ -139,7 +167,7 @@ function initApp(){
 window.initApp = initApp;
 function initOverviewMap(){
   const el = document.getElementById('overviewMap'); if(!el || initialized.has('overview')) return; initialized.add('overview');
-  const map = new google.maps.Map(el, {zoom:5, center:{lat:34.8,lng:-97.2}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'greedy', mapTypeId:'roadmap'});
+  const map = new google.maps.Map(el, {zoom:5, center:{lat:34.8,lng:-97.2}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'cooperative', mapTypeId:'roadmap'});
   const renderer = new google.maps.DirectionsRenderer({map, suppressMarkers:true, preserveViewport:false, polylineOptions:{strokeColor:'#1666d8',strokeWeight:6,strokeOpacity:.86}});
   const anchors = TRIP.overviewAnchors;
   directionsService.route({origin:anchors[0].query,destination:anchors[anchors.length-1].query,waypoints:anchors.slice(1,-1).map(s=>({location:s.query,stopover:true})),travelMode:google.maps.TravelMode.DRIVING,optimizeWaypoints:false},(res,status)=>{if(status==='OK') renderer.setDirections(res);});
@@ -155,7 +183,8 @@ function initLazyDayMaps(){
 function initDayMap(dayNum){
   if(initialized.has('day-'+dayNum)) return; initialized.add('day-'+dayNum);
   const d = TRIP.days.find(x=>x.day===dayNum); const el = document.getElementById('map-day-'+dayNum); if(!d||!el) return;
-  const map = new google.maps.Map(el, {zoom:7, center:{lat:35,lng:-95}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'greedy', mapTypeId:'roadmap'});
+  const map = new google.maps.Map(el, {zoom:7, center:{lat:35,lng:-95}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'cooperative', mapTypeId:'roadmap'});
+  dayMaps.set(dayNum, map);
   const renderer = new google.maps.DirectionsRenderer({map, suppressMarkers:true, preserveViewport:false, polylineOptions:{strokeColor:'#1666d8',strokeWeight:6,strokeOpacity:.9}});
   const routeStops = d.routeStops;
   const origin = routeStops[0]; const destination = routeStops[routeStops.length-1];
@@ -198,13 +227,132 @@ function focusMap(dayNum){
 }
 window.focusMap = focusMap;
 function observeDayForBottomBar(){
-  const bottomDay = document.getElementById('bottomDay'), bottomGo=document.getElementById('bottomGo'), bottomWaze=document.getElementById('bottomWaze');
-  function setDay(d){bottomDay.textContent='Day '+d.day; bottomGo.href=d.google_full; bottomWaze.href=d.waze_final;}
+  const bottomDay = document.getElementById('bottomDay');
+  const bottomGo = document.getElementById('bottomGo');
+  const bottomWaze = document.getElementById('bottomWaze');
+  if(!bottomDay || !bottomGo || !bottomWaze) return;
+
+  // This function can be called more than once because Google Maps loads after
+  // the static page renders. Clean up the old listeners so the mobile bar does
+  // not get stuck on the first render.
+  if(window.__bottomBarCleanup){
+    try{ window.__bottomBarCleanup(); }catch(e){}
+  }
+
+  let activeDay = null;
+  let forceUntil = 0;
+  const listeners = [];
+  const add = (target, event, fn, opts) => { target.addEventListener(event, fn, opts); listeners.push(()=>target.removeEventListener(event, fn, opts)); };
+
+  function setDayByNumber(dayNum){
+    const d = TRIP.days.find(x => x.day === Number(dayNum));
+    if(d) setDay(d);
+  }
+
+  function setDay(d){
+    if(!d || activeDay === d.day) return;
+    activeDay = d.day;
+    bottomDay.textContent = 'Day ' + d.day;
+    bottomGo.href = d.google_full;
+    bottomWaze.href = d.waze_final;
+    bottomGo.setAttribute('aria-label','Open Day ' + d.day + ' Google full route');
+    bottomWaze.setAttribute('aria-label','Open Day ' + d.day + ' Waze final stop');
+    document.querySelectorAll('#quick a').forEach(a=>{
+      const match = a.getAttribute('href') === '#day-' + d.day;
+      a.classList.toggle('active', match);
+      if(match){ a.setAttribute('aria-current','true'); } else { a.removeAttribute('aria-current'); }
+    });
+  }
+
+  function dayFromPoint(){
+    const barH = document.getElementById('bottomBar')?.getBoundingClientRect().height || 90;
+    const xs = [window.innerWidth * 0.5, window.innerWidth * 0.25, window.innerWidth * 0.75];
+    const ys = [Math.min(window.innerHeight * 0.34, 260), Math.min(window.innerHeight * 0.52, 430), Math.max(120, window.innerHeight - barH - 90)];
+    for(const y of ys){
+      for(const x of xs){
+        const el = document.elementFromPoint(x, y);
+        const sec = el && el.closest ? el.closest('.day') : null;
+        if(sec && sec.dataset.day) return Number(sec.dataset.day);
+      }
+    }
+    return null;
+  }
+
+  function dayFromScrollPosition(){
+    const sections = Array.from(document.querySelectorAll('.day'));
+    if(!sections.length) return TRIP.days[0]?.day;
+    const y = window.scrollY + 120;
+    let current = Number(sections[0].dataset.day);
+    for(const sec of sections){
+      if(y >= sec.offsetTop) current = Number(sec.dataset.day);
+      else break;
+    }
+    return current;
+  }
+
+  function dayFromHash(){
+    const m = String(location.hash || '').match(/^#day-(\d+)$/);
+    return m ? Number(m[1]) : null;
+  }
+
+  function computeActiveDay(){
+    const now = Date.now();
+    let dayNum = null;
+    // Right after tapping a top Day pill, trust the target immediately so the
+    // bottom bar changes before the smooth-scroll finishes.
+    if(now < forceUntil) dayNum = dayFromHash();
+    if(!dayNum) dayNum = dayFromPoint();
+    if(!dayNum) dayNum = dayFromScrollPosition();
+    setDayByNumber(dayNum || 1);
+  }
+
+  let ticking = false;
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(()=>{ computeActiveDay(); ticking = false; });
+  }
+
+  document.querySelectorAll('#quick a[href^="#day-"]').forEach(a=>{
+    const clickHandler = () => {
+      const dayNum = Number(a.getAttribute('href').replace('#day-',''));
+      forceUntil = Date.now() + 1200;
+      setDayByNumber(dayNum);
+      setTimeout(computeActiveDay, 80);
+      setTimeout(computeActiveDay, 450);
+      setTimeout(computeActiveDay, 1000);
+    };
+    a.addEventListener('click', clickHandler, {passive:true});
+    listeners.push(()=>a.removeEventListener('click', clickHandler, {passive:true}));
+  });
+
+  add(window, 'scroll', onScroll, {passive:true});
+  add(window, 'resize', onScroll, {passive:true});
+  add(window, 'orientationchange', onScroll, {passive:true});
+  add(window, 'hashchange', () => { forceUntil = Date.now() + 900; computeActiveDay(); }, {passive:true});
+  add(document, 'visibilitychange', computeActiveDay, {passive:true});
+
   setDay(TRIP.days[0]);
-  if(!('IntersectionObserver' in window)) return;
-  const obs = new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting){ const d=TRIP.days.find(x=>x.day===Number(e.target.dataset.day)); if(d) setDay(d); } }); },{threshold:.35});
-  document.querySelectorAll('.day').forEach(d=>obs.observe(d));
+  computeActiveDay();
+  setTimeout(computeActiveDay, 250);
+  setTimeout(computeActiveDay, 900);
+
+  window.__bottomBarCleanup = () => { listeners.forEach(fn=>fn()); window.__bottomBarCleanup = null; };
 }
+function toggleMapSize(dayNum, btn){
+  const el = document.getElementById('map-day-'+dayNum);
+  const shell = el ? el.closest('[data-map-shell]') : null;
+  if(!shell) return;
+  shell.classList.toggle('expanded');
+  const expanded = shell.classList.contains('expanded');
+  if(btn) btn.textContent = expanded ? 'Shrink map' : 'Expand map';
+  setTimeout(()=>{
+    const map = dayMaps.get(dayNum);
+    if(map && window.google && google.maps){ google.maps.event.trigger(map,'resize'); }
+  }, 260);
+}
+window.toggleMapSize = toggleMapSize;
+
 renderStatic();
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places&callback=initApp&loading=async"></script>
