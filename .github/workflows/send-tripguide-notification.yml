@@ -33,7 +33,7 @@ on:
 jobs:
   send-notification:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 1
     permissions:
       contents: read
     env:
@@ -46,16 +46,12 @@ jobs:
       INPUT_URL: ${{ github.event.inputs.url }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Clone repository
+        run: |
+          git clone --depth 1 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" repo
 
       - name: Install sender dependencies
-        working-directory: .github/scripts
+        working-directory: repo/.github/scripts
         run: |
           npm init -y
           npm install firebase-admin@^12 --no-audit --no-fund
@@ -68,4 +64,5 @@ jobs:
           fi
 
       - name: Send FCM web push notifications
+        working-directory: repo
         run: node .github/scripts/send-tripguide-notification.js
