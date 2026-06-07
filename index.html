@@ -69,7 +69,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 /* PATCH v4: live viewer/driver tracker */
 .tracker-panel{margin-top:16px;background:rgba(8,20,38,.94);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:14px;box-shadow:0 18px 50px rgba(8,20,38,.18)}
 .tracker-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.tracker-top h2{margin:0;font-size:22px;letter-spacing:-.02em}.tracker-top p{margin:4px 0 0;color:#cbd5e1;font-weight:700;font-size:13px}.tracker-status-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 11px;font-weight:950;font-size:12px}.tracker-dot{width:10px;height:10px;border-radius:999px;background:#64748b;box-shadow:0 0 0 4px rgba(100,116,139,.16)}.tracker-dot.live{background:#22c55e;box-shadow:0 0 0 5px rgba(34,197,94,.22)}.tracker-dot.offline{background:#f97316;box-shadow:0 0 0 5px rgba(249,115,22,.18)}
-.tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.tracker-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:10px}.tracker-card b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}.tracker-card span{display:block;margin-top:4px;font-weight:950;font-size:15px;color:#fff}.tracker-modes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tracker-modes .btn{box-shadow:none}.driver-panel{display:none;margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.driver-panel.open{display:block}.driver-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.driver-input,.driver-select{width:100%;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.95);color:#0f172a;padding:10px 12px;font-weight:900;font-size:16px}.driver-help{margin:8px 0 0;color:#cbd5e1;font-size:12px;font-weight:700}.tracker-alert{margin-top:10px;color:#fde68a;font-size:12px;font-weight:850}.tracker-mini-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.live-driver-label{position:absolute;transform:translate(-50%,-100%);background:#0f172a;color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px;box-shadow:0 8px 22px rgba(15,23,42,.25)}
+.tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.tracker-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:10px}.tracker-card b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}.tracker-card span{display:block;margin-top:4px;font-weight:950;font-size:15px;color:#fff}.tracker-modes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tracker-modes .btn{box-shadow:none}.driver-panel{display:none;margin-top:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.driver-panel.open{display:block}.driver-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.driver-input,.driver-select{width:100%;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.95);color:#0f172a;padding:10px 12px;font-weight:900;font-size:16px}.driver-help{margin:8px 0 0;color:#cbd5e1;font-size:12px;font-weight:700}.tracker-alert{margin-top:10px;color:#fde68a;font-size:12px;font-weight:850}.auth-debug{display:block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 10px;min-height:34px}.tracker-mini-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.live-driver-label{position:absolute;transform:translate(-50%,-100%);background:#0f172a;color:#fff;border:2px solid #fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px;box-shadow:0 8px 22px rgba(15,23,42,.25)}
 @media(max-width:900px){.tracker-grid{grid-template-columns:repeat(2,1fr)}.driver-row{grid-template-columns:1fr}.driver-row .btn{width:100%}}
 @media(max-width:430px){.tracker-grid{grid-template-columns:1fr}.tracker-panel{border-radius:20px;padding:12px}.tracker-top h2{font-size:20px}.tracker-status-pill{width:100%;justify-content:center}}
 @media print{.tracker-panel{display:none!important}}
@@ -104,6 +104,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
           <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
           <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
         </div>
+        <div class="tracker-alert auth-debug" id="authMessage">Not signed in.</div>
       </div>
       <div class="access-panel hidden" id="accessPanel">
         <h3>Request tracker access</h3>
@@ -461,7 +462,18 @@ const TRACKER_CONFIG = {
   appId: "1:890615280609:web:4f77c8e37fa7ec622418a0",
   measurementId: "G-6STL3XZ7S4"
 };
-const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com'];
+function canonicalEmail(email){
+  return String(email || '').trim().toLowerCase().replace(/@googlemail\.com$/, '@gmail.com');
+}
+function authEmail(user){
+  if(!user) return '';
+  const direct = canonicalEmail(user.email);
+  if(direct) return direct;
+  const providerEmail = (user.providerData || []).map(p => canonicalEmail(p && p.email)).find(Boolean);
+  return providerEmail || '';
+}
+const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com'].map(canonicalEmail);
+function isAdminUser(user){ return !!(user && ADMIN_EMAILS.includes(authEmail(user))); }
 const TRACKER_BASE = 'tripGuide';
 const TRACKER_PATH = TRACKER_BASE + '/live';
 const OFF_ROUTE_METERS = 16093.44;
@@ -498,17 +510,13 @@ async function finishSignInFromRedirect(){
   try{
     const result = await trackerAuth.getRedirectResult();
     if(result && result.user){
+      try{ await result.user.getIdToken(true); }catch(_){}
       currentUser = result.user;
       updateAuthUI();
-      setTrackerMessage('Signed in as ' + (result.user.displayName || result.user.email || 'Google user') + '.');
+      setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
     }
   }catch(e){
-    const code = (e && e.code) ? e.code : '';
-    if(code === 'auth/unauthorized-domain'){
-      setTrackerMessage('Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains.');
-    }else{
-      setTrackerMessage('Google Sign-In return failed: ' + (code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
-    }
+    setTrackerMessage('Google Sign-In return failed: ' + authErrorMessage(e));
   }finally{
     resetSignInButton();
   }
@@ -521,6 +529,8 @@ async function signInWithGoogle(){
     }
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
     provider.setCustomParameters({prompt:'select_account'});
     if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
     setTrackerMessage('Opening Google Sign-In…');
@@ -530,9 +540,10 @@ async function signInWithGoogle(){
     try{
       const result = await trackerAuth.signInWithPopup(provider);
       if(result && result.user){
+        try{ await result.user.getIdToken(true); }catch(_){}
         currentUser = result.user;
         updateAuthUI();
-        setTrackerMessage('Signed in as ' + (result.user.displayName || result.user.email || 'Google user') + '.');
+        setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
       }
     }catch(e){
       const code = (e && e.code) ? e.code : '';
@@ -542,14 +553,10 @@ async function signInWithGoogle(){
         await trackerAuth.signInWithRedirect(provider);
         return;
       }
-      if(code === 'auth/unauthorized-domain'){
-        setTrackerMessage('Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains.');
-      } else {
-        setTrackerMessage((code ? code + ': ' : '') + (e && e.message ? e.message : String(e)));
-      }
+      setTrackerMessage(authErrorMessage(e));
     }
   }catch(e){
-    setTrackerMessage('Sign-In setup error: ' + (e && e.message ? e.message : String(e)));
+    setTrackerMessage('Sign-In setup error: ' + authErrorMessage(e));
   }finally{
     if(!currentUser) resetSignInButton();
   }
@@ -566,9 +573,11 @@ document.addEventListener('click', function(e){
   if(btn){ tripGuideSignInClick(e); }
 }, true);
 function handleAuthState(user){
-  cleanupSecureListeners(); currentUser = user || null; isAdmin = !!(user && ADMIN_EMAILS.includes(String(user.email||'').toLowerCase())); isApproved = false;
+  cleanupSecureListeners(); currentUser = user || null; isAdmin = isAdminUser(user); isApproved = false;
   updateAuthUI(); resetSignInButton();
-  if(!user){ setTrackerStatus('Sign in required','offline'); showAccessPanel(false); showProtectedHub(false); return; }
+  if(!user){ setTrackerStatus('Sign in required','offline'); setTrackerMessage('Not signed in.'); showAccessPanel(false); showProtectedHub(false); return; }
+  const email = authEmail(user) || user.displayName || 'Google user';
+  setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Viewer pending approval'));
   setTrackerStatus('Signed in — checking access','live');
   if(isAdmin){ isApproved = true; setTrackerStatus('Admin signed in','live'); showAccessPanel(false); enableProtectedHub(); listenAdminRequests(); return; }
   ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`); ownRequestRef.on('value', snap => renderOwnRequest(snap.val()));
@@ -589,7 +598,7 @@ function cleanupSecureListeners(){
 function updateAuthUI(){
   const signed=!!currentUser; document.getElementById('signInBtn')?.classList.toggle('hidden', signed); document.getElementById('signOutBtn')?.classList.toggle('hidden', !signed);
   const userEl=document.getElementById('authUser'); userEl?.classList.toggle('hidden', !signed);
-  if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || currentUser.email || 'Signed in') + (isAdmin ? ' • Admin' : ''); }
+  if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || authEmail(currentUser) || 'Signed in') + ' — ' + (authEmail(currentUser) || 'no email') + (isAdmin ? ' • Admin' : ''); }
   document.getElementById('driverModeBtn')?.classList.toggle('hidden', !isAdmin); document.getElementById('adminBadge')?.classList.toggle('show', false);
 }
 function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
@@ -640,7 +649,22 @@ function renderPresence(data){
   strip.innerHTML = `<b>Current people watching</b><div class="bubble-list">${viewers.map(v=>profileBubble(v.photoURL, v.name || v.email || 'Viewer')).join('')}</div>`;
 }
 function profileBubble(photo, name){ const initials=String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(); return `<span class="profile-bubble" title="${esc(name||'Viewer')}">${photo?`<img src="${esc(photo)}" alt="${esc(name||'viewer')}">`:esc(initials)}</span>`; }
-function setTrackerMessage(text){ const el=document.getElementById('trackerMessage'); if(el) el.textContent=text || ''; }
+function setTrackerMessage(text){
+  const msg = text || '';
+  const el=document.getElementById('trackerMessage'); if(el) el.textContent=msg;
+  const authEl=document.getElementById('authMessage'); if(authEl) authEl.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in.');
+  if(msg) console.info('[TripGuide Auth]', msg);
+}
+function authErrorMessage(e){
+  const code = (e && e.code) ? e.code : '';
+  const raw = (e && e.message) ? e.message : String(e || 'Unknown error');
+  if(code === 'auth/admin-restricted-operation') return 'Firebase is blocking new account creation. MD works because that account already exists. Enable Identity Platform/Firebase user sign-up or manually add this Google account under Authentication → Users, then try again. (' + code + ')';
+  if(code === 'auth/operation-not-allowed') return 'Google sign-in provider is disabled or blocked in Firebase Authentication → Sign-in method. (' + code + ')';
+  if(code === 'auth/unauthorized-domain') return 'Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains. (' + code + ')';
+  if(code === 'auth/popup-closed-by-user') return 'Google Sign-In popup was closed before Firebase received the login. Try again in Chrome/Safari, not an in-app browser. (' + code + ')';
+  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking the storage Firebase needs to finish sign-in. Try Chrome/Safari with private browsing off. (' + code + ')';
+  return (code ? code + ': ' : '') + raw;
+}
 function setTrackerStatus(text, state){ const status=document.getElementById('trackerStatus'), dot=document.getElementById('trackerDot'); if(status) status.textContent=text; if(dot){dot.classList.remove('live','offline'); if(state) dot.classList.add(state);} }
 function startDriverTracking(){
   if(!isAdmin || !currentUser){ setTrackerMessage('Admin Google sign-in required.'); return; }
