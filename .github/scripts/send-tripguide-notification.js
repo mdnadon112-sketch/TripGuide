@@ -226,41 +226,29 @@ async function main() {
 
 async function cleanupFirebase() {
   try {
-    if (typeof admin.database === 'function') {
-      const db = admin.database();
-      if (db && typeof db.goOffline === 'function') {
-        db.goOffline();
-      }
+    const db = admin.database();
+    if (db && typeof db.goOffline === 'function') {
+      db.goOffline();
     }
   } catch (error) {
     console.warn('Firebase database cleanup warning:', error && error.message ? error.message : error);
   }
 
   try {
-    if (Array.isArray(admin.apps) && admin.apps.length > 0) {
-      await Promise.all(admin.apps.map((app) => app.delete()));
-    }
+    const apps = admin.apps || [];
+    await Promise.all(apps.map((app) => app.delete()));
   } catch (error) {
     console.warn('Firebase app cleanup warning:', error && error.message ? error.message : error);
   }
 }
 
-async function run() {
-  let exitCode = 0;
-
-  try {
-    await main();
-  } catch (error) {
-    exitCode = 1;
-    console.error(error && error.stack ? error.stack : (error && error.message ? error.message : error));
-  } finally {
+main()
+  .then(async () => {
     await cleanupFirebase();
-
-    if (exitCode === 0) {
-      process.exit(0);
-    }
-    process.exit(1);
-  }
-}
-
-run();
+    setTimeout(() => process.exit(0), 100);
+  })
+  .catch(async (err) => {
+    console.error(err);
+    await cleanupFirebase();
+    setTimeout(() => process.exit(1), 100);
+  });
