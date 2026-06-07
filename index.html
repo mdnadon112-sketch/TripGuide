@@ -170,6 +170,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <input class="login-input" id="gateEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
         <input class="login-input" id="gatePasswordInput" type="password" autocomplete="current-password" placeholder="Password">
         <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Sign in with email</button>
+        <button class="btn btn-ghost" type="button" id="gateEmailRegisterBtn">Register / Make an account</button>
       </div>
     </div>
     <div class="login-debug" id="gateAuthMessage">Checking existing Firebase session…</div>
@@ -196,6 +197,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <input class="login-input" id="authEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
           <input class="login-input" id="authPasswordInput" type="password" autocomplete="current-password" placeholder="Password">
           <button class="btn btn-dark btn-small" type="button" id="authEmailSignInBtn">Email sign-in</button>
+          <button class="btn btn-ghost btn-small" type="button" id="authEmailRegisterBtn">Register / Make an account</button>
         </div>
         <div class="tracker-alert auth-debug" id="authMessage">Not signed in.</div>
       </div>
@@ -881,7 +883,7 @@ function initFirebaseTracker(){
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => document.getElementById('driverPanel')?.classList.toggle('open'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
@@ -904,7 +906,13 @@ function setLoginGate(show, message){
 function resetSignInButton(){
   const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; }
   const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Sign in with Google'; gateBtn.disabled=false; }
-  const emailBtns=['gateEmailSignInBtn','authEmailSignInBtn']; emailBtns.forEach(id=>{ const b=document.getElementById(id); if(b){ b.textContent=id==='gateEmailSignInBtn'?'Sign in with email':'Email sign-in'; b.disabled=false; } });
+  const buttonLabels={
+    gateEmailSignInBtn:'Sign in with email',
+    authEmailSignInBtn:'Email sign-in',
+    gateEmailRegisterBtn:'Register / Make an account',
+    authEmailRegisterBtn:'Register / Make an account'
+  };
+  Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
 }
 async function finishSignInFromRedirect(){
   if(!trackerAuth || !trackerAuth.getRedirectResult) return;
@@ -979,11 +987,15 @@ async function signInWithEmailPassword(){
     const authPass = document.getElementById('authPasswordInput')?.value || '';
     const email = String(gateEmail || authEmailValue).trim().toLowerCase();
     const password = String(gatePass || authPass);
-    if(!email || !password){ rememberAuthError('Enter the Firebase email and password, then tap Sign in with email.'); return; }
+    if(!email || !password){ rememberAuthError('Enter the Firebase email and password, then tap Sign in with email or Register / Make an account.'); return; }
     const gateBtn=document.getElementById('gateEmailSignInBtn');
     const authBtn=document.getElementById('authEmailSignInBtn');
+    const gateRegisterBtn=document.getElementById('gateEmailRegisterBtn');
+    const authRegisterBtn=document.getElementById('authEmailRegisterBtn');
     if(gateBtn){ gateBtn.textContent='Signing in…'; gateBtn.disabled=true; }
     if(authBtn){ authBtn.textContent='Signing in…'; authBtn.disabled=true; }
+    if(gateRegisterBtn){ gateRegisterBtn.disabled=true; }
+    if(authRegisterBtn){ authRegisterBtn.disabled=true; }
     setLoginGate(true, 'Signing in with Firebase email/password…');
     setTrackerMessage('Signing in with Firebase email/password…');
     try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
@@ -994,6 +1006,42 @@ async function signInWithEmailPassword(){
       clearAuthError();
       updateAuthUI();
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
+    }
+  }catch(e){
+    rememberAuthError(authErrorMessage(e));
+  }finally{
+    if(!currentUser) resetSignInButton();
+  }
+}
+async function registerWithEmailPassword(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    const gateEmail = document.getElementById('gateEmailInput')?.value || '';
+    const authEmailValue = document.getElementById('authEmailInput')?.value || '';
+    const gatePass = document.getElementById('gatePasswordInput')?.value || '';
+    const authPass = document.getElementById('authPasswordInput')?.value || '';
+    const email = String(gateEmail || authEmailValue).trim().toLowerCase();
+    const password = String(gatePass || authPass);
+    if(!email || !password){ rememberAuthError('Enter an email and password, then tap Register / Make an account.'); return; }
+    const gateSignInBtn=document.getElementById('gateEmailSignInBtn');
+    const authSignInBtn=document.getElementById('authEmailSignInBtn');
+    const gateRegisterBtn=document.getElementById('gateEmailRegisterBtn');
+    const authRegisterBtn=document.getElementById('authEmailRegisterBtn');
+    if(gateRegisterBtn){ gateRegisterBtn.textContent='Creating account…'; gateRegisterBtn.disabled=true; }
+    if(authRegisterBtn){ authRegisterBtn.textContent='Creating account…'; authRegisterBtn.disabled=true; }
+    if(gateSignInBtn){ gateSignInBtn.disabled=true; }
+    if(authSignInBtn){ authSignInBtn.disabled=true; }
+    setLoginGate(true, 'Creating Firebase account…');
+    setTrackerMessage('Creating Firebase account…');
+    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+    const result = await trackerAuth.createUserWithEmailAndPassword(email, password);
+    if(result && result.user){
+      try{ await result.user.getIdToken(true); }catch(_){}
+      currentUser = result.user;
+      clearAuthError();
+      updateAuthUI();
+      setTrackerMessage('Account created and signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
   }catch(e){
     rememberAuthError(authErrorMessage(e));
@@ -1631,7 +1679,9 @@ function authErrorMessage(e){
   if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account under Authentication → Users. (' + code + ')';
   if(code === 'auth/operation-not-allowed') return 'This sign-in provider is disabled in Firebase Authentication → Sign-in method. Enable Google for Google sign-in, and enable Email/Password if using the fallback login. (' + code + ')';
   if(code === 'auth/user-not-found') return 'No Firebase Auth user exists for that email. Add the user manually in Firebase Console → Authentication → Users → Add user, then use that same email and password. (' + code + ')';
+  if(code === 'auth/email-already-in-use') return 'That email already has a Firebase account. Use Sign in with email instead. (' + code + ')';
   if(code === 'auth/wrong-password') return 'The Firebase email/password is incorrect for that account. Reset or change the password in Firebase Console → Authentication → Users. (' + code + ')';
+  if(code === 'auth/weak-password') return 'Password must be at least 6 characters for Firebase Email/Password accounts. (' + code + ')';
   if(code === 'auth/invalid-credential') return 'Firebase rejected that email/password. Confirm the account exists under Authentication → Users and that Email/Password is enabled under Sign-in method. (' + code + ')';
   if(code === 'auth/invalid-email') return 'The email address format is invalid. (' + code + ')';
   if(code === 'auth/unauthorized-domain') return 'Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains. (' + code + ')';
