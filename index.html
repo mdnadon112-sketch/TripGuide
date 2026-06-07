@@ -369,6 +369,9 @@ let directionsService = null;
 let initialized = new Set();
 let dayMaps = new Map();
 let foodPhotoCache = new Map();
+const geocodeCache = new Map();
+const markerIconCache = new Map();
+let foodPhotoObserver = null;
 let overviewMapRef = null;
 let trackableMaps = new Map();
 let liveDriverMarkers = new Map();
@@ -379,7 +382,23 @@ let trackerInitialized = false;
 window.__activeDay = 1;
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function svgEsc(s){return String(s ?? '').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function normalizeGeoKey(query){ return String(query || '').trim().toLowerCase(); }
+function geocodeQuery(query){
+  const key = normalizeGeoKey(query);
+  if(!key || !geocoder) return Promise.resolve(null);
+  if(geocodeCache.has(key)) return geocodeCache.get(key);
+  const promise = new Promise(resolve=>{
+    geocoder.geocode({address:query}, (results,status)=>{
+      if(status === 'OK' && results && results[0]) resolve(results[0].geometry.location);
+      else resolve(null);
+    });
+  });
+  geocodeCache.set(key, promise);
+  return promise;
+}
 function makeMarkerIcon(label, color){
+  const cacheKey = String(label || '') + '|' + String(color || '');
+  if(markerIconCache.has(cacheKey)) return markerIconCache.get(cacheKey);
   const safe = svgEsc(label);
   const labelText = String(label || '');
   const chars = Array.from(labelText).length;
@@ -391,7 +410,9 @@ function makeMarkerIcon(label, color){
     <rect x="2" y="2" width="${width-4}" height="34" rx="17" fill="${color}" stroke="white" stroke-width="2"/>
     <text x="${width/2}" y="24" text-anchor="middle" font-size="${textSize}" font-weight="900" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Arial, sans-serif" fill="white">${safe}</text>
   </svg>`;
-  return {url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg), scaledSize:new google.maps.Size(width,height), anchor:new google.maps.Point(width/2,46), labelOrigin:new google.maps.Point(width/2,22)};
+  const icon = {url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg), scaledSize:new google.maps.Size(width,height), anchor:new google.maps.Point(width/2,46), labelOrigin:new google.maps.Point(width/2,22)};
+  markerIconCache.set(cacheKey, icon);
+  return icon;
 }
 function mapsLink(query){return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);}
 function wazeLink(query){return 'https://www.waze.com/ul?q=' + encodeURIComponent(query) + '&navigate=yes';}
@@ -447,11 +468,24 @@ function renderFoodCard(f,day,index){
 function hydrateFoodCard(card){
   const query = card.dataset.query;
   if (!query) return;
-  if (!('IntersectionObserver' in window)) { return; }
-  const obs = new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{ if(entry.isIntersecting){ obs.unobserve(card); loadPlacePhoto(query, card); } });
-  }, {rootMargin:'600px 0px'});
-  obs.observe(card);
+  if (card.dataset.photoHydrated) return;
+  const observer = getFoodPhotoObserver();
+  if (!observer) { return; }
+  card.dataset.photoHydrated = '1';
+  observer.observe(card);
+}
+function getFoodPhotoObserver(){
+  if(foodPhotoObserver) return foodPhotoObserver;
+  if(!('IntersectionObserver' in window)) return null;
+  foodPhotoObserver = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting) return;
+      const card = entry.target;
+      foodPhotoObserver.unobserve(card);
+      loadPlacePhoto(card.dataset.query, card);
+    });
+  }, {rootMargin:'250px 0px'});
+  return foodPhotoObserver;
 }
 function loadPlacePhoto(query, card){
   const img = card.querySelector('img');
@@ -461,7 +495,12 @@ function loadPlacePhoto(query, card){
     if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0] && results[0].photos && results[0].photos.length) {
       const url = results[0].photos[0].getUrl({maxWidth:1400, maxHeight:900});
       foodPhotoCache.set(query, url); img.src = url;
-    } else { foodPhotoCache.set(query, null); }
+    } else {
+      if(status && status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS){
+        console.warn('[TripGuide] Food photo load failed:', status, query);
+      }
+      foodPhotoCache.set(query, null);
+    }
   });
 }
 function initApp(){
@@ -472,14 +511,18 @@ function initApp(){
   if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay);
 }
 window.initApp = initApp;
+function runWhenIdle(fn){
+  if('requestIdleCallback' in window) requestIdleCallback(fn, {timeout:2000});
+  else setTimeout(fn, 350);
+}
 function initOverviewMap(){
   const el = document.getElementById('overviewMap'); if(!el || initialized.has('overview')) return; initialized.add('overview');
   const map = new google.maps.Map(el, {zoom:5, center:{lat:34.8,lng:-97.2}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'cooperative', mapTypeId:'roadmap'});
   overviewMapRef = map; registerTrackableMap('overview', map);
   overviewFoodMarkers = [];
-  TRIP.days.forEach(d => drawDayRoute(map, d, .62));
   (TRIP.overviewStops || []).forEach(s=>geocodeMarker(map,s));
   (TRIP.overviewFoodStops || []).forEach(f=>geocodeMarker(map,f,{overviewFood:true}));
+  runWhenIdle(()=>TRIP.days.forEach(d => drawDayRoute(map, d, .62)));
   map.addListener('zoom_changed', updateOverviewFoodMarkerVisibility);
   updateOverviewFoodMarkerVisibility();
   markLoaded(el);
@@ -487,7 +530,7 @@ function initOverviewMap(){
 function initLazyDayMaps(){
   const shells = document.querySelectorAll('.day .map-shell');
   if (!('IntersectionObserver' in window)) { TRIP.days.forEach(d=>initDayMap(d.day)); return; }
-  const obs = new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting){ const sec=e.target.closest('.day'); if(sec) initDayMap(Number(sec.dataset.day)); } }); },{rootMargin:'700px 0px'});
+  const obs = new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting){ const sec=e.target.closest('.day'); if(sec) initDayMap(Number(sec.dataset.day)); } }); },{rootMargin:'325px 0px'});
   shells.forEach(s=>obs.observe(s));
 }
 function initDayMap(dayNum){
@@ -511,16 +554,15 @@ function drawDayRoute(map, d, opacity, onFail){
   });
 }
 function markLoaded(mapEl){ const shell = mapEl.closest('[data-map-shell]'); if(shell) shell.classList.add('map-loaded'); }
-function geocodeMarker(map,s,options){
+async function geocodeMarker(map,s,options){
   options = options || {};
-  geocoder.geocode({address:s.query}, (results,status)=>{
-    if(status !== 'OK' || !results || !results[0]) return;
-    const pos = results[0].geometry.location;
-    const label = s.mapLabel || s.displayLabel || s.label || '•';
-    const marker = new google.maps.Marker({position:pos,map:options.overviewFood ? null : map,title:(s.displayLabel ? s.displayLabel + ' — ' : '') + s.name,icon:makeMarkerIcon(label, colorFor(s.kind))});
-    marker.addListener('click',()=>openInfo(map,marker,s));
-    if(options.overviewFood){ marker.__targetMap = map; overviewFoodMarkers.push(marker); updateOverviewFoodMarkerVisibility(); }
-  });
+  const pos = await geocodeQuery(s.query);
+  if(!pos) return null;
+  const label = s.mapLabel || s.displayLabel || s.label || '•';
+  const marker = new google.maps.Marker({position:pos,map:options.overviewFood ? null : map,title:(s.displayLabel ? s.displayLabel + ' — ' : '') + s.name,icon:makeMarkerIcon(label, colorFor(s.kind))});
+  marker.addListener('click',()=>openInfo(map,marker,s));
+  if(options.overviewFood){ marker.__targetMap = map; overviewFoodMarkers.push(marker); updateOverviewFoodMarkerVisibility(); }
+  return marker;
 }
 function updateOverviewFoodMarkerVisibility(){
   if(!overviewMapRef || !overviewFoodMarkers) return;
@@ -542,9 +584,13 @@ function openInfo(map, marker, s){
     });
   }
 }
-function fitMarkersOnly(map, stops){
-  const bounds = new google.maps.LatLngBounds(); let count=0;
-  stops.forEach(s=>geocoder.geocode({address:s.query},(r,st)=>{if(st==='OK'&&r&&r[0]){bounds.extend(r[0].geometry.location); count++; if(count>=2) map.fitBounds(bounds);}}));
+async function fitMarkersOnly(map, stops){
+  const positions = await Promise.all((stops || []).map(s=>geocodeQuery(s.query)));
+  const resolved = positions.filter(Boolean);
+  if(resolved.length < 2) return;
+  const bounds = new google.maps.LatLngBounds();
+  resolved.forEach(pos=>bounds.extend(pos));
+  map.fitBounds(bounds);
 }
 function focusMap(dayNum){
   initDayMap(dayNum);
