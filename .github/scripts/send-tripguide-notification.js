@@ -108,6 +108,8 @@ async function main() {
         },
         data: {
           type: 'tripGuide',
+          title,
+          body,
           url: link,
           sentAt: String(Date.now())
         }
