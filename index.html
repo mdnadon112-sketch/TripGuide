@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v4 Tracker</title>
+<title>Final Trip — Mobile Google Maps Guide v5 Secure Hub</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -74,46 +74,83 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 @media(max-width:430px){.tracker-grid{grid-template-columns:1fr}.tracker-panel{border-radius:20px;padding:12px}.tracker-top h2{font-size:20px}.tracker-status-pill{width:100%;justify-content:center}}
 @media print{.tracker-panel{display:none!important}}
 
+
+/* PATCH v5: secure trip hub, approvals, progress, votes, messages */
+.auth-panel,.access-panel,.protected-hub{margin-top:12px}.auth-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.auth-user{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:7px 10px;font-weight:900}.auth-user img{width:28px;height:28px;border-radius:999px;object-fit:cover;background:#334155}.access-panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px}.access-panel h3,.admin-panel h3,.message-board h3{margin:0 0 7px;font-size:17px}.access-panel p,.admin-panel p,.message-board p{margin:0 0 10px;color:#cbd5e1;font-weight:700;font-size:13px}.hidden{display:none!important}.admin-badge{display:none;align-items:center;gap:8px;background:#dc2626;color:#fff;border-radius:999px;padding:8px 11px;font-weight:950;font-size:12px}.admin-badge.show{display:inline-flex}.progress-panel{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:12px;margin-top:12px}.progress-line{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:7px 0 6px;font-weight:950}.progress-line span{color:#cbd5e1;font-size:12px;font-weight:800}.progress-track{height:12px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.10)}.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#1666d8);border-radius:999px;transition:width .4s ease}.progress-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.progress-mini{position:fixed;left:10px;right:10px;bottom:calc(78px + var(--safe-bottom));z-index:49;background:rgba(15,23,42,.94);color:white;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:9px 12px;text-align:center;font-weight:950;font-size:13px;box-shadow:0 10px 30px rgba(15,23,42,.25);display:none}.progress-mini.show{display:block}.watcher-strip{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;display:none;align-items:center;gap:9px;background:rgba(8,20,38,.84);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 9px;color:#fff;backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(15,23,42,.2)}.watcher-strip.show{display:flex}.watcher-strip b{font-size:12px;white-space:nowrap}.bubble-list{display:flex;gap:4px;flex-wrap:wrap}.profile-bubble{width:28px;height:28px;border-radius:999px;border:2px solid white;object-fit:cover;background:#334155;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:950;overflow:hidden}.profile-bubble img{width:100%;height:100%;object-fit:cover}.admin-panel,.message-board{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px;margin-top:12px}.request-list,.message-list{display:grid;gap:8px;max-height:320px;overflow:auto}.request-card,.message-card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10);border-radius:15px;padding:10px}.request-main,.message-main{display:flex;gap:9px;align-items:flex-start}.request-main img,.message-main img{width:38px;height:38px;border-radius:999px;object-fit:cover;background:#334155}.request-text,.message-text{min-width:0;flex:1}.request-text b,.message-text b{display:block}.request-text span,.message-text span{color:#cbd5e1;font-size:12px;font-weight:700;word-break:break-word}.request-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.message-compose{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.message-input{width:100%;min-height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.18);padding:10px 12px;font-weight:800}.message-body{margin:6px 0 0!important;color:#fff!important;font-weight:700!important;line-height:1.4}.suggestion-link{display:inline-flex;margin-top:7px;background:#e0f2fe;color:#075985;border:1px solid #bae6fd;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:950}.vote-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}.vote-count{font-size:12px;color:#475569;font-weight:900}.leader-badge{display:none;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950}.leader-badge.show{display:inline-flex}.voter-bubbles{min-height:30px;display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.food-card.vote-selected{outline:3px solid rgba(22,163,74,.32)}.food-photo,.food-body h4{cursor:pointer}.photo-modal{position:fixed;inset:0;z-index:100;background:rgba(8,20,38,.72);display:none;align-items:center;justify-content:center;padding:18px}.photo-modal.show{display:flex}.photo-modal-card{width:min(720px,96vw);max-height:88vh;overflow:auto;background:white;border-radius:24px;box-shadow:0 25px 80px rgba(0,0,0,.35)}.photo-modal-card img{width:100%;max-height:48vh;object-fit:cover;background:#e2e8f0}.photo-modal-body{padding:14px}.photo-modal-body h3{margin:0 0 7px;font-size:24px}.photo-modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.live-avatar-marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:auto}.live-avatar-core{position:relative;width:54px;height:54px;border-radius:999px;background:#dc2626;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(220,38,38,.75);animation:livePulse 2.2s ease-in-out infinite;border:3px solid #fff}.live-avatar-core img{width:43px;height:43px;border-radius:999px;object-fit:cover;background:#0f172a}.live-avatar-initials{width:43px;height:43px;border-radius:999px;background:#0f172a;color:white;display:grid;place-items:center;font-weight:950}.live-avatar-label{margin-top:4px;background:#0f172a;color:white;border:2px solid white;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950;box-shadow:0 8px 20px rgba(15,23,42,.25)}@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.65);transform:scale(1)}50%{box-shadow:0 0 0 14px rgba(220,38,38,0);transform:scale(1.04)}}
+@media(max-width:900px){.progress-meta{grid-template-columns:1fr}.message-compose{grid-template-columns:1fr}.watcher-strip{border-radius:16px;align-items:flex-start}.watcher-strip b{white-space:normal}.progress-mini.show{display:block}}
+@media print{.progress-mini,.watcher-strip,.photo-modal{display:none!important}}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • GOOGLE MAPS MOBILE BUILD</span>
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
     <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
     <div class="stats"><div class="stat"><b>9</b><span>Drive/activity days</span></div><div class="stat"><b>10</b><span>Interactive maps</span></div><div class="stat"><b>27</b><span>Dinner cards</span></div><div class="stat"><b>Mobile</b><span>iPhone + Android first</span></div></div>
     <section class="tracker-panel" id="liveTracker" aria-label="Live trip tracker">
       <div class="tracker-top">
-        <div><h2>Live Trip Tracker</h2><p>Viewer mode is public. Driver mode requires the trip PIN and phone location permission.</p></div>
-        <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Waiting for tracker</span></span>
-      </div>
-      <div class="tracker-grid">
-        <div class="tracker-card"><b>Last update</b><span id="trackerLast">No signal</span></div>
-        <div class="tracker-card"><b>Accuracy</b><span id="trackerAccuracy">—</span></div>
-        <div class="tracker-card"><b>Speed</b><span id="trackerSpeed">—</span></div>
-        <div class="tracker-card"><b>Active day</b><span id="trackerDay">—</span></div>
-      </div>
-      <div class="tracker-modes">
-        <button class="btn btn-google" type="button" id="viewerModeBtn">Viewer Mode</button>
-        <button class="btn btn-dark" type="button" id="driverModeBtn">Driver Mode</button>
-        <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center Live Marker</button>
-      </div>
-      <div class="driver-panel" id="driverPanel">
-        <div class="driver-row">
-          <input class="driver-input" id="driverPin" inputmode="numeric" autocomplete="one-time-code" maxlength="8" type="password" placeholder="Driver PIN">
-          <button class="btn btn-go" type="button" id="startTrackingBtn">Start Tracking</button>
-          <button class="btn btn-food" type="button" id="stopTrackingBtn">Stop</button>
+        <div><h2>Secure Live Trip Hub</h2><p>Trip guide stays public. Live location, progress, votes, messages, and watchers require approval.</p></div>
+        <div class="auth-row">
+          <span class="admin-badge" id="adminBadge">0 pending</span>
+          <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in required</span></span>
         </div>
-        <div class="tracker-mini-actions">
-          <select class="driver-select" id="driverActiveDay" aria-label="Set active day">
-            <option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option><option value="4">Day 4</option><option value="5">Day 5</option><option value="6">Day 6</option><option value="7">Day 7</option><option value="8">Day 8</option><option value="9">Day 9</option>
-          </select>
-          <button class="btn btn-google" type="button" id="setActiveDayBtn">Set Active Day</button>
+      </div>
+      <div class="auth-panel" id="authPanel">
+        <div class="auth-row">
+          <button class="btn btn-google" type="button" id="signInBtn">Sign in with Google</button>
+          <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
+          <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
         </div>
-        <p class="driver-help">Driver mode broadcasts only the current location, accuracy, speed, timestamp, and active day. It does not store a route history.</p>
-        <div class="tracker-alert" id="trackerMessage"></div>
+      </div>
+      <div class="access-panel hidden" id="accessPanel">
+        <h3>Request tracker access</h3>
+        <p id="accessText">Sign in, then request access. Mike or Lauren can approve it from this page.</p>
+        <button class="btn btn-go" type="button" id="requestAccessBtn">Request Access</button>
+      </div>
+      <div class="protected-hub hidden" id="protectedHub">
+        <div class="progress-panel" id="progressPanel">
+          <div class="progress-line"><strong id="tripProgressTitle">Trip progress: calculating route miles</strong><span id="tripProgressPct">—</span></div>
+          <div class="progress-track"><div class="progress-fill" id="tripProgressFill"></div></div>
+          <div class="progress-line"><strong id="dayProgressTitle">Today: waiting for live location</strong><span id="dayProgressPct">—</span></div>
+          <div class="progress-track"><div class="progress-fill" id="dayProgressFill"></div></div>
+          <div class="progress-meta">
+            <div class="tracker-card"><b>Trip mileage</b><span id="tripMileageText">—</span></div>
+            <div class="tracker-card"><b>Today mileage</b><span id="dayMileageText">—</span></div>
+          </div>
+        </div>
+        <div class="tracker-grid">
+          <div class="tracker-card"><b>Last update</b><span id="trackerLast">No signal</span></div>
+          <div class="tracker-card"><b>Accuracy</b><span id="trackerAccuracy">—</span></div>
+          <div class="tracker-card"><b>Speed</b><span id="trackerSpeed">—</span></div>
+          <div class="tracker-card"><b>Active day</b><span id="trackerDay">—</span></div>
+        </div>
+        <div class="tracker-modes">
+          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center Live Marker</button>
+          <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
+        </div>
+        <div class="driver-panel" id="driverPanel">
+          <div class="driver-row">
+            <button class="btn btn-go" type="button" id="startTrackingBtn">Start Tracking</button>
+            <button class="btn btn-food" type="button" id="stopTrackingBtn">Stop Tracking</button>
+            <button class="btn btn-google" type="button" id="adminPanelBtn">Review Access Requests</button>
+          </div>
+          <p class="driver-help">Admin only. Tracking uses the signed-in Google profile photo for the red live marker.</p>
+          <div class="tracker-alert" id="trackerMessage"></div>
+        </div>
+        <div class="admin-panel hidden" id="adminPanel">
+          <h3>Admin approval panel</h3>
+          <p>Approve or deny Google accounts requesting access to the live trip hub.</p>
+          <div class="request-list" id="requestList"></div>
+        </div>
+        <div class="message-board" id="messageBoard">
+          <h3>Trip Message Board</h3>
+          <p>Approved viewers can leave recommendations, warnings, or Google Maps links.</p>
+          <div class="message-list" id="messageList"></div>
+          <div class="message-compose"><input class="message-input" id="messageInput" maxlength="500" placeholder="Message, recommendation, or Google Maps link"><button class="btn btn-go" type="button" id="sendMessageBtn">Send</button></div>
+        </div>
       </div>
     </section>
     <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
@@ -125,6 +162,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 </div>
 <div class="bottom-bar" id="bottomBar"><span class="bottom-day" id="bottomDay">Day 1</span><a id="bottomGo" class="btn btn-go" target="_blank" rel="noopener">GO</a><a id="bottomWaze" class="btn btn-waze" target="_blank" rel="noopener">Waze</a></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script>
 const TRIP = {"days": [{"day": 1, "date": "Fri 17 Jul", "title": "Beaufort → Birmingham/Homewood", "subtitle": "Stretch start day with Savannah shade stop", "drive": "Approx. 7.5–8.0 moving hours", "overnight": "Homewood / Birmingham, AL", "start": "Beaufort, SC", "end": "La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209", "warning": "Stretch day. Keep Forsyth short, watch heat, and do not force dinner if Lauren/dogs are smoked.", "brief": ["Short shaded walk at Forsyth Park.", "Use big fuel stops for bathrooms and dog relief.", "Check in, dog walk, dinner, early sleep."], "stops": [{"label": "A", "name": "Beaufort, SC", "query": "Beaufort, SC", "kind": "start", "note": "Start", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Beaufort%2C%20SC", "waze": "https://www.waze.com/ul?q=Beaufort%2C%20SC&navigate=yes"}, {"label": "B", "name": "Love’s Hardeeville / Yemassee", "query": "Love's Travel Stop, 409 Yemassee Hwy, Yemassee, SC 29945", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20409%20Yemassee%20Hwy%2C%20Yemassee%2C%20SC%2029945", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20409%20Yemassee%20Hwy%2C%20Yemassee%2C%20SC%2029945&navigate=yes"}, {"label": "C", "name": "Forsyth Park", "query": "Forsyth Park, 1 W Gaston St, Savannah, GA 31401", "kind": "sight", "note": "Short shaded walk", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Forsyth%20Park%2C%201%20W%20Gaston%20St%2C%20Savannah%2C%20GA%2031401", "waze": "https://www.waze.com/ul?q=Forsyth%20Park%2C%201%20W%20Gaston%20St%2C%20Savannah%2C%20GA%2031401&navigate=yes"}, {"label": "D", "name": "Buc-ee’s Fort Valley", "query": "Buc-ee's, 7001 Russell Pkwy, Fort Valley, GA 31030", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Buc-ee%27s%2C%207001%20Russell%20Pkwy%2C%20Fort%20Valley%2C%20GA%2031030", "waze": "https://www.waze.com/ul?q=Buc-ee%27s%2C%207001%20Russell%20Pkwy%2C%20Fort%20Valley%2C%20GA%2031030&navigate=yes"}, {"label": "E", "name": "Love’s Shorter", "query": "Love's Travel Stop, 431 Main St, Shorter, AL 36075", "kind": "fuel", "note": "Final fuel stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20431%20Main%20St%2C%20Shorter%2C%20AL%2036075", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20431%20Main%20St%2C%20Shorter%2C%20AL%2036075&navigate=yes"}, {"label": "F", "name": "La Quinta Homewood", "query": "La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209", "kind": "hotel", "note": "Primary hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=La%20Quinta%20Inn%20%26%20Suites%20by%20Wyndham%20Birmingham%20Homewood%2C%2060%20State%20Farm%20Pkwy%2C%20Homewood%2C%20AL%2035209", "waze": "https://www.waze.com/ul?q=La%20Quinta%20Inn%20%26%20Suites%20by%20Wyndham%20Birmingham%20Homewood%2C%2060%20State%20Farm%20Pkwy%2C%20Homewood%2C%20AL%2035209&navigate=yes"}], "foods": [{"name": "Gianmarco’s Restaurant", "query": "Gianmarco's Restaurant, Homewood, AL", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Gianmarco%27s%20Restaurant%2C%20Homewood%2C%20AL", "waze": "https://www.waze.com/ul?q=Gianmarco%27s%20Restaurant%2C%20Homewood%2C%20AL&navigate=yes", "kind": "food"}, {"name": "SoHo Social", "query": "SoHo Social, Homewood, AL", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=SoHo%20Social%2C%20Homewood%2C%20AL", "waze": "https://www.waze.com/ul?q=SoHo%20Social%2C%20Homewood%2C%20AL&navigate=yes", "kind": "food"}, {"name": "The Battery", "query": "The Battery, Birmingham, AL", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Battery%2C%20Birmingham%2C%20AL", "waze": "https://www.waze.com/ul?q=The%20Battery%2C%20Birmingham%2C%20AL&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Love%27s+Travel+Stop%2C+409+Yemassee+Hwy%2C+Yemassee%2C+SC+29945+to:Forsyth+Park%2C+1+W+Gaston+St%2C+Savannah%2C+GA+31401+to:Buc-ee%27s%2C+7001+Russell+Pkwy%2C+Fort+Valley%2C+GA+31030+to:Love%27s+Travel+Stop%2C+431+Main+St%2C+Shorter%2C+AL+36075+to:La+Quinta+Inn+%26+Suites+by+Wyndham+Birmingham+Homewood%2C+60+State+Farm+Pkwy%2C+Homewood%2C+AL+35209", "waze_final": "https://www.waze.com/ul?q=La%20Quinta%20Inn%20%26%20Suites%20by%20Wyndham%20Birmingham%20Homewood%2C%2060%20State%20Farm%20Pkwy%2C%20Homewood%2C%20AL%2035209&navigate=yes", "routeStops": ["Beaufort, SC", "Love's Travel Stop, 409 Yemassee Hwy, Yemassee, SC 29945", "Forsyth Park, 1 W Gaston St, Savannah, GA 31401", "Buc-ee's, 7001 Russell Pkwy, Fort Valley, GA 31030", "Love's Travel Stop, 431 Main St, Shorter, AL 36075", "La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209"]}, {"day": 2, "date": "Sat 18 Jul", "title": "Homewood → North Little Rock", "subtitle": "Memphis riverfront day", "drive": "Approx. 6.5–7 moving hours", "overnight": "North Little Rock, AR", "start": "La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209", "end": "Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114", "warning": "Tom Lee Park is the useful stop. Avoid forcing downtown Memphis if parking/heat gets stupid.", "brief": ["Use Love’s stops for fuel, bathrooms, and dogs.", "Short Mississippi River walk at Tom Lee Park.", "Reset before the long Plains/Texas leg."], "stops": [{"label": "A", "name": "Homewood, AL", "query": "La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=La%20Quinta%20Inn%20%26%20Suites%20by%20Wyndham%20Birmingham%20Homewood%2C%2060%20State%20Farm%20Pkwy%2C%20Homewood%2C%20AL%2035209", "waze": "https://www.waze.com/ul?q=La%20Quinta%20Inn%20%26%20Suites%20by%20Wyndham%20Birmingham%20Homewood%2C%2060%20State%20Farm%20Pkwy%2C%20Homewood%2C%20AL%2035209&navigate=yes"}, {"label": "B", "name": "Love’s Jasper", "query": "Love's Travel Stop, 83 Carl Cannon Blvd, Jasper, AL 35501", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%2083%20Carl%20Cannon%20Blvd%2C%20Jasper%2C%20AL%2035501", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%2083%20Carl%20Cannon%20Blvd%2C%20Jasper%2C%20AL%2035501&navigate=yes"}, {"label": "C", "name": "Love’s Holly Springs", "query": "Love's Travel Stop, 929 Hwy 7 South, Holly Springs, MS 38635", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20929%20Hwy%207%20South%2C%20Holly%20Springs%2C%20MS%2038635", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20929%20Hwy%207%20South%2C%20Holly%20Springs%2C%20MS%2038635&navigate=yes"}, {"label": "D", "name": "Tom Lee Park", "query": "Tom Lee Park, Riverside Dr, Memphis, TN 38103", "kind": "sight", "note": "Riverfront walk", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Tom%20Lee%20Park%2C%20Riverside%20Dr%2C%20Memphis%2C%20TN%2038103", "waze": "https://www.waze.com/ul?q=Tom%20Lee%20Park%2C%20Riverside%20Dr%2C%20Memphis%2C%20TN%2038103&navigate=yes"}, {"label": "E", "name": "Flying J West Memphis", "query": "Flying J Travel Center, 3400 Service Loop Rd, West Memphis, AR 72301", "kind": "fuel", "note": "Final fuel stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Flying%20J%20Travel%20Center%2C%203400%20Service%20Loop%20Rd%2C%20West%20Memphis%2C%20AR%2072301", "waze": "https://www.waze.com/ul?q=Flying%20J%20Travel%20Center%2C%203400%20Service%20Loop%20Rd%2C%20West%20Memphis%2C%20AR%2072301&navigate=yes"}, {"label": "F", "name": "Best Western Plus JFK", "query": "Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114", "kind": "hotel", "note": "Primary hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Plus%20JFK%20Inn%20%26%20Suites%2C%202500%20Main%20St%2C%20North%20Little%20Rock%2C%20AR%2072114", "waze": "https://www.waze.com/ul?q=Best%20Western%20Plus%20JFK%20Inn%20%26%20Suites%2C%202500%20Main%20St%2C%20North%20Little%20Rock%2C%20AR%2072114&navigate=yes"}], "foods": [{"name": "Brave New Restaurant", "query": "Brave New Restaurant, Little Rock, AR", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Brave%20New%20Restaurant%2C%20Little%20Rock%2C%20AR", "waze": "https://www.waze.com/ul?q=Brave%20New%20Restaurant%2C%20Little%20Rock%2C%20AR&navigate=yes", "kind": "food"}, {"name": "Capeo", "query": "Capeo, North Little Rock, AR", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Capeo%2C%20North%20Little%20Rock%2C%20AR", "waze": "https://www.waze.com/ul?q=Capeo%2C%20North%20Little%20Rock%2C%20AR&navigate=yes", "kind": "food"}, {"name": "Cache Restaurant", "query": "Cache Restaurant, Little Rock, AR", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Cache%20Restaurant%2C%20Little%20Rock%2C%20AR", "waze": "https://www.waze.com/ul?q=Cache%20Restaurant%2C%20Little%20Rock%2C%20AR&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Love%27s+Travel+Stop%2C+83+Carl+Cannon+Blvd%2C+Jasper%2C+AL+35501+to:Love%27s+Travel+Stop%2C+929+Hwy+7+South%2C+Holly+Springs%2C+MS+38635+to:Tom+Lee+Park%2C+Riverside+Dr%2C+Memphis%2C+TN+38103+to:Flying+J+Travel+Center%2C+3400+Service+Loop+Rd%2C+West+Memphis%2C+AR+72301+to:Best+Western+Plus+JFK+Inn+%26+Suites%2C+2500+Main+St%2C+North+Little+Rock%2C+AR+72114", "waze_final": "https://www.waze.com/ul?q=Best%20Western%20Plus%20JFK%20Inn%20%26%20Suites%2C%202500%20Main%20St%2C%20North%20Little%20Rock%2C%20AR%2072114&navigate=yes", "routeStops": ["La Quinta Inn & Suites by Wyndham Birmingham Homewood, 60 State Farm Pkwy, Homewood, AL 35209", "Love's Travel Stop, 83 Carl Cannon Blvd, Jasper, AL 35501", "Love's Travel Stop, 929 Hwy 7 South, Holly Springs, MS 38635", "Tom Lee Park, Riverside Dr, Memphis, TN 38103", "Flying J Travel Center, 3400 Service Loop Rd, West Memphis, AR 72301", "Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114"]}, {"day": 3, "date": "Sun 19 Jul", "title": "North Little Rock → Amarillo", "subtitle": "OKC Memorial and Route 66 optional stops", "drive": "Approx. 8.5–9 moving hours", "overnight": "Amarillo, TX", "start": "Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114", "end": "Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101", "warning": "Flagged stretch day. Elk City or OKC are authorized early-stop fallbacks if conditions degrade.", "brief": ["Start early with no slow breakfast.", "Outdoor-only OKC Memorial unless one adult stays with dogs.", "Skip Route 66 photo stops if heat/fatigue is high."], "stops": [{"label": "A", "name": "North Little Rock, AR", "query": "Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Plus%20JFK%20Inn%20%26%20Suites%2C%202500%20Main%20St%2C%20North%20Little%20Rock%2C%20AR%2072114", "waze": "https://www.waze.com/ul?q=Best%20Western%20Plus%20JFK%20Inn%20%26%20Suites%2C%202500%20Main%20St%2C%20North%20Little%20Rock%2C%20AR%2072114&navigate=yes"}, {"label": "B", "name": "Love’s Alma", "query": "Love's Travel Stop, Alma, AR", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20Alma%2C%20AR", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20Alma%2C%20AR&navigate=yes"}, {"label": "C", "name": "OKC Memorial", "query": "Oklahoma City National Memorial & Museum, 620 N Harvey Ave, Oklahoma City, OK 73102", "kind": "sight", "note": "Historic stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Oklahoma%20City%20National%20Memorial%20%26%20Museum%2C%20620%20N%20Harvey%20Ave%2C%20Oklahoma%20City%2C%20OK%2073102", "waze": "https://www.waze.com/ul?q=Oklahoma%20City%20National%20Memorial%20%26%20Museum%2C%20620%20N%20Harvey%20Ave%2C%20Oklahoma%20City%2C%20OK%2073102&navigate=yes"}, {"label": "D", "name": "Love’s Elk City", "query": "Love's Travel Stop, Elk City, OK", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20Elk%20City%2C%20OK", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20Elk%20City%2C%20OK&navigate=yes"}, {"label": "E", "name": "U-Drop Inn", "query": "U-Drop Inn, 111 U.S. Route 66, Shamrock, TX 79079", "kind": "sight", "note": "Optional photo stop", "optional": true, "google": "https://www.google.com/maps/search/?api=1&query=U-Drop%20Inn%2C%20111%20U.S.%20Route%2066%2C%20Shamrock%2C%20TX%2079079", "waze": "https://www.waze.com/ul?q=U-Drop%20Inn%2C%20111%20U.S.%20Route%2066%2C%20Shamrock%2C%20TX%2079079&navigate=yes"}, {"label": "F", "name": "Cadillac Ranch", "query": "Cadillac Ranch, 13651 I-40 Frontage Rd, Amarillo, TX 79124", "kind": "sight", "note": "Optional photo stop", "optional": true, "google": "https://www.google.com/maps/search/?api=1&query=Cadillac%20Ranch%2C%2013651%20I-40%20Frontage%20Rd%2C%20Amarillo%2C%20TX%2079124", "waze": "https://www.waze.com/ul?q=Cadillac%20Ranch%2C%2013651%20I-40%20Frontage%20Rd%2C%20Amarillo%2C%20TX%2079124&navigate=yes"}, {"label": "G", "name": "Embassy Suites Amarillo", "query": "Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101", "kind": "hotel", "note": "Primary hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Embassy%20Suites%20by%20Hilton%20Amarillo%20Downtown%2C%20550%20S%20Buchanan%20St%2C%20Amarillo%2C%20TX%2079101", "waze": "https://www.waze.com/ul?q=Embassy%20Suites%20by%20Hilton%20Amarillo%20Downtown%2C%20550%20S%20Buchanan%20St%2C%20Amarillo%2C%20TX%2079101&navigate=yes"}], "foods": [{"name": "OHMS Café & Bar", "query": "OHMS Cafe and Bar, Amarillo, TX", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=OHMS%20Cafe%20and%20Bar%2C%20Amarillo%2C%20TX", "waze": "https://www.waze.com/ul?q=OHMS%20Cafe%20and%20Bar%2C%20Amarillo%2C%20TX&navigate=yes", "kind": "food"}, {"name": "The Drunken Oyster", "query": "The Drunken Oyster, Amarillo, TX", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Drunken%20Oyster%2C%20Amarillo%2C%20TX", "waze": "https://www.waze.com/ul?q=The%20Drunken%20Oyster%2C%20Amarillo%2C%20TX&navigate=yes", "kind": "food"}, {"name": "Public House", "query": "Public House Amarillo, TX", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Public%20House%20Amarillo%2C%20TX", "waze": "https://www.waze.com/ul?q=Public%20House%20Amarillo%2C%20TX&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Love%27s+Travel+Stop%2C+Alma%2C+AR+to:Oklahoma+City+National+Memorial+%26+Museum%2C+620+N+Harvey+Ave%2C+Oklahoma+City%2C+OK+73102+to:Love%27s+Travel+Stop%2C+Elk+City%2C+OK+to:U-Drop+Inn%2C+111+U.S.+Route+66%2C+Shamrock%2C+TX+79079+to:Cadillac+Ranch%2C+13651+I-40+Frontage+Rd%2C+Amarillo%2C+TX+79124+to:Embassy+Suites+by+Hilton+Amarillo+Downtown%2C+550+S+Buchanan+St%2C+Amarillo%2C+TX+79101", "waze_final": "https://www.waze.com/ul?q=Embassy%20Suites%20by%20Hilton%20Amarillo%20Downtown%2C%20550%20S%20Buchanan%20St%2C%20Amarillo%2C%20TX%2079101&navigate=yes", "routeStops": ["Best Western Plus JFK Inn & Suites, 2500 Main St, North Little Rock, AR 72114", "Love's Travel Stop, Alma, AR", "Oklahoma City National Memorial & Museum, 620 N Harvey Ave, Oklahoma City, OK 73102", "Love's Travel Stop, Elk City, OK", "U-Drop Inn, 111 U.S. Route 66, Shamrock, TX 79079", "Cadillac Ranch, 13651 I-40 Frontage Rd, Amarillo, TX 79124", "Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101"]}, {"day": 4, "date": "Mon 20 Jul", "title": "Amarillo → Angel Fire", "subtitle": "Palo Duro, Capulin, Raton, mountain approach", "drive": "Approx. 5.5–6.5 moving hours plus stops", "overnight": "The Lodge at Angel Fire Resort", "start": "Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101", "end": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "warning": "Most scenic approach day. Keep July walks short; prioritize shade, water, and dog heat control.", "brief": ["Early Palo Duro overlook only.", "Fuel/dog relief at Dalhart and Raton.", "Arrive Angel Fire with time to unload and prep MTB kit."], "stops": [{"label": "A", "name": "Amarillo, TX", "query": "Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Embassy%20Suites%20by%20Hilton%20Amarillo%20Downtown%2C%20550%20S%20Buchanan%20St%2C%20Amarillo%2C%20TX%2079101", "waze": "https://www.waze.com/ul?q=Embassy%20Suites%20by%20Hilton%20Amarillo%20Downtown%2C%20550%20S%20Buchanan%20St%2C%20Amarillo%2C%20TX%2079101&navigate=yes"}, {"label": "B", "name": "Palo Duro Canyon", "query": "Palo Duro Canyon State Park, 11450 Park Road 5, Canyon, TX 79015", "kind": "sight", "note": "Scenic overlook", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Palo%20Duro%20Canyon%20State%20Park%2C%2011450%20Park%20Road%205%2C%20Canyon%2C%20TX%2079015", "waze": "https://www.waze.com/ul?q=Palo%20Duro%20Canyon%20State%20Park%2C%2011450%20Park%20Road%205%2C%20Canyon%2C%20TX%2079015&navigate=yes"}, {"label": "C", "name": "Love’s Dalhart", "query": "Love's Travel Stop, Dalhart, TX", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%20Dalhart%2C%20TX", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%20Dalhart%2C%20TX&navigate=yes"}, {"label": "D", "name": "Capulin Volcano", "query": "Capulin Volcano National Monument, 46 Volcano Rd, Capulin, NM 88414", "kind": "sight", "note": "Scenic stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Capulin%20Volcano%20National%20Monument%2C%2046%20Volcano%20Rd%2C%20Capulin%2C%20NM%2088414", "waze": "https://www.waze.com/ul?q=Capulin%20Volcano%20National%20Monument%2C%2046%20Volcano%20Rd%2C%20Capulin%2C%20NM%2088414&navigate=yes"}, {"label": "E", "name": "Maverik Raton", "query": "Maverik, 1651 S 2nd St, Raton, NM 87740", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Maverik%2C%201651%20S%202nd%20St%2C%20Raton%2C%20NM%2087740", "waze": "https://www.waze.com/ul?q=Maverik%2C%201651%20S%202nd%20St%2C%20Raton%2C%20NM%2087740&navigate=yes"}, {"label": "F", "name": "Cimarron Canyon", "query": "Cimarron Canyon State Park, NM", "kind": "sight", "note": "Drive-through scenery", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Cimarron%20Canyon%20State%20Park%2C%20NM", "waze": "https://www.waze.com/ul?q=Cimarron%20Canyon%20State%20Park%2C%20NM&navigate=yes"}, {"label": "G", "name": "The Lodge at Angel Fire", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "hotel", "note": "Primary hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}], "foods": [{"name": "The Steakhouse at Angel Fire", "query": "The Steakhouse at Angel Fire, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Steakhouse%20at%20Angel%20Fire%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=The%20Steakhouse%20at%20Angel%20Fire%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}, {"name": "Elements at the Summit", "query": "Elements at the Summit, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Elements%20at%20the%20Summit%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Elements%20at%20the%20Summit%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}, {"name": "El Jefe", "query": "El Jefe, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=El%20Jefe%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=El%20Jefe%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Palo+Duro+Canyon+State+Park%2C+11450+Park+Road+5%2C+Canyon%2C+TX+79015+to:Love%27s+Travel+Stop%2C+Dalhart%2C+TX+to:Capulin+Volcano+National+Monument%2C+46+Volcano+Rd%2C+Capulin%2C+NM+88414+to:Maverik%2C+1651+S+2ND+ST+Ste+104%2C+Raton%2C+NM+87740+to:Cimarron+Canyon+State+Park%2C+NM+to:The+Lodge+at+Angel+Fire+Resort%2C+10+Miller+Lane%2C+Angel+Fire%2C+NM+87710", "waze_final": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes", "routeStops": ["Embassy Suites by Hilton Amarillo Downtown, 550 S Buchanan St, Amarillo, TX 79101", "Palo Duro Canyon State Park, 11450 Park Road 5, Canyon, TX 79015", "Love's Travel Stop, Dalhart, TX", "Capulin Volcano National Monument, 46 Volcano Rd, Capulin, NM 88414", "Maverik, 1651 S 2nd St, Raton, NM 87740", "Cimarron Canyon State Park, NM", "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710"]}, {"day": 5, "date": "Tue 21 Jul", "title": "Angel Fire MTB Day", "subtitle": "Bike park, dog boarding, lake recovery", "drive": "Local driving only", "overnight": "The Lodge at Angel Fire Resort", "start": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "end": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "warning": "Pet Pals location must be verified directly. Prior warning says Google may route incorrectly.", "brief": ["Morning dog boarding if needed.", "Ride Angel Fire Bike Park 0900–1600, weather permitting.", "Lauren keeps the day low-chaos: base area, Monte Verde Lake, hotel rest."], "stops": [{"label": "A", "name": "The Lodge at Angel Fire", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}, {"label": "B", "name": "Pet Pals Dog Boarding", "query": "Pet Pals Dog Boarding Kennel, Eagle Nest, NM", "kind": "alt", "note": "Approximate only — verify directly", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Pet%20Pals%20Dog%20Boarding%20Kennel%2C%20Eagle%20Nest%2C%20NM", "waze": "https://www.waze.com/ul?q=Pet%20Pals%20Dog%20Boarding%20Kennel%2C%20Eagle%20Nest%2C%20NM&navigate=yes"}, {"label": "C", "name": "Angel Fire Bike Park", "query": "Angel Fire Bike Park, 10 Miller Lane, Angel Fire, NM 87710", "kind": "sight", "note": "MTB day", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Angel%20Fire%20Bike%20Park%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=Angel%20Fire%20Bike%20Park%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}, {"label": "D", "name": "Monte Verde Lake", "query": "Monte Verde Lake, Angel Fire, NM", "kind": "sight", "note": "Low-effort recovery", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Monte%20Verde%20Lake%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Monte%20Verde%20Lake%2C%20Angel%20Fire%2C%20NM&navigate=yes"}, {"label": "E", "name": "The Lodge at Angel Fire", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "hotel", "note": "Overnight", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}], "foods": [{"name": "Elements at the Summit", "query": "Elements at the Summit, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Elements%20at%20the%20Summit%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Elements%20at%20the%20Summit%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}, {"name": "The Steakhouse at Angel Fire", "query": "The Steakhouse at Angel Fire, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Steakhouse%20at%20Angel%20Fire%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=The%20Steakhouse%20at%20Angel%20Fire%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}, {"name": "Pizza Stop", "query": "Pizza Stop, Angel Fire, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Pizza%20Stop%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Pizza%20Stop%2C%20Angel%20Fire%2C%20NM&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Pet+Pals+Dog+Boarding+Kennel%2C+Eagle+Nest%2C+NM+to:Angel+Fire+Bike+Park%2C+10+Miller+Lane%2C+Angel+Fire%2C+NM+87710+to:Monte+Verde+Lake%2C+Angel+Fire%2C+NM+to:The+Lodge+at+Angel+Fire+Resort%2C+10+Miller+Lane%2C+Angel+Fire%2C+NM+87710", "waze_final": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes", "routeStops": ["The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "Pet Pals Dog Boarding Kennel, Eagle Nest, NM", "Angel Fire Bike Park, 10 Miller Lane, Angel Fire, NM 87710", "Monte Verde Lake, Angel Fire, NM", "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710"]}, {"day": 6, "date": "Wed 22 Jul", "title": "Angel Fire Flex Day", "subtitle": "Golf / recovery / Taos scenery", "drive": "Local/flex driving only", "overnight": "The Lodge at Angel Fire Resort", "start": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "end": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "warning": "Rio Grande Gorge bridge is treated as overlook/drive-by unless current pedestrian access is verified.", "brief": ["If golfing, board dogs during tee time only.", "If sightseeing, keep walks short.", "If fatigue hits, skip Taos and make it a recovery day."], "stops": [{"label": "A", "name": "The Lodge at Angel Fire", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}, {"label": "B", "name": "Angel Fire Golf Course", "query": "Angel Fire Resort Golf Course, Angel Fire, NM", "kind": "sight", "note": "Optional golf", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Angel%20Fire%20Resort%20Golf%20Course%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Angel%20Fire%20Resort%20Golf%20Course%2C%20Angel%20Fire%2C%20NM&navigate=yes"}, {"label": "C", "name": "Monte Verde Lake", "query": "Monte Verde Lake, Angel Fire, NM", "kind": "sight", "note": "Easy recovery stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Monte%20Verde%20Lake%2C%20Angel%20Fire%2C%20NM", "waze": "https://www.waze.com/ul?q=Monte%20Verde%20Lake%2C%20Angel%20Fire%2C%20NM&navigate=yes"}, {"label": "D", "name": "Rio Grande Gorge Bridge", "query": "Rio Grande Gorge Bridge, US-64, Taos, NM", "kind": "sight", "note": "Overlook / drive-by", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Rio%20Grande%20Gorge%20Bridge%2C%20US-64%2C%20Taos%2C%20NM", "waze": "https://www.waze.com/ul?q=Rio%20Grande%20Gorge%20Bridge%2C%20US-64%2C%20Taos%2C%20NM&navigate=yes"}, {"label": "E", "name": "Taos Pueblo", "query": "Taos Pueblo, Taos, NM", "kind": "sight", "note": "Optional cultural stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Taos%20Pueblo%2C%20Taos%2C%20NM", "waze": "https://www.waze.com/ul?q=Taos%20Pueblo%2C%20Taos%2C%20NM&navigate=yes"}, {"label": "F", "name": "The Lodge at Angel Fire", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "hotel", "note": "Overnight", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}], "foods": [{"name": "Medley.", "query": "Medley, Taos, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Medley%2C%20Taos%2C%20NM", "waze": "https://www.waze.com/ul?q=Medley%2C%20Taos%2C%20NM&navigate=yes", "kind": "food"}, {"name": "Lambert’s of Taos", "query": "Lambert's of Taos, Taos, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Lambert%27s%20of%20Taos%2C%20Taos%2C%20NM", "waze": "https://www.waze.com/ul?q=Lambert%27s%20of%20Taos%2C%20Taos%2C%20NM&navigate=yes", "kind": "food"}, {"name": "The Love Apple", "query": "The Love Apple, Taos, NM", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Love%20Apple%2C%20Taos%2C%20NM", "waze": "https://www.waze.com/ul?q=The%20Love%20Apple%2C%20Taos%2C%20NM&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Angel+Fire+Resort+Golf+Course%2C+Angel+Fire%2C+NM+to:Monte+Verde+Lake%2C+Angel+Fire%2C+NM+to:Rio+Grande+Gorge+Bridge%2C+US-64%2C+Taos%2C+NM+to:Taos+Pueblo%2C+Taos%2C+NM+to:The+Lodge+at+Angel+Fire+Resort%2C+10+Miller+Lane%2C+Angel+Fire%2C+NM+87710", "waze_final": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes", "routeStops": ["The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "Angel Fire Resort Golf Course, Angel Fire, NM", "Monte Verde Lake, Angel Fire, NM", "Rio Grande Gorge Bridge, US-64, Taos, NM", "Taos Pueblo, Taos, NM", "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710"]}, {"day": 7, "date": "Thu 23 Jul", "title": "Angel Fire → Flagstaff", "subtitle": "I-40 corridor with Petrified Forest / Meteor Crater", "drive": "Approx. 8+ moving hours", "overnight": "Flagstaff, AZ", "start": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "end": "Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004", "warning": "Flagged stretch day. Holbrook/Gallup overflow stop is authorized if heat, dogs, or fatigue degrade the plan.", "brief": ["Start early from Angel Fire.", "Use Santa Fe, Albuquerque, and Gallup for major fuel/dog relief.", "Treat Petrified Forest and Meteor Crater as selectable, not mandatory."], "stops": [{"label": "A", "name": "Angel Fire, NM", "query": "The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710", "waze": "https://www.waze.com/ul?q=The%20Lodge%20at%20Angel%20Fire%20Resort%2C%2010%20Miller%20Lane%2C%20Angel%20Fire%2C%20NM%2087710&navigate=yes"}, {"label": "B", "name": "Maverik Santa Fe", "query": "Maverik, 2650 Sawmill Rd, Santa Fe, NM 87505", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Maverik%2C%202650%20Sawmill%20Rd%2C%20Santa%20Fe%2C%20NM%2087505", "waze": "https://www.waze.com/ul?q=Maverik%2C%202650%20Sawmill%20Rd%2C%20Santa%20Fe%2C%20NM%2087505&navigate=yes"}, {"label": "C", "name": "Love’s Albuquerque", "query": "Love's Travel Stop, 2200 6th St NW, Albuquerque, NM 87102", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%202200%206th%20St%20NW%2C%20Albuquerque%2C%20NM%2087102", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%202200%206th%20St%20NW%2C%20Albuquerque%2C%20NM%2087102&navigate=yes"}, {"label": "D", "name": "Love’s Gallup", "query": "Love's Travel Stop, 3380 W 66th, Gallup, NM 87301", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%203380%20W%2066th%2C%20Gallup%2C%20NM%2087301", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%203380%20W%2066th%2C%20Gallup%2C%20NM%2087301&navigate=yes"}, {"label": "E", "name": "Petrified Forest", "query": "Petrified Forest National Park, Exit 311, Interstate 40, Petrified Forest, AZ 86028", "kind": "sight", "note": "Dog-friendly scenic stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Petrified%20Forest%20National%20Park%2C%20Exit%20311%2C%20Interstate%2040%2C%20Petrified%20Forest%2C%20AZ%2086028", "waze": "https://www.waze.com/ul?q=Petrified%20Forest%20National%20Park%2C%20Exit%20311%2C%20Interstate%2040%2C%20Petrified%20Forest%2C%20AZ%2086028&navigate=yes"}, {"label": "F", "name": "Meteor Crater", "query": "Meteor Crater Natural Landmark, 8125 I-40, Winslow, AZ 86047", "kind": "sight", "note": "High-value crater stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Meteor%20Crater%20Natural%20Landmark%2C%208125%20I-40%2C%20Winslow%2C%20AZ%2086047", "waze": "https://www.waze.com/ul?q=Meteor%20Crater%20Natural%20Landmark%2C%208125%20I-40%2C%20Winslow%2C%20AZ%2086047&navigate=yes"}, {"label": "G", "name": "Best Western Pony Soldier", "query": "Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004", "kind": "hotel", "note": "Practical hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Pony%20Soldier%20Inn%20%26%20Suites%2C%203030%20E%20Route%2066%2C%20Flagstaff%2C%20AZ%2086004", "waze": "https://www.waze.com/ul?q=Best%20Western%20Pony%20Soldier%20Inn%20%26%20Suites%2C%203030%20E%20Route%2066%2C%20Flagstaff%2C%20AZ%2086004&navigate=yes"}], "foods": [{"name": "Shift Kitchen & Bar", "query": "Shift Kitchen and Bar, Flagstaff, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Shift%20Kitchen%20and%20Bar%2C%20Flagstaff%2C%20AZ", "waze": "https://www.waze.com/ul?q=Shift%20Kitchen%20and%20Bar%2C%20Flagstaff%2C%20AZ&navigate=yes", "kind": "food"}, {"name": "Atria", "query": "Atria, Flagstaff, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Atria%2C%20Flagstaff%2C%20AZ", "waze": "https://www.waze.com/ul?q=Atria%2C%20Flagstaff%2C%20AZ&navigate=yes", "kind": "food"}, {"name": "Brix Restaurant & Wine Bar", "query": "Brix Restaurant and Wine Bar, Flagstaff, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Brix%20Restaurant%20and%20Wine%20Bar%2C%20Flagstaff%2C%20AZ", "waze": "https://www.waze.com/ul?q=Brix%20Restaurant%20and%20Wine%20Bar%2C%20Flagstaff%2C%20AZ&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Maverik%2C+2650+Sawmill+Rd%2C+Santa+Fe%2C+NM+87505+to:Love%27s+Travel+Stop%2C+2200+6th+St+NW%2C+Albuquerque%2C+NM+87102+to:Love%27s+Travel+Stop%2C+3380+W+66th%2C+Gallup%2C+NM+87301+to:Petrified+Forest+National+Park%2C+Exit+311%2C+Interstate+40%2C+Petrified+Forest%2C+AZ+86028+to:Meteor+Crater+Natural+Landmark%2C+8125+I-40%2C+Winslow%2C+AZ+86047+to:Best+Western+Pony+Soldier+Inn+%26+Suites%2C+3030+E+Route+66%2C+Flagstaff%2C+AZ+86004", "waze_final": "https://www.waze.com/ul?q=Best%20Western%20Pony%20Soldier%20Inn%20%26%20Suites%2C%203030%20E%20Route%2066%2C%20Flagstaff%2C%20AZ%2086004&navigate=yes", "routeStops": ["The Lodge at Angel Fire Resort, 10 Miller Lane, Angel Fire, NM 87710", "Maverik, 2650 Sawmill Rd, Santa Fe, NM 87505", "Love's Travel Stop, 2200 6th St NW, Albuquerque, NM 87102", "Love's Travel Stop, 3380 W 66th, Gallup, NM 87301", "Petrified Forest National Park, Exit 311, Interstate 40, Petrified Forest, AZ 86028", "Meteor Crater Natural Landmark, 8125 I-40, Winslow, AZ 86047", "Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004"]}, {"day": 8, "date": "Fri 24 Jul", "title": "Flagstaff / Sedona → Barstow", "subtitle": "Sedona massage day and High Desert staging", "drive": "Approx. 6.5–7.5 moving hours", "overnight": "Barstow / High Desert staging", "start": "Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004", "end": "Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311", "warning": "Pets are not allowed in the spa. Mike handles dogs or use local dog care if both attend.", "brief": ["Book maternity massage only if OB and spa approve.", "Use Kingman and Barstow for controlled fuel/dog relief.", "Stage before LA/OC traffic rather than forcing a tired final push."], "stops": [{"label": "A", "name": "Flagstaff, AZ", "query": "Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Pony%20Soldier%20Inn%20%26%20Suites%2C%203030%20E%20Route%2066%2C%20Flagstaff%2C%20AZ%2086004", "waze": "https://www.waze.com/ul?q=Best%20Western%20Pony%20Soldier%20Inn%20%26%20Suites%2C%203030%20E%20Route%2066%2C%20Flagstaff%2C%20AZ%2086004&navigate=yes"}, {"label": "B", "name": "L’Auberge Spa", "query": "L'Auberge de Sedona Spa, 301 L'Auberge Ln, Sedona, AZ 86336", "kind": "sight", "note": "Maternity spa stop", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=L%27Auberge%20de%20Sedona%20Spa%2C%20301%20L%27Auberge%20Ln%2C%20Sedona%2C%20AZ%2086336", "waze": "https://www.waze.com/ul?q=L%27Auberge%20de%20Sedona%20Spa%2C%20301%20L%27Auberge%20Ln%2C%20Sedona%2C%20AZ%2086336&navigate=yes"}, {"label": "C", "name": "Flying J Kingman", "query": "Flying J Travel Center, 3300 E Andy Devine Ave, Kingman, AZ 86401", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Flying%20J%20Travel%20Center%2C%203300%20E%20Andy%20Devine%20Ave%2C%20Kingman%2C%20AZ%2086401", "waze": "https://www.waze.com/ul?q=Flying%20J%20Travel%20Center%2C%203300%20E%20Andy%20Devine%20Ave%2C%20Kingman%2C%20AZ%2086401&navigate=yes"}, {"label": "D", "name": "Love’s Barstow", "query": "Love's Travel Stop, 2974 Lenwood Rd, Barstow, CA 92311", "kind": "fuel", "note": "Fuel / restroom", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%202974%20Lenwood%20Rd%2C%20Barstow%2C%20CA%2092311", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%202974%20Lenwood%20Rd%2C%20Barstow%2C%20CA%2092311&navigate=yes"}, {"label": "E", "name": "Best Western Plus New Barstow", "query": "Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311", "kind": "hotel", "note": "Primary staging hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Plus%20New%20Barstow%20Inn%20%26%20Suites%2C%202565%20Commerce%20Pkwy%2C%20Barstow%2C%20CA%2092311", "waze": "https://www.waze.com/ul?q=Best%20Western%20Plus%20New%20Barstow%20Inn%20%26%20Suites%2C%202565%20Commerce%20Pkwy%2C%20Barstow%2C%20CA%2092311&navigate=yes"}], "foods": [{"name": "Creekside American Bistro", "query": "Creekside American Bistro, Sedona, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Creekside%20American%20Bistro%2C%20Sedona%2C%20AZ", "waze": "https://www.waze.com/ul?q=Creekside%20American%20Bistro%2C%20Sedona%2C%20AZ&navigate=yes", "kind": "food"}, {"name": "The Hudson", "query": "The Hudson, Sedona, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=The%20Hudson%2C%20Sedona%2C%20AZ", "waze": "https://www.waze.com/ul?q=The%20Hudson%2C%20Sedona%2C%20AZ&navigate=yes", "kind": "food"}, {"name": "Mariposa Latin Inspired Grill", "query": "Mariposa Latin Inspired Grill, Sedona, AZ", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Mariposa%20Latin%20Inspired%20Grill%2C%20Sedona%2C%20AZ", "waze": "https://www.waze.com/ul?q=Mariposa%20Latin%20Inspired%20Grill%2C%20Sedona%2C%20AZ&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=L%27Auberge+de+Sedona+Spa%2C+301+L%27Auberge+Ln%2C+Sedona%2C+AZ+86336+to:Flying+J+Travel+Center%2C+3300+E+Andy+Devine+Ave%2C+Kingman%2C+AZ+86401+to:Love%27s+Travel+Stop%2C+2974+Lenwood+Rd%2C+Barstow%2C+CA+92311+to:Best+Western+Plus+New+Barstow+Inn+%26+Suites%2C+2565+Commerce+Pkwy%2C+Barstow%2C+CA+92311", "waze_final": "https://www.waze.com/ul?q=Best%20Western%20Plus%20New%20Barstow%20Inn%20%26%20Suites%2C%202565%20Commerce%20Pkwy%2C%20Barstow%2C%20CA%2092311&navigate=yes", "routeStops": ["Best Western Pony Soldier Inn & Suites, 3030 E Route 66, Flagstaff, AZ 86004", "L'Auberge de Sedona Spa, 301 L'Auberge Ln, Sedona, AZ 86336", "Flying J Travel Center, 3300 E Andy Devine Ave, Kingman, AZ 86401", "Love's Travel Stop, 2974 Lenwood Rd, Barstow, CA 92311", "Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311"]}, {"day": 9, "date": "Sat 25 Jul", "title": "Barstow → Seal Beach", "subtitle": "Final push home", "drive": "Approx. 2–4.5 moving hours depending traffic", "overnight": "Home — Seal Beach, CA", "start": "Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311", "end": "1906 Anchor Way, Seal Beach, CA", "warning": "Do not force LA/OC traffic if anyone is exhausted. Use Barstow or near-home backup as needed.", "brief": ["Dog walk before leaving staging hotel.", "Use Love’s Barstow as final controlled stop if needed.", "Arrive home, unload dogs first, then the vehicle."], "stops": [{"label": "A", "name": "Barstow staging hotel", "query": "Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311", "kind": "start", "note": "Start hotel", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Best%20Western%20Plus%20New%20Barstow%20Inn%20%26%20Suites%2C%202565%20Commerce%20Pkwy%2C%20Barstow%2C%20CA%2092311", "waze": "https://www.waze.com/ul?q=Best%20Western%20Plus%20New%20Barstow%20Inn%20%26%20Suites%2C%202565%20Commerce%20Pkwy%2C%20Barstow%2C%20CA%2092311&navigate=yes"}, {"label": "B", "name": "Love’s Barstow", "query": "Love's Travel Stop, 2974 Lenwood Rd, Barstow, CA 92311", "kind": "fuel", "note": "Fuel / dog relief", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=Love%27s%20Travel%20Stop%2C%202974%20Lenwood%20Rd%2C%20Barstow%2C%20CA%2092311", "waze": "https://www.waze.com/ul?q=Love%27s%20Travel%20Stop%2C%202974%20Lenwood%20Rd%2C%20Barstow%2C%20CA%2092311&navigate=yes"}, {"label": "C", "name": "Seal Beach Home", "query": "1906 Anchor Way, Seal Beach, CA", "kind": "hotel", "note": "Finish", "optional": false, "google": "https://www.google.com/maps/search/?api=1&query=1906%20Anchor%20Way%2C%20Seal%20Beach%2C%20CA", "waze": "https://www.waze.com/ul?q=1906%20Anchor%20Way%2C%20Seal%20Beach%2C%20CA&navigate=yes"}], "foods": [{"name": "Walt’s Wharf", "query": "Walt's Wharf, Seal Beach, CA", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Walt%27s%20Wharf%2C%20Seal%20Beach%2C%20CA", "waze": "https://www.waze.com/ul?q=Walt%27s%20Wharf%2C%20Seal%20Beach%2C%20CA&navigate=yes", "kind": "food"}, {"name": "Spaghettini", "query": "Spaghettini, Seal Beach, CA", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Spaghettini%2C%20Seal%20Beach%2C%20CA", "waze": "https://www.waze.com/ul?q=Spaghettini%2C%20Seal%20Beach%2C%20CA&navigate=yes", "kind": "food"}, {"name": "Nick’s on 2nd", "query": "Nick's on 2nd, Long Beach, CA", "note": "", "google": "https://www.google.com/maps/search/?api=1&query=Nick%27s%20on%202nd%2C%20Long%20Beach%2C%20CA", "waze": "https://www.waze.com/ul?q=Nick%27s%20on%202nd%2C%20Long%20Beach%2C%20CA&navigate=yes", "kind": "food"}], "google_full": "https://www.google.com/maps?saddr=Current+Location&daddr=Love%27s+Travel+Stop%2C+2974+Lenwood+Rd%2C+Barstow%2C+CA+92311+to:1906+Anchor+Way%2C+Seal+Beach%2C+CA", "waze_final": "https://www.waze.com/ul?q=1906%20Anchor%20Way%2C%20Seal%20Beach%2C%20CA&navigate=yes", "routeStops": ["Best Western Plus New Barstow Inn & Suites, 2565 Commerce Pkwy, Barstow, CA 92311", "Love's Travel Stop, 2974 Lenwood Rd, Barstow, CA 92311", "1906 Anchor Way, Seal Beach, CA"]}], "overviewAnchors": [{"label": "A", "name": "Beaufort, SC", "query": "Beaufort, SC", "kind": "start"}, {"label": "B", "name": "Birmingham/Homewood, AL", "query": "Homewood, AL", "kind": "hotel"}, {"label": "C", "name": "North Little Rock, AR", "query": "North Little Rock, AR", "kind": "hotel"}, {"label": "D", "name": "Amarillo, TX", "query": "Amarillo, TX", "kind": "hotel"}, {"label": "E", "name": "Angel Fire, NM", "query": "Angel Fire, NM", "kind": "hotel"}, {"label": "F", "name": "Flagstaff, AZ", "query": "Flagstaff, AZ", "kind": "hotel"}, {"label": "G", "name": "Barstow, CA", "query": "Barstow, CA", "kind": "hotel"}, {"label": "H", "name": "Seal Beach, CA", "query": "Seal Beach, CA", "kind": "finish"}], "overviewOptionals": [{"label": "I", "name": "Savannah, GA", "query": "Savannah, GA", "kind": "alt"}, {"label": "J", "name": "Memphis, TN", "query": "Memphis, TN", "kind": "alt"}, {"label": "K", "name": "Oklahoma City, OK", "query": "Oklahoma City, OK", "kind": "alt"}, {"label": "L", "name": "Taos, NM", "query": "Taos, NM", "kind": "alt"}, {"label": "M", "name": "Sedona, AZ", "query": "Sedona, AZ", "kind": "alt"}, {"label": "•", "name": "Palo Duro Canyon", "query": "Palo Duro Canyon State Park, Canyon, TX", "kind": "sight"}, {"label": "•", "name": "Capulin Volcano", "query": "Capulin Volcano National Monument, NM", "kind": "sight"}, {"label": "•", "name": "Petrified Forest", "query": "Petrified Forest National Park, AZ", "kind": "sight"}, {"label": "•", "name": "Meteor Crater", "query": "Meteor Crater Natural Landmark, AZ", "kind": "sight"}]};
@@ -186,8 +224,11 @@ function renderDay(d){
 }
 function renderRouteItem(s){return `<div class="route-item"><span class="pin-dot" style="background:${colorFor(s.kind)}">${esc(s.label)}</span><div><b>${esc(s.name)}</b><p>${esc(s.note || s.kind)}</p></div></div>`;}
 function renderStopLinkCard(s){return `<div class="food-card"><div class="food-body"><h4>${esc(s.label)} — ${esc(s.name)}</h4><p>${esc(s.note || s.query)}</p><div class="food-links"><a class="btn btn-google btn-small" href="${esc(s.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(s.waze)}" target="_blank" rel="noopener">Waze</a></div></div></div>`;}
+function foodKey(day, name, index){ return 'day' + day + '-' + String(index) + '-' + String(name || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
 function renderFoodCard(f,day,index){
-  return `<article class="food-card" data-food-card data-query="${esc(f.query)}" data-kind="food"><div class="food-photo"><img loading="lazy" referrerpolicy="no-referrer" src="${FALLBACKS.food}" alt="${esc(f.name)} photo"><span class="photo-badge">Food option</span></div><div class="food-body"><h4>${esc(f.name)}</h4><p>${esc(f.note || 'Tap Google or Waze for directions / details.')}</p><div class="food-links"><a class="btn btn-food btn-small" href="${esc(f.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(f.waze)}" target="_blank" rel="noopener">Waze</a></div></div></article>`;
+  const key = foodKey(day, f.name, index);
+  f.voteKey = key; f.day = day; window.__foodLookup = window.__foodLookup || {}; window.__foodLookup[key] = f;
+  return `<article class="food-card" id="food-${esc(key)}" data-food-card data-vote-key="${esc(key)}" data-day="${day}" data-query="${esc(f.query)}" data-kind="food"><div class="food-photo" onclick="openFoodPreview('${esc(key)}')"><img loading="lazy" referrerpolicy="no-referrer" src="${FALLBACKS.food}" alt="${esc(f.name)} photo"><span class="photo-badge">Food option</span></div><div class="food-body"><h4 onclick="openFoodPreview('${esc(key)}')">${esc(f.name)}</h4><div class="vote-row"><span class="leader-badge" id="leader-${esc(key)}">Current leader</span><span class="vote-count" id="votes-${esc(key)}">0 votes</span></div><div class="voter-bubbles" id="voters-${esc(key)}"></div><p>${esc(f.note || 'Tap the photo to preview. Approved viewers can vote.')}</p><div class="food-links"><button class="btn btn-go btn-small" type="button" onclick="voteForFood(${day}, '${esc(key)}', '${esc(f.name)}')">Vote</button><a class="btn btn-food btn-small" href="${esc(f.google)}" target="_blank" rel="noopener">Google</a><a class="btn btn-waze btn-small" href="${esc(f.waze)}" target="_blank" rel="noopener">Waze</a></div></div></article>`;
 }
 function hydrateFoodCard(card){
   const query = card.dataset.query;
@@ -212,7 +253,7 @@ function loadPlacePhoto(query, card){
 function initApp(){
   mapsReady = true; geocoder = new google.maps.Geocoder(); directionsService = new google.maps.DirectionsService();
   const serviceDiv = document.createElement('div'); document.body.appendChild(serviceDiv); placesService = new google.maps.places.PlacesService(serviceDiv);
-  renderStatic(); initOverviewMap(); initLazyDayMaps();
+  renderStatic(); initOverviewMap(); initLazyDayMaps(); precomputeRouteMetrics();
 }
 window.initApp = initApp;
 function initOverviewMap(){
@@ -407,7 +448,7 @@ function toggleMapSize(dayNum, btn){
 window.toggleMapSize = toggleMapSize;
 
 
-/* PATCH v4: Firebase live tracker */
+/* PATCH v5: Firebase Auth, approval, live tracker, mileage progress, votes, messages */
 const TRACKER_CONFIG = {
   apiKey: "AIzaSyD4juSgEvK9CBX0ROiMnmmJrYYkSwI_2U4",
   authDomain: "tripguide-f5056.firebaseapp.com",
@@ -418,176 +459,226 @@ const TRACKER_CONFIG = {
   appId: "1:890615280609:web:4f77c8e37fa7ec622418a0",
   measurementId: "G-6STL3XZ7S4"
 };
-const TRACKER_PATH = 'tripGuide/live';
-const DRIVER_PIN = ['0','7','1','4'].join('');
-let trackerDb = null;
-let trackerRef = null;
-let geoWatchId = null;
-let lastTrackerWrite = 0;
-let driverUnlocked = false;
+const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com'];
+const TRACKER_BASE = 'tripGuide';
+const TRACKER_PATH = TRACKER_BASE + '/live';
+const OFF_ROUTE_METERS = 16093.44;
+let trackerDb = null, trackerAuth = null, trackerRef = null, currentUser = null, isAdmin = false, isApproved = false;
+let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
+let accessListenerRef = null, ownRequestRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
+let allVotes = {}, foodPreviewKey = null;
 
 function initFirebaseTracker(){
   if(trackerInitialized) return;
   trackerInitialized = true;
-  const msg = document.getElementById('trackerMessage');
   try{
-    if(!window.firebase){ setTrackerStatus('Tracker unavailable', 'offline'); if(msg) msg.textContent='Firebase did not load. Viewer links still work.'; return; }
+    if(!window.firebase){ setTrackerStatus('Tracker unavailable','offline'); return; }
     if(!firebase.apps.length) firebase.initializeApp(TRACKER_CONFIG);
-    trackerDb = firebase.database();
-    trackerRef = trackerDb.ref(TRACKER_PATH);
-    bindTrackerControls();
-    trackerRef.on('value', snap => updateTrackerFromFirebase(snap.val()), err => {
-      setTrackerStatus('Tracker read error', 'offline'); if(msg) msg.textContent = err && err.message ? err.message : 'Tracker read failed.';
-    });
-  }catch(e){
-    setTrackerStatus('Tracker setup error', 'offline'); if(msg) msg.textContent = e && e.message ? e.message : String(e);
-  }
+    trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH);
+    bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip();
+    trackerAuth.onAuthStateChanged(handleAuthState);
+  }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
-
-function bindTrackerControls(){
-  const driverPanel = document.getElementById('driverPanel');
-  const viewerModeBtn = document.getElementById('viewerModeBtn');
-  const driverModeBtn = document.getElementById('driverModeBtn');
-  const centerLiveBtn = document.getElementById('centerLiveBtn');
-  const startBtn = document.getElementById('startTrackingBtn');
-  const stopBtn = document.getElementById('stopTrackingBtn');
-  const setDayBtn = document.getElementById('setActiveDayBtn');
-  const activeDaySelect = document.getElementById('driverActiveDay');
-  if(activeDaySelect) activeDaySelect.value = String(window.__activeDay || 1);
-  if(viewerModeBtn) viewerModeBtn.addEventListener('click', () => { driverPanel?.classList.remove('open'); setTrackerMessage('Viewer mode. Anyone with the link can see the live marker when tracking is active.'); });
-  if(driverModeBtn) driverModeBtn.addEventListener('click', () => { driverPanel?.classList.toggle('open'); setTrackerMessage('Enter driver PIN to start or stop live sharing.'); });
-  if(centerLiveBtn) centerLiveBtn.addEventListener('click', centerLiveLocation);
-  if(startBtn) startBtn.addEventListener('click', startDriverTracking);
-  if(stopBtn) stopBtn.addEventListener('click', stopDriverTracking);
-  if(setDayBtn) setDayBtn.addEventListener('click', () => {
-    if(!unlockDriver()) return;
-    const day = Number(activeDaySelect?.value || window.__activeDay || 1);
-    trackerRef.update({activeDay: day, lastUpdated: Date.now()}).then(()=>setTrackerMessage('Active day updated to Day '+day+'.')).catch(e=>setTrackerMessage(e.message || String(e)));
-  });
+function bindHubControls(){
+  bindClick('signInBtn', signInWithGoogle); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  bindClick('centerLiveBtn', centerLiveLocation); bindClick('driverModeBtn', () => document.getElementById('driverPanel')?.classList.toggle('open'));
+  bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
+  bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
+  bindClick('adminBadge', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
 }
-function setTrackerMessage(text){ const el = document.getElementById('trackerMessage'); if(el) el.textContent = text || ''; }
-function setTrackerStatus(text, state){
-  const status = document.getElementById('trackerStatus');
-  const dot = document.getElementById('trackerDot');
-  if(status) status.textContent = text;
-  if(dot){ dot.classList.remove('live','offline'); if(state) dot.classList.add(state); }
+function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
+function signInWithGoogle(){ const provider = new firebase.auth.GoogleAuthProvider(); trackerAuth.signInWithPopup(provider).catch(e=>setTrackerMessage(e.message || String(e))); }
+function handleAuthState(user){
+  cleanupSecureListeners(); currentUser = user || null; isAdmin = !!(user && ADMIN_EMAILS.includes(String(user.email||'').toLowerCase())); isApproved = false;
+  updateAuthUI();
+  if(!user){ setTrackerStatus('Sign in required','offline'); showAccessPanel(false); showProtectedHub(false); return; }
+  setTrackerStatus('Checking access','offline');
+  if(isAdmin){ isApproved = true; setTrackerStatus('Admin signed in','live'); showAccessPanel(false); enableProtectedHub(); listenAdminRequests(); return; }
+  ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`); ownRequestRef.on('value', snap => renderOwnRequest(snap.val()));
+  trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`).on('value', snap => {
+    isApproved = !!(snap.val() && snap.val().approved === true);
+    if(isApproved){ setTrackerStatus('Approved viewer','live'); showAccessPanel(false); enableProtectedHub(); }
+    else { setTrackerStatus('Access required','offline'); showProtectedHub(false); showAccessPanel(true); }
+  }, err => setTrackerMessage(err.message || String(err)));
 }
-function unlockDriver(){
-  if(driverUnlocked) return true;
-  const pin = (document.getElementById('driverPin')?.value || '').trim();
-  if(pin !== DRIVER_PIN){ setTrackerMessage('Incorrect driver PIN.'); return false; }
-  driverUnlocked = true; setTrackerMessage('Driver mode unlocked.'); return true;
+function cleanupSecureListeners(){
+  try{ if(accessListenerRef){ accessListenerRef.off(); accessListenerRef=null; } }catch(e){}
+  try{ if(ownRequestRef){ ownRequestRef.off(); ownRequestRef=null; } }catch(e){}
+  try{ if(liveListenerRef){ liveListenerRef.off(); liveListenerRef=null; } }catch(e){}
+  try{ if(messagesListenerRef){ messagesListenerRef.off(); messagesListenerRef=null; } }catch(e){}
+  try{ if(votesListenerRef){ votesListenerRef.off(); votesListenerRef=null; } }catch(e){}
+  if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
 }
+function updateAuthUI(){
+  const signed=!!currentUser; document.getElementById('signInBtn')?.classList.toggle('hidden', signed); document.getElementById('signOutBtn')?.classList.toggle('hidden', !signed);
+  const userEl=document.getElementById('authUser'); userEl?.classList.toggle('hidden', !signed);
+  if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || currentUser.email || 'Signed in') + (isAdmin ? ' • Admin' : ''); }
+  document.getElementById('driverModeBtn')?.classList.toggle('hidden', !isAdmin); document.getElementById('adminBadge')?.classList.toggle('show', false);
+}
+function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
+function showProtectedHub(show){ document.getElementById('protectedHub')?.classList.toggle('hidden', !show); document.getElementById('progressMini')?.classList.toggle('show', !!show && !!lastValidProgress); }
+function renderOwnRequest(req){
+  if(!currentUser || isApproved || isAdmin) return;
+  const text=document.getElementById('accessText'), btn=document.getElementById('requestAccessBtn');
+  if(req && req.status === 'pending'){ if(text) text.textContent='Your request is pending. Mike or Lauren can approve it from the admin panel.'; if(btn) btn.textContent='Request Pending'; }
+  else if(req && req.status === 'denied'){ if(text) text.textContent='Access was denied. You can request again if this was a mistake.'; if(btn) btn.textContent='Request Again'; }
+  else { if(text) text.textContent='Request access to see live location, progress, messages, and food votes.'; if(btn) btn.textContent='Request Access'; }
+}
+function requestTrackerAccess(){
+  if(!currentUser){ signInWithGoogle(); return; }
+  const u=currentUser;
+  trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set({uid:u.uid,email:u.email||'',name:u.displayName||u.email||'Google user',photoURL:u.photoURL||'',status:'pending',requestedAt:Date.now()}).then(()=>setTrackerMessage('Access request sent.')).catch(e=>setTrackerMessage(e.message || String(e)));
+}
+function enableProtectedHub(){
+  showProtectedHub(true); updateAuthUI(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes();
+}
+function listenAdminRequests(){
+  const panel=document.getElementById('adminPanel'); panel?.classList.remove('hidden');
+  accessListenerRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests`);
+  accessListenerRef.on('value', snap => renderAdminRequests(snap.val() || {}), err => { setTrackerMessage('Admin requests failed: ' + (err.message || err)); });
+}
+function renderAdminRequests(data){
+  const list=document.getElementById('requestList'); const badge=document.getElementById('adminBadge'); if(!list || !badge) return;
+  const pending=Object.values(data).filter(r=>r && r.status==='pending');
+  badge.textContent = pending.length + ' pending'; badge.classList.toggle('show', pending.length>0 && isAdmin);
+  if(!pending.length){ list.innerHTML='<div class="request-card">No pending requests.</div>'; return; }
+  pending.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
+  list.innerHTML = pending.map(r=>`<div class="request-card"><div class="request-main"><img src="${esc(r.photoURL||'')}" alt=""><div class="request-text"><b>${esc(r.name||'Google user')}</b><span>${esc(r.email||'')} • ${esc(formatAge(Date.now() - Number(r.requestedAt||0)))}</span></div></div><div class="request-actions"><button class="btn btn-go btn-small" onclick="approveAccess('${esc(r.uid)}')">Approve</button><button class="btn btn-food btn-small" onclick="denyAccess('${esc(r.uid)}')">Deny</button></div></div>`).join('');
+}
+function approveAccess(uid){ if(!isAdmin || !uid) return; const reqRef=trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`); reqRef.once('value').then(s=>{const r=s.val()||{}; return Promise.all([trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set({approved:true,uid,email:r.email||'',name:r.name||'',photoURL:r.photoURL||'',approvedAt:Date.now(),approvedBy:currentUser.email}), reqRef.update({status:'approved',decidedAt:Date.now(),decidedBy:currentUser.email})]);}).catch(e=>setTrackerMessage(e.message||String(e))); }
+function denyAccess(uid){ if(!isAdmin || !uid) return; Promise.all([trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(), trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'denied',decidedAt:Date.now(),decidedBy:currentUser.email})]).catch(e=>setTrackerMessage(e.message||String(e))); }
+window.approveAccess=approveAccess; window.denyAccess=denyAccess;
+function listenLiveTracker(){ if(liveListenerRef) return; liveListenerRef=trackerRef; liveListenerRef.on('value', snap=>updateTrackerFromFirebase(snap.val()), err=>{setTrackerStatus('Tracker read blocked','offline'); setTrackerMessage(err.message||String(err));}); }
+function startPresence(){
+  if(!currentUser || (!isAdmin && !isApproved)) return;
+  const ref=trackerDb.ref(`${TRACKER_BASE}/presence/${currentUser.uid}`);
+  const update=()=>ref.set({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',role:isAdmin?'admin':'viewer',lastSeen:Date.now()}).catch(()=>{});
+  ref.onDisconnect().remove(); update(); if(presenceInterval) clearInterval(presenceInterval); presenceInterval=setInterval(update,30000);
+  trackerDb.ref(`${TRACKER_BASE}/presence`).on('value', snap=>renderPresence(snap.val()||{}));
+}
+function renderPresence(data){
+  const now=Date.now(); const viewers=Object.values(data).filter(v=>v && now - Number(v.lastSeen||0) < 90000);
+  const strip=document.getElementById('watcherStrip'); if(!strip) return;
+  strip.classList.toggle('show', viewers.length>0 && (isAdmin || isApproved));
+  strip.innerHTML = `<b>Current people watching</b><div class="bubble-list">${viewers.map(v=>profileBubble(v.photoURL, v.name || v.email || 'Viewer')).join('')}</div>`;
+}
+function profileBubble(photo, name){ const initials=String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(); return `<span class="profile-bubble" title="${esc(name||'Viewer')}">${photo?`<img src="${esc(photo)}" alt="${esc(name||'viewer')}">`:esc(initials)}</span>`; }
+function setTrackerMessage(text){ const el=document.getElementById('trackerMessage'); if(el) el.textContent=text || ''; }
+function setTrackerStatus(text, state){ const status=document.getElementById('trackerStatus'), dot=document.getElementById('trackerDot'); if(status) status.textContent=text; if(dot){dot.classList.remove('live','offline'); if(state) dot.classList.add(state);} }
 function startDriverTracking(){
-  if(!unlockDriver()) return;
+  if(!isAdmin || !currentUser){ setTrackerMessage('Admin Google sign-in required.'); return; }
   if(!navigator.geolocation){ setTrackerMessage('This browser does not support location tracking.'); return; }
   if(geoWatchId !== null) navigator.geolocation.clearWatch(geoWatchId);
-  setTrackerStatus('Starting tracking…','offline');
-  setTrackerMessage('Allow location permission when the phone asks. Keep this page open while driving.');
+  setTrackerStatus('Starting tracking…','offline'); setTrackerMessage('Allow location permission. Keep this page open while driving.');
   geoWatchId = navigator.geolocation.watchPosition(pos => {
-    const now = Date.now();
-    if(now - lastTrackerWrite < 5000) return;
-    lastTrackerWrite = now;
-    const c = pos.coords;
-    const activeDay = Number(document.getElementById('driverActiveDay')?.value || window.__activeDay || 1);
-    const payload = {
-      lat: Number(c.latitude),
-      lng: Number(c.longitude),
-      accuracy: Number(c.accuracy || 0),
-      heading: Number.isFinite(c.heading) ? Number(c.heading) : null,
-      speed: Number.isFinite(c.speed) ? Number(c.speed) : null,
-      lastUpdated: now,
-      trackingActive: true,
-      activeDay
-    };
-    trackerRef.set(payload).then(()=>{ setTrackerStatus('Live tracking active','live'); setTrackerMessage('Live location sent.'); }).catch(e=>{ setTrackerStatus('Write failed','offline'); setTrackerMessage(e.message || String(e)); });
-  }, err => {
-    setTrackerStatus('Location blocked','offline');
-    setTrackerMessage(err && err.message ? err.message : 'Location permission failed.');
-  }, {enableHighAccuracy:true, maximumAge:10000, timeout:20000});
+    const now=Date.now(); if(now-lastTrackerWrite<5000) return; lastTrackerWrite=now; const c=pos.coords;
+    const activeProgress = latestLiveLocation ? computeProgressForPosition({lat:Number(c.latitude), lng:Number(c.longitude)}) : null;
+    const payload={lat:Number(c.latitude),lng:Number(c.longitude),accuracy:Number(c.accuracy||0),heading:Number.isFinite(c.heading)?Number(c.heading):null,speed:Number.isFinite(c.speed)?Number(c.speed):null,lastUpdated:now,trackingActive:true,activeDay:activeProgress?.activeDay || window.__autoActiveDay || window.__activeDay || 1,driverName:currentUser.displayName||currentUser.email||'Driver',driverPhotoURL:currentUser.photoURL||''};
+    trackerRef.set(payload).then(()=>{setTrackerStatus('Live tracking active','live'); setTrackerMessage('Live location sent.');}).catch(e=>{setTrackerStatus('Write failed','offline'); setTrackerMessage(e.message||String(e));});
+  }, err=>{setTrackerStatus('Location blocked','offline'); setTrackerMessage(err.message||'Location permission failed.');},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
 }
-function stopDriverTracking(){
-  if(!unlockDriver()) return;
-  if(geoWatchId !== null){ navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
-  if(trackerRef){ trackerRef.update({trackingActive:false,lastUpdated:Date.now()}).then(()=>{ setTrackerStatus('Tracking stopped','offline'); setTrackerMessage('Live sharing stopped. Viewers may still see the last known marker.'); }).catch(e=>setTrackerMessage(e.message || String(e))); }
-}
+function stopDriverTracking(){ if(!isAdmin){ setTrackerMessage('Admin Google sign-in required.'); return; } if(geoWatchId!==null){navigator.geolocation.clearWatch(geoWatchId); geoWatchId=null;} trackerRef.update({trackingActive:false,lastUpdated:Date.now()}).then(()=>{setTrackerStatus('Tracking stopped','offline'); setTrackerMessage('Live sharing stopped.');}).catch(e=>setTrackerMessage(e.message||String(e))); }
 function updateTrackerFromFirebase(data){
-  const lastEl = document.getElementById('trackerLast');
-  const accEl = document.getElementById('trackerAccuracy');
-  const speedEl = document.getElementById('trackerSpeed');
-  const dayEl = document.getElementById('trackerDay');
-  if(!data || typeof data.lat !== 'number' || typeof data.lng !== 'number'){
-    latestLiveLocation = null;
-    setTrackerStatus('No active location yet','offline');
-    if(lastEl) lastEl.textContent='No signal'; if(accEl) accEl.textContent='—'; if(speedEl) speedEl.textContent='—'; if(dayEl) dayEl.textContent='—';
-    return;
-  }
-  latestLiveLocation = data;
-  const ageMs = Date.now() - Number(data.lastUpdated || 0);
-  const ageText = formatAge(ageMs);
-  const active = !!data.trackingActive && ageMs < 15 * 60 * 1000;
-  setTrackerStatus(active ? 'Live tracking active' : 'Last known location', active ? 'live' : 'offline');
-  if(lastEl) lastEl.textContent = ageText;
-  if(accEl) accEl.textContent = data.accuracy ? Math.round(data.accuracy) + ' m' : '—';
-  if(speedEl) speedEl.textContent = data.speed ? Math.round(data.speed * 2.23694) + ' mph' : '—';
-  if(dayEl) dayEl.textContent = data.activeDay ? 'Day ' + data.activeDay : '—';
-  updateLiveMarkerEverywhere(data);
+  const lastEl=document.getElementById('trackerLast'), accEl=document.getElementById('trackerAccuracy'), speedEl=document.getElementById('trackerSpeed'), dayEl=document.getElementById('trackerDay');
+  if(!data || typeof data.lat !== 'number' || typeof data.lng !== 'number'){ latestLiveLocation=null; setTrackerStatus('No active location yet','offline'); if(lastEl)lastEl.textContent='No signal'; if(accEl)accEl.textContent='—'; if(speedEl)speedEl.textContent='—'; if(dayEl)dayEl.textContent='—'; updateProgressBanner(null); return; }
+  latestLiveLocation=data; const ageMs=Date.now()-Number(data.lastUpdated||0); const active=!!data.trackingActive && ageMs<15*60*1000;
+  setTrackerStatus(active?'Live tracking active':'Last known location', active?'live':'offline'); if(lastEl)lastEl.textContent=formatAge(ageMs); if(accEl)accEl.textContent=data.accuracy?Math.round(data.accuracy)+' m':'—'; if(speedEl)speedEl.textContent=data.speed?Math.round(data.speed*2.23694)+' mph':'—';
+  const progress = computeProgressForPosition(data); const day = progress?.activeDay || data.activeDay; if(dayEl)dayEl.textContent=day?'Day '+day:'—'; updateProgressBanner(progress, data); updateLiveMarkerEverywhere(data, day);
 }
-function formatAge(ageMs){
-  if(!Number.isFinite(ageMs) || ageMs < 0) return 'just now';
-  const s = Math.round(ageMs/1000);
-  if(s < 10) return 'just now';
-  if(s < 60) return s + ' sec ago';
-  const m = Math.round(s/60);
-  if(m < 60) return m + ' min ago';
-  const h = Math.round(m/60);
-  return h + ' hr ago';
-}
-function registerTrackableMap(key, map){
-  if(!key || !map) return;
-  trackableMaps.set(key, map);
-  if(latestLiveLocation) updateLiveMarkerOnMap(key, map, latestLiveLocation);
-}
-function liveDriverIcon(){
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="#22c55e" stroke="white" stroke-width="5"/><circle cx="22" cy="22" r="7" fill="white"/><path d="M22 5 28 22 22 19 16 22Z" fill="#0f172a" opacity=".9"/></svg>`;
-  return {url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg), scaledSize:new google.maps.Size(44,44), anchor:new google.maps.Point(22,22)};
-}
-function updateLiveMarkerEverywhere(data){
-  if(!window.google || !google.maps) return;
-  for(const [key, map] of trackableMaps.entries()) updateLiveMarkerOnMap(key, map, data);
-}
-function updateLiveMarkerOnMap(key, map, data){
-  const pos = {lat:Number(data.lat), lng:Number(data.lng)};
-  let marker = liveDriverMarkers.get(key);
-  if(!marker){
-    marker = new google.maps.Marker({map, position:pos, title:'Live driver location', icon:liveDriverIcon(), zIndex:9999});
-    marker.addListener('click', () => {
-      const info = new google.maps.InfoWindow({content:`<div class="gm-info"><h3>Live driver location</h3><p>Last update: ${esc(formatAge(Date.now() - Number(data.lastUpdated || 0)))}<br>Accuracy: ${esc(Math.round(Number(data.accuracy || 0)))} m</p></div>`});
-      info.open({map, anchor: marker});
+function formatAge(ageMs){ if(!Number.isFinite(ageMs)||ageMs<0)return'just now'; const s=Math.round(ageMs/1000); if(s<10)return'just now'; if(s<60)return s+' sec ago'; const m=Math.round(s/60); if(m<60)return m+' min ago'; const h=Math.round(m/60); return h+' hr ago'; }
+function metersToMiles(m){ return Number(m||0)/1609.344; }
+function fmtMi(m){ const mi=metersToMiles(m); return mi>=100 ? Math.round(mi).toLocaleString() : mi.toFixed(1); }
+function pct(done,total){ return total>0 ? Math.max(0,Math.min(100,(done/total)*100)) : 0; }
+function precomputeRouteMetrics(){
+  if(!directionsService || !window.google || !google.maps.geometry) return;
+  let done=0; totalTripMeters=0;
+  TRIP.days.forEach(d=>{
+    const routeStops=d.routeStops, origin=routeStops[0], destination=routeStops[routeStops.length-1], waypoints=routeStops.slice(1,-1).map(q=>({location:q,stopover:true}));
+    directionsService.route({origin,destination,waypoints,travelMode:google.maps.TravelMode.DRIVING,optimizeWaypoints:false},(res,status)=>{
+      done++;
+      if(status==='OK' && res.routes && res.routes[0]){
+        const r=res.routes[0]; const path=r.overview_path || []; const meters = r.legs ? r.legs.reduce((s,l)=>s+(l.distance?.value||0),0) : google.maps.geometry.spherical.computeLength(path);
+        routeCache.set(d.day,{day:d.day,path,totalMeters:meters});
+      }
+      if(done>=TRIP.days.length){ totalTripMeters=Array.from(routeCache.values()).sort((a,b)=>a.day-b.day).reduce((s,r)=>s+r.totalMeters,0); routeTotalsReady=true; updateProgressBanner(latestLiveLocation?computeProgressForPosition(latestLiveLocation):null, latestLiveLocation); }
     });
-    liveDriverMarkers.set(key, marker);
-  } else { marker.setPosition(pos); }
-  let circle = liveAccuracyCircles.get(key);
-  if(!circle){
-    circle = new google.maps.Circle({map, center:pos, radius:Number(data.accuracy || 0), strokeColor:'#22c55e', strokeOpacity:.5, strokeWeight:2, fillColor:'#22c55e', fillOpacity:.10, zIndex:9998});
-    liveAccuracyCircles.set(key, circle);
-  } else { circle.setCenter(pos); circle.setRadius(Number(data.accuracy || 0)); }
+  });
 }
-function centerLiveLocation(){
-  if(!latestLiveLocation){ setTrackerMessage('No live location has been received yet.'); return; }
-  const day = Number(latestLiveLocation.activeDay || window.__activeDay || 1);
-  const map = dayMaps.get(day) || overviewMapRef || Array.from(trackableMaps.values())[0];
-  if(!map){ setTrackerMessage('Map has not loaded yet.'); return; }
-  const pos = {lat:Number(latestLiveLocation.lat), lng:Number(latestLiveLocation.lng)};
-  map.setCenter(pos); map.setZoom(Math.max(map.getZoom() || 8, 12));
-  const sec = document.getElementById('day-'+day) || document.getElementById('overview');
-  if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
-  setTrackerMessage('Centered live driver marker.');
+function computeProgressForPosition(data){
+  if(!data || typeof data.lat!=='number' || typeof data.lng!=='number' || !routeTotalsReady) return null;
+  const live = new google.maps.LatLng(Number(data.lat), Number(data.lng)); let best=null;
+  for(const r of routeCache.values()){ const b=projectPointOnPath(live, r.path); if(b && (!best || b.distanceMeters < best.distanceMeters)) best={...b, activeDay:r.day, dayTotalMeters:r.totalMeters}; }
+  if(!best) return null;
+  const offRoute = best.distanceMeters > OFF_ROUTE_METERS;
+  if(offRoute){ if(lastValidProgress) return {...lastValidProgress, offRoute:true}; return {offRoute:true, activeDay:data.activeDay||window.__activeDay||1}; }
+  const previousMeters = Array.from(routeCache.values()).filter(r=>r.day<best.activeDay).reduce((s,r)=>s+r.totalMeters,0);
+  const tripCompletedMeters = Math.min(totalTripMeters, previousMeters + Math.min(best.completedMeters, best.dayTotalMeters));
+  const progress={offRoute:false,activeDay:best.activeDay,tripCompletedMeters,totalTripMeters,dayCompletedMeters:Math.min(best.completedMeters,best.dayTotalMeters),dayTotalMeters:best.dayTotalMeters,distanceFromRouteMeters:best.distanceMeters};
+  lastValidProgress=progress; window.__autoActiveDay=best.activeDay; return progress;
 }
+function projectPointOnPath(point, path){
+  if(!path || path.length<2) return null;
+  let cumulative=0, best={distanceMeters:Infinity, completedMeters:0};
+  const pLat=point.lat(), pLng=point.lng();
+  for(let i=0;i<path.length-1;i++){
+    const a=path[i], b=path[i+1]; const lat1=a.lat(), lng1=a.lng(), lat2=b.lat(), lng2=b.lng();
+    const mean=((lat1+lat2)/2)*Math.PI/180, scale=Math.cos(mean); const ax=lng1*scale, ay=lat1, bx=lng2*scale, by=lat2, px=pLng*scale, py=pLat;
+    const dx=bx-ax, dy=by-ay, denom=dx*dx+dy*dy; let t=denom?((px-ax)*dx+(py-ay)*dy)/denom:0; t=Math.max(0,Math.min(1,t));
+    const projLat=lat1+(lat2-lat1)*t, projLng=lng1+(lng2-lng1)*t; const proj=new google.maps.LatLng(projLat, projLng);
+    const dist=google.maps.geometry.spherical.computeDistanceBetween(point, proj); const segLen=google.maps.geometry.spherical.computeDistanceBetween(a,b);
+    if(dist<best.distanceMeters) best={distanceMeters:dist, completedMeters:cumulative+segLen*t}; cumulative+=segLen;
+  }
+  return best;
+}
+function updateProgressBanner(progress, data){
+  const tripTitle=document.getElementById('tripProgressTitle'), tripPct=document.getElementById('tripProgressPct'), tripFill=document.getElementById('tripProgressFill'), dayTitle=document.getElementById('dayProgressTitle'), dayPct=document.getElementById('dayProgressPct'), dayFill=document.getElementById('dayProgressFill'), tripMiles=document.getElementById('tripMileageText'), dayMiles=document.getElementById('dayMileageText'), mini=document.getElementById('progressMini');
+  if(!routeTotalsReady){ if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles'; if(mini)mini.textContent='Calculating route miles…'; return; }
+  if(!progress || !progress.totalTripMeters){ if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location'; if(dayTitle)dayTitle.textContent='Today: waiting for live location'; if(mini)mini.textContent='Waiting for live location'; return; }
+  const tripP=pct(progress.tripCompletedMeters, progress.totalTripMeters), dayP=pct(progress.dayCompletedMeters, progress.dayTotalMeters); const prefix=progress.offRoute?'Off route • Last known progress: ':'';
+  if(tripTitle)tripTitle.textContent=prefix+'Trip progress'; if(tripPct)tripPct.textContent=Math.round(tripP)+'%'; if(tripFill)tripFill.style.width=tripP+'%';
+  if(dayTitle)dayTitle.textContent='Today: Day '+progress.activeDay; if(dayPct)dayPct.textContent=Math.round(dayP)+'%'; if(dayFill)dayFill.style.width=dayP+'%';
+  if(tripMiles)tripMiles.textContent=`${fmtMi(progress.tripCompletedMeters)} / ${fmtMi(progress.totalTripMeters)} mi • ${fmtMi(progress.totalTripMeters-progress.tripCompletedMeters)} mi left`;
+  if(dayMiles)dayMiles.textContent=`${fmtMi(progress.dayCompletedMeters)} / ${fmtMi(progress.dayTotalMeters)} mi • ${fmtMi(progress.dayTotalMeters-progress.dayCompletedMeters)} mi left`;
+  if(mini){ mini.classList.toggle('show', isAdmin||isApproved); mini.textContent = `${progress.offRoute?'Off route • ':''}Trip ${Math.round(tripP)}% • Day ${progress.activeDay} ${Math.round(dayP)}%`; }
+}
+function createProgressMini(){ if(document.getElementById('progressMini')) return; const el=document.createElement('div'); el.id='progressMini'; el.className='progress-mini'; el.textContent='Waiting for live location'; document.body.appendChild(el); }
+function createWatcherStrip(){ const shell=document.querySelector('.overview-map'); if(shell && !document.getElementById('watcherStrip')){ const el=document.createElement('div'); el.id='watcherStrip'; el.className='watcher-strip'; shell.appendChild(el); } }
+function registerTrackableMap(key, map){ if(!key||!map)return; trackableMaps.set(key,map); if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay); }
+class LiveAvatarOverlay extends google.maps.OverlayView{
+  constructor(pos, data){ super(); this.position=pos; this.data=data; this.div=null; }
+  onAdd(){ this.div=document.createElement('div'); this.div.className='live-avatar-marker'; this.div.innerHTML=this.html(); this.getPanes().overlayMouseTarget.appendChild(this.div); }
+  draw(){ if(!this.div)return; const p=this.getProjection().fromLatLngToDivPixel(this.position); if(p){ this.div.style.left=p.x+'px'; this.div.style.top=p.y+'px'; } }
+  onRemove(){ if(this.div){ this.div.remove(); this.div=null; } }
+  setPosition(pos){ this.position=pos; this.draw(); }
+  setData(data){ this.data=data; if(this.div) this.div.innerHTML=this.html(); }
+  html(){ const name=this.data.driverName||'Driver'; const photo=this.data.driverPhotoURL||''; const initials=String(name).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'D'; return `<div class="live-avatar-core">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:`<span class="live-avatar-initials">${esc(initials)}</span>`}</div><div class="live-avatar-label">Driver</div>`; }
+}
+function updateLiveMarkerEverywhere(data, activeDay){ if(!window.google||!google.maps)return; const activeKey='day-'+(activeDay||data.activeDay||1); for(const [key,map] of trackableMaps.entries()){ if(key==='overview' || key===activeKey) updateLiveMarkerOnMap(key,map,data); else removeLiveMarker(key); } }
+function updateLiveMarkerOnMap(key,map,data){ const pos=new google.maps.LatLng(Number(data.lat),Number(data.lng)); let overlay=liveDriverMarkers.get(key); if(!overlay){ overlay=new LiveAvatarOverlay(pos,data); overlay.setMap(map); liveDriverMarkers.set(key,overlay); } else { overlay.setPosition(pos); overlay.setData(data); }
+  let circle=liveAccuracyCircles.get(key); if(!circle){ circle=new google.maps.Circle({map,center:pos,radius:Number(data.accuracy||0),strokeColor:'#dc2626',strokeOpacity:.55,strokeWeight:2,fillColor:'#dc2626',fillOpacity:.08,zIndex:9998}); liveAccuracyCircles.set(key,circle); } else { circle.setMap(map); circle.setCenter(pos); circle.setRadius(Number(data.accuracy||0)); }
+}
+function removeLiveMarker(key){ const overlay=liveDriverMarkers.get(key); if(overlay){ overlay.setMap(null); liveDriverMarkers.delete(key); } const c=liveAccuracyCircles.get(key); if(c){ c.setMap(null); liveAccuracyCircles.delete(key); } }
+function centerLiveLocation(){ if(!latestLiveLocation){setTrackerMessage('No live location has been received yet.');return;} const progress=computeProgressForPosition(latestLiveLocation); const day=progress?.activeDay||latestLiveLocation.activeDay||1; const map=dayMaps.get(day)||overviewMapRef||Array.from(trackableMaps.values())[0]; if(!map){setTrackerMessage('Map has not loaded yet.');return;} const pos={lat:Number(latestLiveLocation.lat),lng:Number(latestLiveLocation.lng)}; map.setCenter(pos); map.setZoom(Math.max(map.getZoom()||8,12)); const sec=document.getElementById('day-'+day)||document.getElementById('overview'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'}); setTrackerMessage('Centered live driver marker.'); }
+function listenMessages(){ if(messagesListenerRef) return; messagesListenerRef=trackerDb.ref(`${TRACKER_BASE}/messages`); messagesListenerRef.limitToLast(50).on('value', snap=>renderMessages(snap.val()||{}), err=>setTrackerMessage(err.message||String(err))); }
+function sendTripMessage(){ if(!currentUser || (!isAdmin&&!isApproved)) return; const input=document.getElementById('messageInput'); const text=(input?.value||'').trim(); if(!text) return; const link=(text.match(/https?:\/\/\S+/)||[])[0]||''; trackerDb.ref(`${TRACKER_BASE}/messages`).push({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',text,link,createdAt:Date.now()}).then(()=>{if(input)input.value='';}).catch(e=>setTrackerMessage(e.message||String(e))); }
+function renderMessages(data){ const list=document.getElementById('messageList'); if(!list)return; const msgs=Object.entries(data).map(([id,m])=>({id,...m})).filter(m=>m.text).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,25); if(!msgs.length){list.innerHTML='<div class="message-card">No messages yet.</div>';return;} list.innerHTML=msgs.map(m=>`<div class="message-card"><div class="message-main"><img src="${esc(m.photoURL||'')}" alt=""><div class="message-text"><b>${esc(m.name||'Viewer')}</b><span>${esc(formatAge(Date.now()-Number(m.createdAt||0)))}</span><p class="message-body">${linkify(esc(m.text))}</p>${m.link?`<a class="suggestion-link" target="_blank" rel="noopener" href="${esc(m.link)}">Open suggestion</a>`:''}${isAdmin?` <button class="btn btn-food btn-small" onclick="deleteMessage('${esc(m.id)}')">Delete</button>`:''}</div></div></div>`).join(''); }
+function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g,'<a class="suggestion-link" target="_blank" rel="noopener" href="$1">Open link</a>'); }
+function deleteMessage(id){ if(isAdmin && id) trackerDb.ref(`${TRACKER_BASE}/messages/${id}`).remove(); } window.deleteMessage=deleteMessage;
+function listenVotes(){ if(votesListenerRef) return; votesListenerRef=trackerDb.ref(`${TRACKER_BASE}/votes`); votesListenerRef.on('value', snap=>{ allVotes=snap.val()||{}; renderVotes(); }, err=>setTrackerMessage(err.message||String(err))); }
+function voteForFood(day,key,name){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before voting.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).set({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',foodKey:key,foodName:name,updatedAt:Date.now()}).catch(e=>setTrackerMessage(e.message||String(e))); }
+window.voteForFood=voteForFood;
+function renderVotes(){ document.querySelectorAll('[data-vote-key]').forEach(card=>{ const key=card.dataset.voteKey, day=card.dataset.day; const dayVotes=allVotes[day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); const count=document.getElementById('votes-'+key), bubbles=document.getElementById('voters-'+key), leader=document.getElementById('leader-'+key); if(count)count.textContent=voters.length+' vote'+(voters.length===1?'':'s'); if(bubbles)bubbles.innerHTML=voters.map(v=>profileBubble(v.photoURL,v.name||v.email||'Viewer')).join(''); card.classList.toggle('vote-selected', !!(currentUser && dayVotes[currentUser.uid] && dayVotes[currentUser.uid].foodKey===key)); });
+  // leader pass without pipeline for browser safety
+  document.querySelectorAll('.leader-badge').forEach(x=>x.classList.remove('show'));
+  for(const [day, votes] of Object.entries(allVotes||{})){ const counts={}; Object.values(votes||{}).forEach(v=>{ if(v.foodKey) counts[v.foodKey]=(counts[v.foodKey]||0)+1; }); const max=Math.max(0,...Object.values(counts)); if(max>0){ Object.entries(counts).forEach(([key,c])=>{ const el=document.getElementById('leader-'+key); if(el && c===max) el.classList.add('show'); }); } }
+}
+function createPhotoModal(){ if(document.getElementById('foodPhotoModal')) return; const el=document.createElement('div'); el.className='photo-modal'; el.id='foodPhotoModal'; el.addEventListener('click',e=>{if(e.target===el)closeFoodPreview();}); el.innerHTML='<div class="photo-modal-card"><img id="modalFoodImg" alt=""><div class="photo-modal-body"><h3 id="modalFoodName"></h3><p id="modalFoodVotes"></p><div class="photo-modal-actions"><button class="btn btn-go" id="modalVoteBtn">Vote</button><a class="btn btn-google" id="modalGoogleBtn" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" id="modalWazeBtn" target="_blank" rel="noopener">Waze</a><button class="btn btn-ghost" type="button" onclick="closeFoodPreview()">Close</button></div></div></div>'; document.body.appendChild(el); }
+function openFoodPreview(key){ const f=window.__foodLookup?.[key]; const card=document.getElementById('food-'+key); if(!f||!card)return; foodPreviewKey=key; const img=card.querySelector('img')?.src||FALLBACKS.food; document.getElementById('modalFoodImg').src=img; document.getElementById('modalFoodName').textContent=f.name; const dayVotes=allVotes[f.day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); document.getElementById('modalFoodVotes').textContent=voters.length+' vote'+(voters.length===1?'':'s'); document.getElementById('modalGoogleBtn').href=f.google; document.getElementById('modalWazeBtn').href=f.waze; document.getElementById('modalVoteBtn').onclick=()=>voteForFood(f.day,key,f.name); document.getElementById('foodPhotoModal').classList.add('show'); }
+function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classList.remove('show'); } window.openFoodPreview=openFoodPreview; window.closeFoodPreview=closeFoodPreview;
 
 renderStatic();
 initFirebaseTracker();
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places&callback=initApp&loading=async"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places,geometry&callback=initApp&loading=async"></script>
 </body>
 </html>
