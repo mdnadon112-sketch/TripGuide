@@ -868,6 +868,7 @@ let currentPresenceViewers = [];
 let latestLiveLocations = {};
 let latestLiveTrackers = [];
 let displayedLiveTrackers = [];
+let tripGuideForegroundMessageBound = false;
 function isCoreLiveTrackerEmail(email){ return LIVE_TRACKER_EMAILS.includes(canonicalEmail(email)); }
 function isCoreLiveTrackerUser(user){ return !!(user && isCoreLiveTrackerEmail(authEmail(user) || user.email)); }
 function liveTrackerDisplayName(data){
@@ -902,6 +903,37 @@ function initFirebaseTracker(){
     }
     if(!firebase.apps.length) firebase.initializeApp(TRACKER_CONFIG);
     trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH); liveTrackersRef = trackerDb.ref(LIVE_TRACKERS_PATH);
+    try{
+      if(!tripGuideForegroundMessageBound){
+        const messaging = firebase.messaging();
+        messaging.onMessage((payload) => {
+          console.log('[TripGuide] Foreground push received:', payload);
+
+          const title =
+            (payload.notification && payload.notification.title) ||
+            (payload.data && payload.data.title) ||
+            'TripGuide';
+
+          const body =
+            (payload.notification && payload.notification.body) ||
+            (payload.data && payload.data.body) ||
+            'New TripGuide update';
+
+          if(Notification.permission === 'granted'){
+            new Notification(title, {
+              body,
+              icon: '/TripGuide/icon-192.png',
+              data: {
+                url: (payload.data && payload.data.url) || 'https://mdnadon112-sketch.github.io/TripGuide/'
+              }
+            });
+          }
+        });
+        tripGuideForegroundMessageBound = true;
+      }
+    }catch(err){
+      console.warn('[TripGuide] Foreground messaging handler not active:', err);
+    }
     // LOCAL persistence keeps the signed-in state after the Google Auth return.
     try{ trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); }catch(_){}
     bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip(); createWatcherModal();
@@ -2030,6 +2062,7 @@ function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classLis
 
 /* PATCH v5.24: Firebase web push notifications - runtime code only */
 const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b8_KdG9yoywu4VQfz4jdP8nTsvbCrbfIRXYg9NT8B8NwGc';
+const VAPID_KEY = TRIPGUIDE_WEB_PUSH_VAPID_KEY;
 let tripGuideMessaging = null, tripGuideFunctions = null;
 let tripGuideServiceWorkerRegistration = null, tripGuideServiceWorkerPromise = null, currentUserPushTokenRef = null, adminPushTokensRef = null;
 let pushDiagnosticsState = createPushDiagnosticsState();
@@ -2378,90 +2411,63 @@ function startPushDiagnostics(){
 }
 
 async function enableTripGuidePush(){
-  try{
-    await refreshPushBrowserDiagnostics();
-    if(!currentUser || !trackerDb){ setTrackerMessage('Sign in before enabling notifications.'); return; }
-    if(!pushDiagnosticsState.browser.serviceWorkerSupported){ setTrackerMessage('Push notifications are not available here because this browser does not support service workers.'); return; }
-    if(!pushDiagnosticsState.browser.notificationSupported){ setTrackerMessage('Push notifications are not available here because this browser does not support the Notification API.'); return; }
-    if(!firebase.messaging){
-      pushDiagnosticsState.browser.firebaseMessagingAvailable = false;
-      renderPushDiagnostics();
-      setTrackerMessage('Firebase Messaging is missing in this browser session.');
-      return;
-    }
-    if(TRIPGUIDE_WEB_PUSH_VAPID_KEY.includes('PASTE_')){ setTrackerMessage('Add the Firebase Web Push VAPID key before enabling notifications.'); return; }
-
-    const supported = firebase.messaging.isSupported ? await firebase.messaging.isSupported() : true;
-    pushDiagnosticsState.browser.firebaseMessagingAvailable = !!supported;
-    renderPushDiagnostics();
-    if(!supported){ setTrackerMessage('Firebase web push is not supported on this browser/device.'); return; }
-
-    let permission = Notification.permission || 'default';
-    pushDiagnosticsState.browser.permission = permission;
-    renderPushDiagnostics();
-    if(permission === 'denied'){
-      setTrackerMessage('Notifications are blocked for this site. Reset the browser/site notification permission, then try again.');
-      return;
-    }
-    if(permission !== 'granted'){
-      permission = await Notification.requestPermission();
-      pushDiagnosticsState.browser.permission = permission;
-      renderPushDiagnostics();
-    }
-    if(permission === 'denied'){
-      setTrackerMessage('Notifications are blocked for this site. Reset the browser/site notification permission, then try again.');
-      return;
-    }
-    if(permission !== 'granted'){
-      setTrackerMessage('Notifications were not enabled because permission was not granted.');
-      return;
-    }
-
-    const registration = await ensureTripGuideServiceWorkerRegistration();
-    tripGuideMessaging = firebase.messaging();
-    let token = '';
-    try{
-      token = await tripGuideMessaging.getToken({
-        vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
-        serviceWorkerRegistration: registration
-      });
-    }catch(tokenError){
-      const safeError = safePushError(tokenError);
-      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token generation failed: ' + safeError };
-      renderPushDiagnostics();
-      setTrackerMessage('Notification token generation failed: ' + safeError);
-      return;
-    }
-
-    if(!token){
-      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token generation failed: No notification token returned.' };
-      renderPushDiagnostics();
-      setTrackerMessage('Notification token generation failed: No notification token returned.');
-      return;
-    }
-
-    try{
-      const saved = await saveCurrentUserPushToken(token, true);
-      pushDiagnosticsState.currentToken = {
-        saved: true,
-        createdAt: saved.tokenRecord.createdAt || null,
-        lastSeen: saved.tokenRecord.lastSeen || null,
-        enabled: true,
-        masked: maskPushToken(token),
-        error: ''
-      };
-    }catch(writeError){
-      const safeError = safePushError(writeError);
-      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: true, masked: maskPushToken(token), error: 'Token created but save failed: ' + safeError };
-      renderPushDiagnostics();
-      setTrackerMessage('Notification token created, but it could not be saved: ' + safeError);
-      return;
-    }
-    renderPushDiagnostics();
-    setTrackerMessage('Notifications enabled for this device.');
-  }catch(e){
-    setTrackerMessage('Enable notifications failed: ' + safePushError(e));
+  if(!('Notification' in window)){
+    throw new Error('This browser does not support notifications.');
   }
+
+  if(!('serviceWorker' in navigator)){
+    throw new Error('This browser does not support service workers.');
+  }
+
+  if(!window.firebase || !firebase.messaging){
+    throw new Error('Firebase Messaging is not loaded.');
+  }
+
+  const permission = await Notification.requestPermission();
+
+  if(permission !== 'granted'){
+    throw new Error('Notification permission was not granted.');
+  }
+
+  const swReg = await navigator.serviceWorker.register('/TripGuide/firebase-messaging-sw.js');
+
+  await navigator.serviceWorker.ready;
+
+  const messaging = firebase.messaging();
+
+  const token = await messaging.getToken({
+    vapidKey: VAPID_KEY,
+    serviceWorkerRegistration: swReg
+  });
+
+  if(!token){
+    throw new Error('FCM did not return a token.');
+  }
+
+  const user = firebase.auth().currentUser;
+
+  if(!user){
+    throw new Error('Sign in before enabling notifications.');
+  }
+
+  const tokenId = token.replace(/[.#$[\]/]/g, '_');
+  const now = Date.now();
+
+  await firebase.database()
+    .ref(`tripGuide/pushTokens/${user.uid}/${tokenId}`)
+    .set({
+      token,
+      enabled: true,
+      uid: user.uid,
+      email: user.email || '',
+      displayName: user.displayName || '',
+      platform: navigator.platform || '',
+      userAgent: navigator.userAgent || '',
+      createdAt: now,
+      lastSeen: now
+    });
+
+  alert('Notifications enabled.');
 }
 async function disableTripGuidePushOnDevice(){
   try{
@@ -2536,7 +2542,12 @@ function bindPushButton(){
   const btn = document.getElementById('enablePushBtn');
   if(btn && !btn.dataset.boundPush){
     btn.dataset.boundPush = 'true';
-    btn.addEventListener('click', enableTripGuidePush);
+    btn.addEventListener('click', () => {
+      enableTripGuidePush().catch((err) => {
+        console.error(err);
+        alert(err.message || String(err));
+      });
+    });
   }
 }
 function bindDisablePushButton(){
@@ -2576,7 +2587,12 @@ document.addEventListener('click', function(e){
   if(target.id === 'cleanupPushTokensBtn' && target.dataset.boundCleanupPush) return;
   if(target.id === 'sendPushNotificationBtn' && target.dataset.boundSendPush) return;
   if(target.id === 'togglePushDiagnosticsBtn' && target.dataset.boundPushDiagToggle) return;
-  if(target.id === 'enablePushBtn') enableTripGuidePush();
+  if(target.id === 'enablePushBtn'){
+    enableTripGuidePush().catch((err) => {
+      console.error(err);
+      alert(err.message || String(err));
+    });
+  }
   if(target.id === 'disablePushBtn') disableTripGuidePushOnDevice();
   if(target.id === 'cleanupPushTokensBtn') cleanDisabledOrStalePushTokens();
   if(target.id === 'sendPushNotificationBtn') sendTripGuideNotificationFromAdmin();

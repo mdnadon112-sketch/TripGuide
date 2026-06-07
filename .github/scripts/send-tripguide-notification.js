@@ -103,7 +103,8 @@ async function main() {
           },
           notification: {
             title,
-            body
+            body,
+            icon: '/TripGuide/icon-192.png'
           }
         },
         data: {
