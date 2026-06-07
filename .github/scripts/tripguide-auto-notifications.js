@@ -16,23 +16,259 @@ const FCM_BATCH_SIZE = 500;
 const LIVE_STALE_MS = 15 * 60 * 1000;
 const LIVE_STALE_REPEAT_MS = 60 * 60 * 1000;
 
-function required(name) {
-  const value = String(process.env[name] || '').trim();
-  if (!value) throw new Error(`Missing ${name}`);
-  return value;
+const TRIPGUIDE_NOTIFICATION_COPY = {
+  tripStarted: {
+    target: 'all',
+    title: 'TripGuide: tracking started',
+    body: 'Mike and Lauren are live on the trip map.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  tripStopped: {
+    target: 'all',
+    title: 'TripGuide: tracking stopped',
+    body: 'Live tracking has stopped for now.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  tripComplete: {
+    target: 'all',
+    title: 'TripGuide: final arrival',
+    body: 'Mike and Lauren made it to Seal Beach. Final Trip complete.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-9'
+  },
+
+  liveStale: {
+    target: 'admins',
+    title: 'TripGuide: live signal stale',
+    body: 'The live location has not updated in over 15 minutes.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  liveRestored: {
+    target: 'admins',
+    title: 'TripGuide: live signal restored',
+    body: 'Live location updates are coming through again.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  accessRequest: {
+    target: 'admins',
+    title: 'TripGuide access request',
+    body: '{name} requested access to the live trip hub.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  accessApproved: {
+    target: 'singleUser',
+    title: 'TripGuide access approved',
+    body: 'You can now view Mike and Lauren\'s live trip hub.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  accessDenied: {
+    target: 'singleUser',
+    title: 'TripGuide access update',
+    body: 'Your live trip hub access request was not approved.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  userBlocked: {
+    target: 'admins',
+    title: 'TripGuide user blocked',
+    body: '{name} was blocked from the live trip hub.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  tripReset: {
+    target: 'admins',
+    title: 'TripGuide reset complete',
+    body: 'The live trip state was reset by an admin.',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  newMessage: {
+    target: 'all',
+    title: 'TripGuide message from {name}',
+    body: '{messagePreview}',
+    url: 'https://mdnadon112-sketch.github.io/TripGuide/'
+  },
+
+  days: {
+    1: {
+      target: 'all',
+      title: 'TripGuide: Day 1 started',
+      body: 'Beaufort to Birmingham/Homewood. Stretch start day: Savannah shade stop, fuel, dogs, check-in, early sleep.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-1'
+    },
+
+    2: {
+      target: 'all',
+      title: 'TripGuide: Day 2 started',
+      body: 'Homewood to North Little Rock. Memphis riverfront stop, dog relief, and reset before the long Plains/Texas leg.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-2'
+    },
+
+    3: {
+      target: 'all',
+      title: 'TripGuide: Day 3 started',
+      body: 'North Little Rock to Amarillo. Longest push: OKC Memorial, Route 66 optional, heat and fatigue control.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-3'
+    },
+
+    4: {
+      target: 'all',
+      title: 'TripGuide: Day 4 started',
+      body: 'Amarillo to Angel Fire. Scenic approach day: Palo Duro, Capulin, Raton, and Angel Fire arrival.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-4'
+    },
+
+    5: {
+      target: 'all',
+      title: 'TripGuide: Day 5 started',
+      body: 'Angel Fire MTB day. Dog boarding, bike park, Monte Verde Lake, and recovery at the lodge.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-5'
+    },
+
+    6: {
+      target: 'all',
+      title: 'TripGuide: Day 6 started',
+      body: 'Angel Fire flex day. Golf, recovery, Monte Verde Lake, Taos scenery, or low-effort rest.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-6'
+    },
+
+    7: {
+      target: 'all',
+      title: 'TripGuide: Day 7 started',
+      body: 'Angel Fire to Flagstaff. I-40 corridor with Petrified Forest and Meteor Crater options.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-7'
+    },
+
+    8: {
+      target: 'all',
+      title: 'TripGuide: Day 8 started',
+      body: 'Flagstaff/Sedona to Barstow. Spa stop, Kingman fuel, and final California staging night.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-8'
+    },
+
+    9: {
+      target: 'all',
+      title: 'TripGuide: Day 9 started',
+      body: 'Final push to Seal Beach. Barstow fuel, home stretch, and trip finish.',
+      url: 'https://mdnadon112-sketch.github.io/TripGuide/#day-9'
+    }
+  }
+};
+
+const TRIPGUIDE_PUSH_RULES = {
+  trackingStarted: {
+    when: 'tripGuide/live/trackingActive changes false/missing -> true',
+    send: 'tripStarted',
+    dedupeKey: 'trackingActive'
+  },
+
+  trackingStopped: {
+    when: 'tripGuide/live/trackingActive changes true -> false',
+    send: 'tripStopped',
+    dedupeKey: 'trackingActive'
+  },
+
+  dayChanged: {
+    when: 'tripGuide/live/activeDay changes to 1-9',
+    send: 'days[activeDay]',
+    dedupeKey: 'activeDay'
+  },
+
+  tripComplete: {
+    when: 'tripGuide/live/activeDay === 9 and tripGuide/live/tripComplete === true',
+    send: 'tripComplete',
+    dedupeKey: 'tripComplete'
+  },
+
+  newMessage: {
+    when: 'newest tripGuide/messages item has createdAt newer than notificationState/lastMessageAt',
+    send: 'newMessage',
+    dedupeKey: 'lastMessageId'
+  },
+
+  accessRequest: {
+    when: 'new pending tripGuide/accessRequests/{uid}',
+    send: 'accessRequest',
+    dedupeKey: 'lastAccessRequestUid + lastAccessRequestAt'
+  },
+
+  accessApproved: {
+    when: 'tripGuide/approvedUsers/{uid}/approved becomes true',
+    send: 'accessApproved to that uid',
+    dedupeKey: 'approvalNotices/{uid}'
+  },
+
+  accessDenied: {
+    when: 'tripGuide/accessRequests/{uid}/status becomes denied',
+    send: 'accessDenied to that uid',
+    dedupeKey: 'denialNotices/{uid}'
+  },
+
+  liveStale: {
+    when: 'trackingActive true and live timestamp older than 15 minutes',
+    send: 'liveStale admins only',
+    cooldown: '60 minutes',
+    dedupeKey: 'lastStaleAlertAt'
+  },
+
+  liveRestored: {
+    when: 'liveWasStale true and live timestamp becomes fresh again',
+    send: 'liveRestored admins only',
+    dedupeKey: 'lastRecoveredAt'
+  },
+
+  userBlocked: {
+    when: 'approvedUsers/{uid}/blocked becomes true or accessRequests/{uid}/status becomes blocked',
+    send: 'userBlocked admins only',
+    dedupeKey: 'blockedNotices/{uid}'
+  },
+
+  tripReset: {
+    when: 'tripGuide/live/resetAt changes',
+    send: 'tripReset admins only',
+    dedupeKey: 'lastResetAt'
+  }
+};
+
+function compileCopy(template, params = {}) {
+  return String(template || '').replace(/\{(\w+)\}/g, (_, key) => String(params[key] || ''));
 }
 
-function resolveDatabaseUrl(serviceAccount) {
-  const envUrl = String(process.env.FIREBASE_DATABASE_URL || '').trim();
-  if (envUrl) return envUrl;
+function cloneCopy(copy, params = {}) {
+  return {
+    target: copy.target,
+    title: compileCopy(copy.title, params),
+    body: compileCopy(copy.body, params),
+    url: copy.url
+  };
+}
 
-  const jsonUrl = String(serviceAccount.database_url || '').trim();
-  if (jsonUrl) return jsonUrl;
+function getDayCopy(day) {
+  const dayCopy = TRIPGUIDE_NOTIFICATION_COPY.days[String(day)] || TRIPGUIDE_NOTIFICATION_COPY.days[day];
+  if (dayCopy) return dayCopy;
+  return {
+    target: 'all',
+    title: `TripGuide: Day ${day} active`,
+    body: `The trip tracker is now on Day ${day}.`,
+    url: `${SITE_URL}#day-${day}`
+  };
+}
 
-  const projectId = String(serviceAccount.project_id || '').trim();
-  if (projectId) return `https://${projectId}-default-rtdb.firebaseio.com`;
+function classifySendError(code) {
+  const value = String(code || '');
+  if (value.includes('registration-token-not-registered')) return { reason: 'not-registered', disable: true };
+  if (value.includes('invalid-registration-token')) return { reason: 'invalid-token', disable: true };
+  return { reason: 'send-failed', disable: false };
+}
 
-  throw new Error('Missing Firebase database URL.');
+function cleanText(value, fallback = '') {
+  const text = String(value || '').trim();
+  return text || fallback;
 }
 
 function toEpoch(value) {
@@ -48,11 +284,6 @@ function canonicalEmail(value) {
   return cleanEmail(value).replace(/@googlemail\.com$/, '@gmail.com');
 }
 
-function cleanText(value, fallback = '') {
-  const text = String(value || '').trim();
-  return text || fallback;
-}
-
 function batches(items, size) {
   const out = [];
   for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
@@ -63,10 +294,8 @@ function isTokenActive(record, now) {
   if (!record) return false;
   if (record.enabled === false) return false;
   if (typeof record.token !== 'string' || !record.token.trim()) return false;
-
   const lastSeen = toEpoch(record.lastSeen || record.createdAt);
   if (!lastSeen) return true;
-
   return now - lastSeen <= MAX_TOKEN_AGE_MS;
 }
 
@@ -95,6 +324,7 @@ function buildRoleSets(admins, approvedUsers, blockedUsers) {
   Object.entries(approvedUsers || {}).forEach(([uid, record]) => {
     if (record && (record.approved === true || record.admin === true)) approvedUids.add(uid);
     if (record && record.admin === true) adminUids.add(uid);
+    if (record && record.blocked === true) blockedUids.add(uid);
   });
 
   adminUids.forEach((uid) => approvedUids.add(uid));
@@ -104,13 +334,6 @@ function buildRoleSets(admins, approvedUsers, blockedUsers) {
   });
 
   return { adminUids, approvedUids, blockedUids };
-}
-
-function classifySendError(code) {
-  const value = String(code || '');
-  if (value.includes('registration-token-not-registered')) return { reason: 'not-registered', disable: true };
-  if (value.includes('invalid-registration-token')) return { reason: 'invalid-token', disable: true };
-  return { reason: 'send-failed', disable: false };
 }
 
 function collectTargetTokenRecords(context, target, targetUid, options = {}) {
@@ -150,7 +373,12 @@ function collectTargetTokenRecords(context, target, targetUid, options = {}) {
   return Array.from(dedup.values());
 }
 
-async function sendPush(context, messaging, target, title, body, url = SITE_URL, options = {}) {
+async function sendPush(context, messaging, copy, options = {}) {
+  const target = copy.target;
+  const title = copy.title;
+  const body = copy.body;
+  const url = copy.url || SITE_URL;
+
   const tokenRecords = collectTargetTokenRecords(context, target, options.uid || '', {
     allowUnapprovedSingleUser: options.allowUnapprovedSingleUser === true
   });
@@ -199,7 +427,6 @@ async function sendPush(context, messaging, target, title, body, url = SITE_URL,
       if (result.success) return;
       const item = batch[idx];
       if (!item) return;
-
       const code = result.error && result.error.code;
       const sendError = classifySendError(code);
       cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureReason`] = sendError.reason;
@@ -297,15 +524,14 @@ async function main() {
       roles: buildRoleSets(admins, approvedUsers, blockedUsers)
     };
 
-    // A/B: tracking started/stopped.
+    // tracking started/stopped
     const trackingActive = live.trackingActive === true;
     const previousTrackingActive = state.trackingActive === true;
-
     if (trackingActive !== previousTrackingActive) {
       if (trackingActive) {
-        await sendPush(context, messaging, 'all', 'TripGuide: tracking started', 'Mike and Lauren are live on the trip map.', SITE_URL);
+        await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.tripStarted);
       } else if (state.trackingActiveSeenOnce === true) {
-        await sendPush(context, messaging, 'all', 'TripGuide: tracking stopped', 'Live tracking has stopped for now.', SITE_URL);
+        await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.tripStopped);
       }
       updates.trackingActive = trackingActive;
       updates.trackingActiveSeenOnce = true;
@@ -313,26 +539,34 @@ async function main() {
       changed = true;
     }
 
-    // C: active day changed.
+    // day changed
     const activeDay = Number(live.activeDay || 0);
     const previousActiveDay = Number(state.activeDay || 0);
-
     if (activeDay >= 1 && activeDay <= 9 && activeDay !== previousActiveDay) {
-      await sendPush(
-        context,
-        messaging,
-        'all',
-        `TripGuide: Day ${activeDay} active`,
-        `The trip tracker is now on Day ${activeDay}.`,
-        `${SITE_URL}#day-${activeDay}`
-      );
-
+      await sendPush(context, messaging, getDayCopy(activeDay));
       updates.activeDay = activeDay;
       updates.activeDayChangedAt = now;
       changed = true;
     }
 
-    // E: new message posted.
+    // trip complete
+    const tripComplete = live.tripComplete === true;
+    if (tripComplete && activeDay === 9 && state.tripComplete !== true) {
+      await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.tripComplete);
+      updates.tripComplete = true;
+      updates.tripCompleteAt = now;
+      changed = true;
+    }
+
+    // trip reset
+    const resetAt = toEpoch(live.resetAt);
+    if (resetAt > 0 && resetAt > toEpoch(state.lastResetAt)) {
+      await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.tripReset);
+      updates.lastResetAt = resetAt;
+      changed = true;
+    }
+
+    // new message
     let newestMessage = null;
     Object.entries(messages).forEach(([id, msg]) => {
       const createdAt = toEpoch(msg && msg.createdAt);
@@ -355,28 +589,25 @@ async function main() {
       await sendPush(
         context,
         messaging,
-        'all',
-        `TripGuide message from ${newestMessage.name}`,
-        newestMessage.text.slice(0, 120),
-        SITE_URL
+        cloneCopy(TRIPGUIDE_NOTIFICATION_COPY.newMessage, {
+          name: newestMessage.name,
+          messagePreview: newestMessage.text.slice(0, 120)
+        })
       );
-
       updates.lastMessageId = newestMessage.id;
       updates.lastMessageAt = newestMessage.createdAt;
       changed = true;
     }
 
-    // D: new pending access request.
+    // new pending access request
     let newestPendingRequest = null;
     Object.entries(requests).forEach(([uid, req]) => {
       if (!req) return;
       const status = cleanText(req.status).toLowerCase();
       const isPending = status ? status === 'pending' : req.approved !== true;
       if (!isPending) return;
-
       const requestedAt = toEpoch(req.requestedAt || req.createdAt);
       if (!requestedAt) return;
-
       if (!newestPendingRequest || requestedAt > newestPendingRequest.requestedAt) {
         newestPendingRequest = {
           uid,
@@ -393,18 +624,50 @@ async function main() {
       await sendPush(
         context,
         messaging,
-        'admins',
-        'TripGuide access request',
-        `${newestPendingRequest.name} requested access to the live trip hub.`,
-        SITE_URL
+        cloneCopy(TRIPGUIDE_NOTIFICATION_COPY.accessRequest, { name: newestPendingRequest.name })
       );
-
       updates.lastAccessRequestUid = newestPendingRequest.uid;
       updates.lastAccessRequestAt = newestPendingRequest.requestedAt;
       changed = true;
     }
 
-    // F/G: live signal stale / restored.
+    // access approved / denied
+    const approvalNotices = Object.assign({}, state.approvalNotices || {});
+    const denialNotices = Object.assign({}, state.denialNotices || {});
+
+    for (const [uid, record] of Object.entries(approvedUsers)) {
+      const approved = !!(record && (record.approved === true || record.admin === true));
+      if (!approved) continue;
+      if (approvalNotices[uid]) continue;
+      if (context.roles.blockedUids.has(uid)) continue;
+
+      await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.accessApproved, {
+        uid,
+        allowUnapprovedSingleUser: true
+      });
+      approvalNotices[uid] = now;
+      changed = true;
+    }
+
+    Object.entries(requests).forEach(([uid, req]) => {
+      if (!req) return;
+      const status = cleanText(req.status).toLowerCase();
+      if (status !== 'denied') return;
+      if (denialNotices[uid]) return;
+      denialNotices[uid] = toEpoch(req.decidedAt || req.updatedAt || req.createdAt || now);
+    });
+
+    for (const [uid, deniedAt] of Object.entries(denialNotices)) {
+      if (state.denialNotices && state.denialNotices[uid]) continue;
+      await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.accessDenied, {
+        uid,
+        allowUnapprovedSingleUser: true
+      });
+      denialNotices[uid] = deniedAt || now;
+      changed = true;
+    }
+
+    // live stale / restored
     const latestLiveAt = newestLiveTimestamp(live, liveTrackers);
     const liveAgeMs = latestLiveAt > 0 ? now - latestLiveAt : Number.POSITIVE_INFINITY;
     const liveIsStale = trackingActive && liveAgeMs > LIVE_STALE_MS;
@@ -413,14 +676,7 @@ async function main() {
 
     if (liveIsStale) {
       if (!liveWasStale || (now - lastStaleAlertAt) >= LIVE_STALE_REPEAT_MS) {
-        await sendPush(
-          context,
-          messaging,
-          'admins',
-          'TripGuide live signal stale',
-          'The live location has not updated in over 15 minutes.',
-          SITE_URL
-        );
+        await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.liveStale);
         updates.lastStaleAlertAt = now;
         changed = true;
       }
@@ -429,63 +685,51 @@ async function main() {
         changed = true;
       }
     } else if (liveWasStale && trackingActive && latestLiveAt > 0 && liveAgeMs <= LIVE_STALE_MS) {
-      await sendPush(
-        context,
-        messaging,
-        'admins',
-        'TripGuide live signal restored',
-        'Live location updates are coming through again.',
-        SITE_URL
-      );
+      await sendPush(context, messaging, TRIPGUIDE_NOTIFICATION_COPY.liveRestored);
       updates.liveWasStale = false;
       updates.lastRecoveredAt = now;
       changed = true;
     }
 
-    // H: optional user approval notifications.
-    const approvalNotices = Object.assign({}, state.approvalNotices || {});
-    for (const [uid, record] of Object.entries(approvedUsers)) {
-      const approved = !!(record && (record.approved === true || record.admin === true));
-      if (!approved) continue;
-      if (approvalNotices[uid]) continue;
-      if (context.roles.blockedUids.has(uid)) continue;
-
-      await sendPush(
-        context,
-        messaging,
-        'singleUser',
-        'TripGuide access approved',
-        'You can now view Mike and Lauren\'s live trip hub.',
-        SITE_URL,
-        { uid, allowUnapprovedSingleUser: true }
-      );
-
-      approvalNotices[uid] = now;
-      changed = true;
-    }
-
-    // I: optional blocked-user admin notifications.
+    // user blocked
     const blockedNotices = Object.assign({}, state.blockedNotices || {});
-    for (const [uid, record] of Object.entries(blockedUsers)) {
-      if (!isBlockedRecord(record)) continue;
-      if (blockedNotices[uid]) continue;
+    const blockedCandidates = {};
 
-      const name = cleanText(record && (record.displayName || record.email || record.name), 'A user');
+    Object.entries(blockedUsers).forEach(([uid, record]) => {
+      if (isBlockedRecord(record)) {
+        blockedCandidates[uid] = cleanText(record && (record.displayName || record.email || record.name), 'A user');
+      }
+    });
+
+    Object.entries(approvedUsers).forEach(([uid, record]) => {
+      if (record && record.blocked === true) {
+        blockedCandidates[uid] = cleanText(record.displayName || record.email || record.name, 'A user');
+      }
+    });
+
+    Object.entries(requests).forEach(([uid, req]) => {
+      if (!req) return;
+      if (cleanText(req.status).toLowerCase() === 'blocked') {
+        blockedCandidates[uid] = cleanText(req.displayName || req.email || req.name, 'A user');
+      }
+    });
+
+    for (const [uid, name] of Object.entries(blockedCandidates)) {
+      if (blockedNotices[uid]) continue;
       await sendPush(
         context,
         messaging,
-        'admins',
-        'TripGuide user blocked',
-        `${name} was blocked from the live trip hub.`,
-        SITE_URL
+        cloneCopy(TRIPGUIDE_NOTIFICATION_COPY.userBlocked, { name })
       );
-
       blockedNotices[uid] = now;
       changed = true;
     }
 
-    updates.approvalNotices = approvalNotices;
-    updates.blockedNotices = blockedNotices;
+    if (changed) {
+      updates.approvalNotices = approvalNotices;
+      updates.denialNotices = denialNotices;
+      updates.blockedNotices = blockedNotices;
+    }
 
     if (Object.keys(updates).length > 0) {
       updates.updatedAt = now;
@@ -495,6 +739,11 @@ async function main() {
 
     if (!changed) {
       console.log('No notification changes.');
+    }
+
+    // referenced for explicit blend visibility
+    if (!TRIPGUIDE_PUSH_RULES || !TRIPGUIDE_NOTIFICATION_COPY) {
+      throw new Error('Notification rules/copy missing.');
     }
   } finally {
     await app.delete();
