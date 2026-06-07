@@ -91,6 +91,16 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .user-state-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.state-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:950;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.10);color:#e2e8f0}.state-pill.good{background:#dcfce7;color:#166534;border-color:#bbf7d0}.state-pill.warn{background:#ffedd5;color:#9a3412;border-color:#fed7aa}.state-pill.dark{background:#0f172a;color:#fff;border-color:#334155}.request-card.is-admin{outline:2px solid rgba(34,197,94,.35)}.request-card.is-approved{outline:2px solid rgba(22,102,216,.22)}.admin-section-label{margin:12px 0 8px;color:#e2e8f0;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.08em}.watcher-actions{grid-column:2 / 4;display:flex;gap:7px;flex-wrap:wrap;margin-top:0}.watcher-actions .btn{box-shadow:none}.uid-chip,.uid-chip.light{display:none!important}
 @media(max-width:700px){.admin-tool-grid.admin-manager-grid{grid-template-columns:1fr}.admin-tool-actions{display:grid;grid-template-columns:1fr}.watcher-actions{grid-column:1 / -1}.watcher-actions .btn{flex:1}}
 @media print{.admin-tool-actions,.watcher-actions{display:none!important}}
+
+/* PATCH v5.19: logical access groups, blocked users, reset trip, confirmations, visible toast */
+.admin-action-notice{display:none;margin:10px 0 0;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:14px;padding:10px 12px;font-weight:950;font-size:13px}.admin-action-notice.show{display:block}.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}.admin-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 12px}.admin-tab{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#e2e8f0;border-radius:999px;padding:8px 11px;font-weight:950;font-size:12px;cursor:pointer}.admin-tab.active{background:#e0f2fe;color:#075985;border-color:#bae6fd}.admin-tab.danger.active{background:#fee2e2;color:#991b1b;border-color:#fecaca}.admin-section-empty{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:15px;padding:12px;color:#cbd5e1;font-weight:850}.request-card.is-blocked{outline:2px solid rgba(220,38,38,.35);background:rgba(127,29,29,.20)}.state-pill.bad{background:#fee2e2;color:#991b1b;border-color:#fecaca}.btn-danger{background:#fee2e2;color:#991b1b;border-color:#fecaca}.btn-danger:hover{filter:brightness(.98)}.reset-warning{background:rgba(254,226,226,.12);border:1px solid rgba(254,202,202,.26);color:#fecaca;border-radius:14px;padding:10px 12px;font-weight:850;font-size:12px;margin-top:8px}
+@media(max-width:700px){.admin-toolbar,.admin-tabs{display:grid;grid-template-columns:1fr}.admin-tab{width:100%}}
+@media print{.admin-toolbar,.admin-tabs,.admin-action-notice{display:none!important}}
+
+.tg-toast{position:fixed;left:12px;right:12px;top:calc(12px + var(--safe-top));z-index:120;display:none;max-width:760px;margin:0 auto;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:16px;padding:12px 14px;font-weight:950;font-size:14px;box-shadow:0 18px 55px rgba(15,23,42,.24);text-align:center}.tg-toast.show{display:block}.tg-toast.bad{background:#fee2e2;color:#991b1b;border-color:#fecaca}.tg-toast.warn{background:#fef3c7;color:#92400e;border-color:#fde68a}
+@media(max-width:700px){.tg-toast{left:8px;right:8px;font-size:13px}}
+
+
 /* PATCH v5.11: top-positioned secure hub and live snap button */
 .top-hub{margin:0 0 16px;border-radius:28px;background:linear-gradient(135deg,rgba(8,20,38,.98),rgba(15,23,42,.94));}
 .top-hub .tracker-top h2{font-size:clamp(28px,5vw,44px);line-height:1;margin:0;letter-spacing:-.035em;}
@@ -176,7 +186,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
       <div class="access-panel hidden" id="accessPanel">
         <h3>Request tracker access</h3>
-        <p id="accessText">Sign in, then request access. Mike or Lauren can approve it from this page.</p>
+        <p id="accessText">You do not have access to view Mike and Lauren's location. Request access below.</p>
         <button class="btn btn-go" type="button" id="requestAccessBtn">Request Access</button>
       </div>
       <div class="protected-hub hidden" id="protectedHub">
@@ -213,6 +223,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <h3>Admin and access manager</h3>
           <p>Approve viewers, remove access, or assign any signed-in account as admin. The other person only needs to sign in once; they do not need to request admin privileges.</p>
           <p class="admin-tool-note">Admin assignment is automatic after you click Make Admin on a signed-in user's card. No UID is shown in the interface; the app uses it internally.</p>
+          <div class="admin-toolbar">
+            <button class="btn btn-danger" type="button" onclick="resetTripWithConfirm()">Reset Trip</button>
+          </div>
+          <div class="admin-action-notice" id="adminActionNotice"></div>
+          <div class="reset-warning">Reset Trip clears live locations, trip messages, and food votes. It does not remove viewers, admins, blocked users, or signed-in user records.</div>
           <div class="request-list" id="requestList"></div>
         </div>
         <div class="message-board" id="messageBoard">
@@ -608,9 +623,11 @@ const LIVE_TRACKER_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com','md
 const OFF_ROUTE_METERS = 16093.44;
 let trackerDb = null, trackerAuth = null, trackerRef = null, liveTrackersRef = null, currentUser = null, isAdmin = false, isApproved = false;
 let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
-let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
+let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, blockedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
 let adminExtraListenerRefs = [];
-let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}, users:{}};
+let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}, users:{}, blocked:{}};
+let adminManagerTab = 'active';
+let currentUserBlocked = false;
 let viewerAccessInitialized = false;
 let allVotes = {}, foodPreviewKey = null;
 let currentPresenceViewers = [];
@@ -793,6 +810,7 @@ function handleAuthState(user){
   isAdmin = isEmailAdminUser(user);
   isApproved = false;
   viewerAccessInitialized = false;
+  currentUserBlocked = false;
   updateAuthUI(); resetSignInButton();
   if(!user){
     const err = recentAuthError();
@@ -848,6 +866,21 @@ function enterViewerAccessFlow(){
   viewerAccessInitialized = true;
   const user = currentUser;
   setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + ' • Viewer pending approval');
+  blockedUserRef = trackerDb.ref(`${TRACKER_BASE}/blockedUsers/${user.uid}`);
+  blockedUserRef.on('value', snap => {
+    const blocked = snap.val();
+    currentUserBlocked = !!(blocked && blocked.blocked === true);
+    if(currentUserBlocked){
+      isApproved=false;
+      setTrackerStatus('Access blocked','offline');
+      showProtectedHub(false);
+      showAccessPanel(true);
+      if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
+      const btn=document.getElementById('requestAccessBtn'); if(btn){ btn.disabled=true; btn.textContent='Access Blocked'; }
+      const text=document.getElementById('accessText'); if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Your access was removed or blocked by an admin.';
+      setTrackerMessage('You do not have access to view Mike and Lauren\'s location.');
+    }
+  }, err => setTrackerMessage('Blocked-user check failed: ' + (err.message || String(err))));
   ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`);
   ownRequestRef.on('value', snap => {
     const req = snap.val();
@@ -861,20 +894,36 @@ function enterViewerAccessFlow(){
     if(approvedRecord && approvedRecord.admin === true){ enterAdminSession('approved admin record'); return; }
     isApproved = !!(approvedRecord && approvedRecord.approved === true);
     if(isApproved){ setTrackerStatus('Approved viewer','live'); showAccessPanel(false); enableProtectedHub(); }
-    else { setTrackerStatus('Access required','offline'); showProtectedHub(false); showAccessPanel(true); }
+    else {
+      setTrackerStatus(currentUserBlocked ? 'Access blocked' : 'Access required','offline');
+      showProtectedHub(false); showAccessPanel(true);
+      if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
+      const text=document.getElementById('accessText');
+      const btn=document.getElementById('requestAccessBtn');
+      if(currentUserBlocked){
+        if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Your access was removed or blocked by an admin.';
+        if(btn){ btn.disabled=true; btn.textContent='Access Blocked'; }
+      } else {
+        if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Request access below.';
+        if(btn){ btn.disabled=false; btn.textContent='Request Access'; }
+        setTrackerMessage('You do not have access to view Mike and Lauren\'s location.');
+      }
+    }
   }, err => setTrackerMessage(err.message || String(err)));
 }
 function cleanupSecureListeners(){
   try{ if(accessListenerRef){ accessListenerRef.off(); accessListenerRef=null; } }catch(e){}
-  try{ (adminExtraListenerRefs||[]).forEach(ref=>{ try{ ref.off(); }catch(_){} }); adminExtraListenerRefs=[]; adminSnapshots={requests:{}, approved:{}, admins:{}, presence:{}, users:{}}; }catch(e){}
+  try{ (adminExtraListenerRefs||[]).forEach(ref=>{ try{ ref.off(); }catch(_){} }); adminExtraListenerRefs=[]; adminSnapshots={requests:{}, approved:{}, admins:{}, presence:{}, users:{}, blocked:{}}; }catch(e){}
   try{ if(ownRequestRef){ ownRequestRef.off(); ownRequestRef=null; } }catch(e){}
   try{ if(approvedUserRef){ approvedUserRef.off(); approvedUserRef=null; } }catch(e){}
+  try{ if(blockedUserRef){ blockedUserRef.off(); blockedUserRef=null; } }catch(e){}
   try{ if(adminUidListenerRef){ adminUidListenerRef.off(); adminUidListenerRef=null; } }catch(e){}
   try{ if(liveListenerRef){ liveListenerRef.off(); liveListenerRef=null; } }catch(e){}
   try{ if(messagesListenerRef){ messagesListenerRef.off(); messagesListenerRef=null; } }catch(e){}
   try{ if(votesListenerRef){ votesListenerRef.off(); votesListenerRef=null; } }catch(e){}
   if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
   viewerAccessInitialized = false;
+  currentUserBlocked = false;
 }
 function updateAuthUI(){
   const signed=!!currentUser; document.getElementById('signInBtn')?.classList.toggle('hidden', signed); document.getElementById('signOutBtn')?.classList.toggle('hidden', !signed);
@@ -923,9 +972,14 @@ function showProtectedHub(show){ document.getElementById('protectedHub')?.classL
 function renderOwnRequest(req){
   if(!currentUser || isApproved || isAdmin) return;
   const text=document.getElementById('accessText'), btn=document.getElementById('requestAccessBtn');
-  if(req && req.status === 'pending'){ if(text) text.textContent='Your request is pending. Mike or Lauren can approve it from the admin panel.'; if(btn) btn.textContent='Request Pending'; }
-  else if(req && req.status === 'denied'){ if(text) text.textContent='Access was denied. You can request again if this was a mistake.'; if(btn) btn.textContent='Request Again'; }
-  else { if(text) text.textContent='Request access to see live location, progress, messages, and food votes.'; if(btn) btn.textContent='Request Access'; }
+  if(currentUserBlocked || (req && req.status === 'blocked')){
+    if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Your access was removed or blocked by an admin.';
+    if(btn){ btn.disabled=true; btn.textContent='Access Blocked'; }
+  }
+  else if(req && req.status === 'pending'){ if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Your request is pending approval.'; if(btn){ btn.disabled=false; btn.textContent='Request Pending'; } }
+  else if(req && req.status === 'revoked'){ if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Your access was removed by an admin.'; if(btn){ btn.disabled=true; btn.textContent='Access Removed'; } }
+  else if(req && req.status === 'denied'){ if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Request access again if this was a mistake.'; if(btn){ btn.disabled=false; btn.textContent='Request Again'; } }
+  else { if(text) text.textContent='You do not have access to view Mike and Lauren\'s location. Request access below.'; if(btn){ btn.disabled=false; btn.textContent='Request Access'; } }
 }
 function requestTrackerAccess(){
   if(!currentUser){ signInWithGoogle(); return; }
@@ -951,6 +1005,7 @@ function listenAdminRequests(){
   wire('admins','admins','Admins');
   wire('presence','presence','Presence');
   wire('users','users','Signed-in users');
+  wire('blockedUsers','blocked','Blocked users');
 }
 function mergeAdminUser(map, raw, source){
   if(!raw || !raw.uid) return;
@@ -964,6 +1019,7 @@ function mergeAdminUser(map, raw, source){
   if(source==='admin'){ existing.admin = raw.admin === true; }
   if(source==='presence'){ existing.present = true; existing.role = raw.role || existing.role; }
   if(source==='user'){ existing.signedIn = true; existing.profileSeen = raw.lastSeen || raw.lastSignedInAt || raw.updatedAt || existing.profileSeen; }
+  if(source==='blocked'){ existing.blocked = raw.blocked === true; existing.blockedAt = raw.blockedAt || existing.blockedAt; existing.blockedBy = raw.blockedBy || existing.blockedBy; existing.blockReason = raw.reason || existing.blockReason; }
   map.set(uid, existing);
 }
 function adminUserMap(){
@@ -973,6 +1029,7 @@ function adminUserMap(){
   Object.entries(adminSnapshots.admins||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'admin'));
   Object.entries(adminSnapshots.presence||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'presence'));
   Object.entries(adminSnapshots.users||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'user'));
+  Object.entries(adminSnapshots.blocked||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'blocked'));
   return map;
 }
 function isBuiltInAdminEmail(email){ return ADMIN_EMAILS.includes(canonicalEmail(email)); }
@@ -989,35 +1046,58 @@ function safeUidArg(uid){ return esc(String(uid||'')); }
 function renderAdminManager(){
   const list=document.getElementById('requestList'); const badge=document.getElementById('adminBadge'); if(!list || !badge) return;
   const users=Array.from(adminUserMap().values()).filter(u=>u.uid);
-  const pending=users.filter(u=>u.requestStatus==='pending');
+  const pending=users.filter(u=>u.requestStatus==='pending' && !u.blocked);
   badge.textContent = pending.length + ' pending'; badge.classList.toggle('show', pending.length>0 && isAdmin);
   if(!users.length){ list.innerHTML='<div class="request-card">No users yet. Have the other Google account sign in once. They do not need to request access; their account will appear here automatically.</div>'; return; }
   users.sort((a,b)=>{
     const ap=(a.requestStatus==='pending')?1:0, bp=(b.requestStatus==='pending')?1:0;
     if(ap!==bp) return bp-ap;
-    return Number(b.lastSeen||b.requestedAt||b.approvedAt||b.createdAt||0)-Number(a.lastSeen||a.requestedAt||a.approvedAt||a.createdAt||0);
+    const aa=(a.admin||isBuiltInAdminEmail(a.email))?1:0, ba=(b.admin||isBuiltInAdminEmail(b.email))?1:0;
+    if(aa!==ba) return ba-aa;
+    return Number(b.lastSeen||b.requestedAt||b.approvedAt||b.blockedAt||b.createdAt||0)-Number(a.lastSeen||a.requestedAt||a.approvedAt||a.blockedAt||a.createdAt||0);
   });
-  list.innerHTML = '<div class="admin-section-label">Users / access / admins</div>' + users.map(renderAdminUserCard).join('');
+  const groups = {
+    active: users.filter(u=>u.present && !u.blocked),
+    viewers: users.filter(u=>((u.approved===true) || u.admin || isBuiltInAdminEmail(u.email)) && !u.blocked),
+    admins: users.filter(u=>(u.admin || isBuiltInAdminEmail(u.email)) && !u.blocked),
+    pending: users.filter(u=>u.requestStatus==='pending' && !u.blocked && !(u.admin || isBuiltInAdminEmail(u.email))),
+    blocked: users.filter(u=>u.blocked || u.requestStatus==='blocked' || u.requestStatus==='denied' || u.requestStatus==='revoked')
+  };
+  const counts={active:groups.active.length, viewers:groups.viewers.length, admins:groups.admins.length, pending:groups.pending.length, blocked:groups.blocked.length};
+  const labels={active:'Active Viewers', viewers:'Viewers', admins:'Admins', pending:'Pending', blocked:'Blocked / Removed Users'};
+  if(!groups[adminManagerTab]) adminManagerTab='active';
+  const tabs=Object.keys(labels).map(k=>`<button type="button" class="admin-tab ${k===adminManagerTab?'active':''} ${k==='blocked'?'danger':''}" onclick="setAdminManagerTab('${k}')">${labels[k]} (${counts[k]})</button>`).join('');
+  const group=groups[adminManagerTab] || [];
+  const body = group.length ? group.map(renderAdminUserCard).join('') : `<div class="admin-section-empty">No ${labels[adminManagerTab].toLowerCase()} right now.</div>`;
+  list.innerHTML = `<div class="admin-tabs">${tabs}</div><div class="admin-section-label">${labels[adminManagerTab]}</div>` + body;
 }
+function setAdminManagerTab(tab){ adminManagerTab=tab; renderAdminManager(); }
+window.setAdminManagerTab = setAdminManagerTab;
 function renderAdminUserCard(u){
   const uid=String(u.uid||'');
   const email=canonicalEmail(u.email||'');
   const name=u.name || email || uid;
   const hard=isBuiltInAdminEmail(email);
+  const self=!!(currentUser && currentUser.uid === uid);
   const effectiveAdmin=!!u.admin || hard;
   const approved=!!u.approved || effectiveAdmin;
-  const status=u.requestStatus || (approved?'approved':(effectiveAdmin?'admin':(u.signedIn?'signed in':'no request')));
+  const blocked=!!u.blocked || u.requestStatus==='blocked' || u.requestStatus==='denied' || u.requestStatus==='revoked';
+  const status=u.requestStatus || (blocked?'blocked':(approved?'approved':(effectiveAdmin?'admin':(u.signedIn?'signed in':'no request'))));
   const photo=u.photoURL || '';
-  const when = u.lastSeen ? 'last seen ' + formatAge(Date.now()-Number(u.lastSeen)) : (u.profileSeen ? 'signed in ' + formatAge(Date.now()-Number(u.profileSeen)) : (u.requestedAt ? 'requested ' + formatAge(Date.now()-Number(u.requestedAt)) : 'no recent presence'));
-  const classes = ['request-card']; if(effectiveAdmin) classes.push('is-admin'); else if(approved) classes.push('is-approved');
+  const when = u.lastSeen ? 'last seen ' + formatAge(Date.now()-Number(u.lastSeen)) : (u.blockedAt ? 'removed ' + formatAge(Date.now()-Number(u.blockedAt)) : (u.profileSeen ? 'signed in ' + formatAge(Date.now()-Number(u.profileSeen)) : (u.requestedAt ? 'requested ' + formatAge(Date.now()-Number(u.requestedAt)) : 'no recent presence')));
+  const classes = ['request-card']; if(blocked) classes.push('is-blocked'); else if(effectiveAdmin) classes.push('is-admin'); else if(approved) classes.push('is-approved');
   const buttons = [];
-  if(!approved) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${safeUidArg(uid)}')">Grant Viewer</button>`);
-  if(approved && !effectiveAdmin) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${safeUidArg(uid)}')">Remove Access</button>`);
-  if(!effectiveAdmin) buttons.push(`<button class="btn btn-dark btn-small" onclick="makeAdminByUid('${safeUidArg(uid)}')">Make Admin</button>`);
-  if(effectiveAdmin && !hard) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${safeUidArg(uid)}')">Remove Admin</button>`);
+  if(self) buttons.push(`<span class="state-pill dark">Current account</span>`);
   if(hard) buttons.push(`<span class="state-pill dark">Built-in admin</span>`);
-  if(status !== 'denied') buttons.push(`<button class="btn btn-ghost btn-small" onclick="denyAccess('${safeUidArg(uid)}')">Deny / Remove All</button>`);
-  return `<div class="${classes.join(' ')}"><div class="request-main"><img src="${esc(photo)}" alt=""><div class="request-text"><b>${esc(name)}</b><span>${esc(email || 'no email label')} • ${esc(when)}</span><div class="user-state-pills"><span class="state-pill ${approved?'good':'warn'}">Viewer: ${approved?'approved':'not approved'}</span><span class="state-pill ${effectiveAdmin?'good':'warn'}">Admin: ${effectiveAdmin?'yes':'no'}</span><span class="state-pill">Request: ${esc(status)}</span></div></div></div><div class="request-actions">${buttons.join('')}</div></div>`;
+  if(blocked && !self && !hard) buttons.push(`<button class="btn btn-go btn-small" onclick="unblockUser('${safeUidArg(uid)}')">Unblock / Restore</button>`);
+  if(!blocked && !approved && !effectiveAdmin) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${safeUidArg(uid)}')">Grant Viewer</button>`);
+  if(!blocked && approved && !effectiveAdmin && !self) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${safeUidArg(uid)}')">Remove Access</button>`);
+  if(!blocked && !effectiveAdmin) buttons.push(`<button class="btn btn-dark btn-small" onclick="makeAdminByUid('${safeUidArg(uid)}')">Make Admin</button>`);
+  if(!blocked && effectiveAdmin && !hard && !self) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${safeUidArg(uid)}')">Remove Admin</button>`);
+  if(!self && !hard && !blocked) buttons.push(`<button class="btn btn-danger btn-small" onclick="blockUser('${safeUidArg(uid)}')">Block</button>`);
+  if(!self && !hard && !blocked && status !== 'denied') buttons.push(`<button class="btn btn-ghost btn-small" onclick="denyAccess('${safeUidArg(uid)}')">Deny / Remove All</button>`);
+  const blockedBy = blocked && (u.blockedBy || u.decidedBy || u.revokedBy) ? ` • by ${esc(u.blockedBy || u.decidedBy || u.revokedBy)}` : '';
+  return `<div class="${classes.join(' ')}"><div class="request-main"><img src="${esc(photo)}" alt=""><div class="request-text"><b>${esc(name)}</b><span>${esc(email || 'no email label')} • ${esc(when)}${blockedBy}</span><div class="user-state-pills"><span class="state-pill ${blocked?'bad':(approved?'good':'warn')}">Viewer: ${blocked?'removed':(approved?'approved':'not approved')}</span><span class="state-pill ${effectiveAdmin?'good':'warn'}">Admin: ${effectiveAdmin?'yes':'no'}</span><span class="state-pill ${blocked?'bad':''}">Request: ${esc(status)}</span></div></div></div><div class="request-actions">${buttons.join('')}</div></div>`;
 }
 function userRecordForWrite(uid, seed){
   const existing=adminSeedForUid(uid);
@@ -1025,6 +1105,56 @@ function userRecordForWrite(uid, seed){
   const email=canonicalEmail(s.email || existing.email || '');
   return {uid:String(uid),email,name:s.name || existing.name || email || String(uid),photoURL:s.photoURL || existing.photoURL || ''};
 }
+
+function adminDisplayForUid(uid){ const r=adminSeedForUid(uid); return r.name || r.email || 'User'; }
+function showActionToast(text, bad, warn){
+  const msg=String(text||'');
+  if(!msg) return;
+  let toast=document.getElementById('tripGuideToast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.id='tripGuideToast';
+    toast.className='tg-toast';
+    toast.setAttribute('role','status');
+    toast.setAttribute('aria-live','polite');
+    document.body.appendChild(toast);
+  }
+  toast.textContent=msg;
+  toast.classList.toggle('bad', !!bad);
+  toast.classList.toggle('warn', !!warn && !bad);
+  toast.classList.add('show');
+  clearTimeout(window.__tripGuideToastTimer);
+  window.__tripGuideToastTimer=setTimeout(()=>toast.classList.remove('show'), 5200);
+}
+function setAdminActionNotice(text, bad){
+  const msg=String(text||'');
+  const el=document.getElementById('adminActionNotice');
+  if(el){
+    el.textContent=msg;
+    el.classList.toggle('show', !!msg);
+    el.style.background = bad ? '#fee2e2' : '#dcfce7';
+    el.style.color = bad ? '#991b1b' : '#166534';
+    el.style.borderColor = bad ? '#fecaca' : '#bbf7d0';
+  }
+  if(msg){
+    showActionToast(msg, bad);
+    setTimeout(()=>{ const e=document.getElementById('adminActionNotice'); if(e && e.textContent===msg) e.classList.remove('show'); }, 6500);
+  }
+}
+function confirmAdminAction(message){ return window.confirm(message || 'Are you sure?'); }
+function ensureAdminTargetAllowed(uid, action){
+  if(!isAdmin){ setTrackerMessage('Admin access required.'); return false; }
+  if(!uid){ setTrackerMessage('No user selected.'); return false; }
+  if(currentUser && currentUser.uid === uid){ setTrackerMessage('Blocked: you cannot ' + (action||'change') + ' your own admin/access record.'); setAdminActionNotice('Self-protection: you cannot change your own admin/access record.', true); return false; }
+  const r=adminSeedForUid(uid);
+  if(isBuiltInAdminEmail(r.email) && action !== 'grant viewer' && action !== 'make admin'){
+    setTrackerMessage('Blocked: built-in admins cannot be removed or blocked from the page.');
+    setAdminActionNotice('Built-in admins cannot be removed or blocked from the page.', true);
+    return false;
+  }
+  return true;
+}
+
 function approveAccess(uid){ return grantViewerAccess(uid); }
 function grantViewerAccess(uid, seed){
   if(!isAdmin || !uid) return;
@@ -1037,17 +1167,40 @@ function grantViewerAccess(uid, seed){
   updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=approvedRecord;
   updates[`${TRACKER_BASE}/accessRequests/${uid}`]=requestRecord;
   updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users?.[uid] || {}, r, {updatedAt:now});
+  updates[`${TRACKER_BASE}/blockedUsers/${uid}`]=null;
   return trackerDb.ref().update(updates)
-    .then(()=>setTrackerMessage('Viewer access granted for ' + (r.email || r.name || uid) + '.'))
-    .catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e)) + '. Check that the v5.17 database rules are published.'));
+    .then(()=>{ const msg='Viewer access granted for ' + (r.email || r.name || uid) + '.'; setTrackerMessage(msg); setAdminActionNotice(msg); })
+    .catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e)) + '. Check that the v5.18 database rules are published.'));
 }
 function removeViewerAccess(uid){
-  if(!isAdmin || !uid) return;
-  if(adminSnapshots.approved){ delete adminSnapshots.approved[uid]; } renderAdminManager();
-  return Promise.all([
-    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(),
-    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'revoked',revokedAt:Date.now(),revokedBy:adminActor(),approved:false})
-  ]).then(()=>setTrackerMessage('Viewer access removed.')).catch(e=>setTrackerMessage('Remove access failed: ' + (e.message||String(e))));
+  if(!ensureAdminTargetAllowed(uid, 'remove viewer access')) return;
+  const name=adminDisplayForUid(uid);
+  if(!confirmAdminAction('Remove viewer access for ' + name + '? They will lose live hub access unless they are still an admin.')) return;
+  if(adminSnapshots.approved){ delete adminSnapshots.approved[uid]; }
+  if(adminSnapshots.presence){ delete adminSnapshots.presence[uid]; }
+  currentPresenceViewers = (currentPresenceViewers || []).filter(v=>String(v.uid||'') !== String(uid));
+  adminSnapshots.requests = adminSnapshots.requests || {};
+  adminSnapshots.requests[uid] = Object.assign({}, adminSnapshots.requests[uid]||{}, adminSeedForUid(uid), {uid,status:'revoked',approved:false,revokedAt:Date.now(),revokedBy:adminActor()});
+  adminManagerTab='blocked'; renderAdminManager(); renderWatcherModalList();
+  const updates={};
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=null;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/status`]='revoked';
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/approved`]=false;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/revokedAt`]=Date.now();
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/revokedBy`]=adminActor();
+  updates[`${TRACKER_BASE}/presence/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/1/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/2/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/3/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/4/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/5/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/6/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/7/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/8/${uid}`]=null;
+  updates[`${TRACKER_BASE}/votes/9/${uid}`]=null;
+  return trackerDb.ref().update(updates)
+    .then(()=>{ const msg='User Removed: ' + name; setTrackerMessage(msg); setAdminActionNotice(msg); renderAdminManager(); renderWatcherModalList(); })
+    .catch(e=>{ const msg='Remove access failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
 }
 function makeAdminFromRequest(uid){ return makeAdminByUid(uid); }
 function makeAdminByUid(uid, seed){
@@ -1055,49 +1208,130 @@ function makeAdminByUid(uid, seed){
   const r=userRecordForWrite(uid, seed);
   const now=Date.now();
   const adminRecord=Object.assign({admin:true,createdAt:now,createdBy:adminActor()}, r);
-  // Duplicate the admin flag onto approvedUsers and accessRequests as a live fallback.
-  // The canonical admin source remains /tripGuide/admins/{uid}.
   const approvedRecord=Object.assign({approved:true,admin:true,approvedAt:now,approvedBy:adminActor()}, r);
   const requestRecord=Object.assign({status:'approved',admin:true,decidedAt:now,decidedBy:adminActor()}, r);
   const userRecord=Object.assign({updatedAt:now,lastSeen:now}, r);
-  // Optimistic UI so the card immediately flips to Admin: yes while Firebase confirms the write.
   adminSnapshots.admins = adminSnapshots.admins || {}; adminSnapshots.admins[uid] = adminRecord;
   adminSnapshots.approved = adminSnapshots.approved || {}; adminSnapshots.approved[uid] = approvedRecord;
+  adminSnapshots.blocked = adminSnapshots.blocked || {}; delete adminSnapshots.blocked[uid];
   adminSnapshots.users = adminSnapshots.users || {}; adminSnapshots.users[uid] = Object.assign({}, adminSnapshots.users[uid] || {}, userRecord);
-  renderAdminManager();
+  adminManagerTab='admins'; renderAdminManager(); renderWatcherModalList();
   const updates={};
   updates[`${TRACKER_BASE}/admins/${uid}`]=adminRecord;
   updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=approvedRecord;
   updates[`${TRACKER_BASE}/accessRequests/${uid}`]=requestRecord;
+  updates[`${TRACKER_BASE}/blockedUsers/${uid}`]=null;
   updates[`${TRACKER_BASE}/users/${uid}`]=Object.assign({}, adminSnapshots.users[uid] || {}, userRecord);
   return trackerDb.ref().update(updates)
-    .then(()=>{ renderAdminManager(); setTrackerMessage('Admin assigned for ' + (r.email || r.name || uid) + '. If that account is currently open, it should change to admin automatically.'); })
-    .catch(e=>{ setTrackerMessage('Make Admin failed: ' + (e.message||String(e)) + '. Check that the v5.17 database rules are published.'); renderAdminManager(); });
+    .then(()=>{ renderAdminManager(); renderWatcherModalList(); const msg='Admin assigned for ' + (r.email || r.name || uid) + '.'; setTrackerMessage(msg); setAdminActionNotice(msg); })
+    .catch(e=>{ const msg='Make Admin failed: ' + (e.message||String(e)) + '. Check that the v5.18 database rules are published.'; setTrackerMessage(msg); setAdminActionNotice(msg, true); renderAdminManager(); });
 }
 function removeAdmin(uid){
-  if(!isAdmin || !uid) return;
+  if(!ensureAdminTargetAllowed(uid, 'remove admin access')) return;
   const r=adminSeedForUid(uid);
-  if(isBuiltInAdminEmail(r.email)){ setTrackerMessage((r.email || uid) + ' is a built-in email admin. Remove it from ADMIN_EMAILS and database rules to fully revoke admin.'); return; }
-  if(adminSnapshots.admins){ delete adminSnapshots.admins[uid]; } renderAdminManager();
-  return Promise.all([
-    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
-    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()}),
-    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()})
-  ]).then(()=>setTrackerMessage('Admin removed.')).catch(e=>setTrackerMessage('Remove admin failed: ' + (e.message||String(e))));
+  const name=r.name || r.email || uid;
+  if(!confirmAdminAction('Remove admin privileges for ' + name + '? Viewer access will remain unless you remove or block them.')) return;
+  if(adminSnapshots.admins){ delete adminSnapshots.admins[uid]; } renderAdminManager(); renderWatcherModalList();
+  const updates={};
+  updates[`${TRACKER_BASE}/admins/${uid}`]=null;
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}/admin`]=false;
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}/adminRevokedAt`]=Date.now();
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}/adminRevokedBy`]=adminActor();
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/admin`]=false;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/adminRevokedAt`]=Date.now();
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/adminRevokedBy`]=adminActor();
+  return trackerDb.ref().update(updates)
+    .then(()=>{ const msg='Admin removed: ' + name; setTrackerMessage(msg); setAdminActionNotice(msg); renderAdminManager(); renderWatcherModalList(); })
+    .catch(e=>{ const msg='Remove admin failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
 }
 function makeManualAdmin(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Use a user card after that account signs in once.'); return; } return makeAdminByUid(s.uid, s); }
 function manualGrantViewer(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Use a user card after that account signs in once.'); return; } return grantViewerAccess(s.uid, s); }
 function manualRemoveAccess(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Use a user card after that account signs in once.'); return; } return removeViewerAccess(s.uid); }
 function manualRemoveAdmin(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Use a user card after that account signs in once.'); return; } return removeAdmin(s.uid); }
 function denyAccess(uid){
-  if(!isAdmin || !uid) return;
-  return Promise.all([
-    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(),
-    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
-    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'denied',approved:false,admin:false,decidedAt:Date.now(),decidedBy:adminActor()})
-  ]).then(()=>setTrackerMessage('Access denied and removable admin override removed.')).catch(e=>setTrackerMessage('Deny/remove failed: ' + (e.message||String(e))));
+  if(!ensureAdminTargetAllowed(uid, 'deny/remove access')) return;
+  const r=adminSeedForUid(uid); const name=r.name || r.email || uid;
+  if(!confirmAdminAction('Deny/remove all normal access for ' + name + '? This removes viewer access and removable admin override, but does not block future re-approval.')) return;
+  adminSnapshots.approved = adminSnapshots.approved || {}; delete adminSnapshots.approved[uid];
+  adminSnapshots.admins = adminSnapshots.admins || {}; delete adminSnapshots.admins[uid];
+  if(adminSnapshots.presence){ delete adminSnapshots.presence[uid]; }
+  currentPresenceViewers = (currentPresenceViewers || []).filter(v=>String(v.uid||'') !== String(uid));
+  adminSnapshots.requests = adminSnapshots.requests || {}; adminSnapshots.requests[uid]=Object.assign({}, r, {uid,status:'denied',approved:false,admin:false,decidedAt:Date.now(),decidedBy:adminActor()});
+  adminManagerTab='blocked'; renderAdminManager(); renderWatcherModalList();
+  const updates={};
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=null;
+  updates[`${TRACKER_BASE}/admins/${uid}`]=null;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/status`]='denied';
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/approved`]=false;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/admin`]=false;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/decidedAt`]=Date.now();
+  updates[`${TRACKER_BASE}/accessRequests/${uid}/decidedBy`]=adminActor();
+  updates[`${TRACKER_BASE}/presence/${uid}`]=null;
+  return trackerDb.ref().update(updates)
+    .then(()=>{ const msg='User Removed: ' + name; setTrackerMessage(msg); setAdminActionNotice(msg); renderAdminManager(); renderWatcherModalList(); })
+    .catch(e=>{ const msg='Deny/remove failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
 }
-window.approveAccess=approveAccess; window.grantViewerAccess=grantViewerAccess; window.removeViewerAccess=removeViewerAccess; window.denyAccess=denyAccess; window.makeAdminFromRequest=makeAdminFromRequest; window.makeAdminByUid=makeAdminByUid; window.makeManualAdmin=makeManualAdmin; window.manualGrantViewer=manualGrantViewer; window.manualRemoveAccess=manualRemoveAccess; window.manualRemoveAdmin=manualRemoveAdmin; window.removeAdmin=removeAdmin;
+function blockUser(uid){
+  if(!ensureAdminTargetAllowed(uid, 'block user')) return;
+  const r=userRecordForWrite(uid);
+  const name=r.name || r.email || uid;
+  if(!confirmAdminAction('Block ' + name + '? This removes viewer/admin access and prevents normal access until you unblock them.')) return;
+  const now=Date.now();
+  const blockedRecord=Object.assign({blocked:true,blockedAt:now,blockedBy:adminActor(),reason:'blocked by admin'}, r);
+  adminSnapshots.blocked = adminSnapshots.blocked || {}; adminSnapshots.blocked[uid]=blockedRecord;
+  if(adminSnapshots.approved) delete adminSnapshots.approved[uid];
+  if(adminSnapshots.admins) delete adminSnapshots.admins[uid];
+  if(adminSnapshots.presence) delete adminSnapshots.presence[uid];
+  currentPresenceViewers = (currentPresenceViewers || []).filter(v=>String(v.uid||'') !== String(uid));
+  adminSnapshots.requests = adminSnapshots.requests || {}; adminSnapshots.requests[uid]=Object.assign({}, r, {status:'blocked',approved:false,admin:false,decidedAt:now,decidedBy:adminActor()});
+  adminManagerTab='blocked'; renderAdminManager(); renderWatcherModalList();
+  const updates={};
+  updates[`${TRACKER_BASE}/blockedUsers/${uid}`]=blockedRecord;
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=null;
+  updates[`${TRACKER_BASE}/admins/${uid}`]=null;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}`]=Object.assign({status:'blocked',approved:false,admin:false,decidedAt:now,decidedBy:adminActor()}, r);
+  updates[`${TRACKER_BASE}/presence/${uid}`]=null;
+  return trackerDb.ref().update(updates)
+    .then(()=>{ const msg='User Blocked: ' + name; setTrackerMessage(msg); setAdminActionNotice(msg); renderAdminManager(); renderWatcherModalList(); })
+    .catch(e=>{ const msg='Block failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
+}
+function unblockUser(uid){
+  if(!ensureAdminTargetAllowed(uid, 'unblock user')) return;
+  const r=userRecordForWrite(uid);
+  const name=r.name || r.email || uid;
+  if(!confirmAdminAction('Unblock ' + name + ' and restore viewer access?')) return;
+  const now=Date.now();
+  const approvedRecord=Object.assign({approved:true,approvedAt:now,approvedBy:adminActor()}, r);
+  adminSnapshots.blocked = adminSnapshots.blocked || {}; delete adminSnapshots.blocked[uid];
+  adminSnapshots.approved = adminSnapshots.approved || {}; adminSnapshots.approved[uid]=approvedRecord;
+  adminManagerTab='viewers'; renderAdminManager(); renderWatcherModalList();
+  const updates={};
+  updates[`${TRACKER_BASE}/blockedUsers/${uid}`]=null;
+  updates[`${TRACKER_BASE}/approvedUsers/${uid}`]=approvedRecord;
+  updates[`${TRACKER_BASE}/accessRequests/${uid}`]=Object.assign({status:'approved',approved:true,admin:false,decidedAt:now,decidedBy:adminActor()}, r);
+  return trackerDb.ref().update(updates)
+    .then(()=>{ const msg='User Restored: ' + name; setTrackerMessage(msg); setAdminActionNotice(msg); renderAdminManager(); renderWatcherModalList(); })
+    .catch(e=>{ const msg='Unblock failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
+}
+function resetTripWithConfirm(){
+  if(!isAdmin){ setTrackerMessage('Admin access required to reset the trip.'); return; }
+  if(!window.confirm('Are you sure you want to reset the trip? This clears live locations, messages, and votes. It does not remove viewers, admins, or blocked users.')) return;
+  const typed = window.prompt('Type RESET to confirm trip reset.');
+  if(String(typed||'').trim().toUpperCase() !== 'RESET'){ setTrackerMessage('Reset cancelled.'); return; }
+  const now=Date.now();
+  const updates={};
+  updates[`${TRACKER_BASE}/liveTrackers`]=null;
+  updates[`${TRACKER_BASE}/live`]=null;
+  updates[`${TRACKER_BASE}/messages`]=null;
+  updates[`${TRACKER_BASE}/votes`]=null;
+  updates[`${TRACKER_BASE}/presence`]=null;
+  updates[`${TRACKER_BASE}/tripState/lastResetAt`]=now;
+  updates[`${TRACKER_BASE}/tripState/lastResetBy`]=adminActor();
+  return trackerDb.ref().update(updates)
+    .then(()=>{ latestLiveLocations={}; latestLiveTrackers=[]; displayedLiveTrackers=[]; currentPresenceViewers=[]; adminSnapshots.presence={}; allVotes={}; updateTrackerFromFirebase({}); renderPresence({}); updateVoteUI(); const msg='Trip Reset complete.'; setTrackerMessage(msg); setAdminActionNotice(msg); })
+    .catch(e=>{ const msg='Reset Trip failed: ' + (e.message||String(e)); setTrackerMessage(msg); setAdminActionNotice(msg, true); });
+}
+window.approveAccess=approveAccess; window.grantViewerAccess=grantViewerAccess; window.removeViewerAccess=removeViewerAccess; window.denyAccess=denyAccess; window.blockUser=blockUser; window.unblockUser=unblockUser; window.resetTripWithConfirm=resetTripWithConfirm; window.makeAdminFromRequest=makeAdminFromRequest; window.makeAdminByUid=makeAdminByUid; window.makeManualAdmin=makeManualAdmin; window.manualGrantViewer=manualGrantViewer; window.manualRemoveAccess=manualRemoveAccess; window.manualRemoveAdmin=manualRemoveAdmin; window.removeAdmin=removeAdmin;
 function listenLiveTracker(){
   if(liveListenerRef) return;
   liveListenerRef = liveTrackersRef || trackerDb.ref(LIVE_TRACKERS_PATH);
@@ -1351,11 +1585,15 @@ function renderWatcherModalList(){
     const approved = !!(adminSnapshots.approved?.[uid] && adminSnapshots.approved[uid].approved === true) || effectiveAdmin;
     let actions = '';
     if(isAdmin && uid){
+      const self=!!(currentUser && currentUser.uid === uid);
+      const hard=isBuiltInAdminEmail(email);
       const buttons=[];
-      if(!approved && !effectiveAdmin) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${esc(uid)}')">Grant Viewer</button>`);
+      if(self) buttons.push(`<span class="state-pill dark">Current account</span>`);
+      if(!approved && !effectiveAdmin && !self) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${esc(uid)}')">Grant Viewer</button>`);
       if(!effectiveAdmin) buttons.push(`<button class="btn btn-dark btn-small" onclick="makeAdminByUid('${esc(uid)}')">Make Admin</button>`);
-      if(effectiveAdmin && !isBuiltInAdminEmail(email)) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${esc(uid)}')">Remove Admin</button>`);
-      if(approved && !effectiveAdmin) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${esc(uid)}')">Remove Access</button>`);
+      if(effectiveAdmin && !hard && !self) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${esc(uid)}')">Remove Admin</button>`);
+      if(approved && !effectiveAdmin && !self) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${esc(uid)}')">Remove Access</button>`);
+      if(!self && !hard) buttons.push(`<button class="btn btn-danger btn-small" onclick="blockUser('${esc(uid)}')">Block</button>`);
       actions = buttons.length ? `<div class="watcher-actions">${buttons.join('')}</div>` : '';
     }
     return `<div class="watcher-row"><div class="watcher-avatar">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:esc(watcherInitials(name))}</div><div><div class="watcher-name">${esc(name)}</div>${email?`<div class="watcher-email">${esc(email)}</div>`:''}<div class="watcher-email">Admin: ${effectiveAdmin?'yes':'no'} • Viewer: ${approved?'approved':'not approved'}</div></div><span class="watcher-role">${effectiveAdmin?'admin':esc(role)}</span><div class="watcher-last">Last seen ${esc(lastSeen)}</div>${actions}</div>`;
