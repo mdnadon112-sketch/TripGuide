@@ -36,3 +36,55 @@ try {
 } catch (err) {
   console.error('[TripGuide SW] Firebase initialization failed:', err);
 }
+
+let messaging = null;
+
+try {
+  if (firebase && firebase.messaging && firebase.messaging.isSupported) {
+    firebase.messaging.isSupported()
+      .then((supported) => {
+        if (!supported) {
+          console.warn('[TripGuide SW] Firebase messaging not supported in this service worker context.');
+          return;
+        }
+
+        messaging = firebase.messaging();
+
+        messaging.onBackgroundMessage((payload) => {
+          const notification = payload.notification || {};
+          const title = notification.title || 'Final Trip Update';
+
+          self.registration.showNotification(title, {
+            body: notification.body || 'New trip update available.',
+            icon: './icon-192.png',
+            badge: './icon-192.png',
+            data: payload.data || {}
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn('[TripGuide SW] Messaging support check failed:', err);
+      });
+  }
+} catch (err) {
+  console.warn('[TripGuide SW] Firebase Messaging setup failed:', err);
+}
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  event.waitUntil(
+    clients.matchAll({ includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes('/TripGuide/') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow('./');
+      }
+      return undefined;
+    })
+  );
+});
