@@ -233,25 +233,19 @@ async function cleanupFirebase() {
   } catch (error) {
     console.warn('Firebase database cleanup warning:', error && error.message ? error.message : error);
   }
-
-  try {
-    const apps = admin.apps || [];
-    await Promise.race([
-      Promise.all(apps.map((app) => app.delete())),
-      new Promise((resolve) => setTimeout(resolve, 2000))
-    ]);
-  } catch (error) {
-    console.warn('Firebase app cleanup warning:', error && error.message ? error.message : error);
-  }
 }
 
 main()
   .then(async () => {
     await cleanupFirebase();
-    setTimeout(() => process.exit(0), 100);
+    setTimeout(() => {
+      process.exit(0);
+    }, 50);
   })
   .catch(async (err) => {
     console.error(err);
     await cleanupFirebase();
-    setTimeout(() => process.exit(1), 100);
+    setTimeout(() => {
+      process.exit(1);
+    }, 50);
   });
