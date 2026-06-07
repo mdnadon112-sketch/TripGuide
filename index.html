@@ -80,12 +80,41 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 @media(max-width:900px){.progress-meta{grid-template-columns:1fr}.message-compose{grid-template-columns:1fr}.watcher-strip{border-radius:16px;align-items:flex-start}.watcher-strip b{white-space:normal}.progress-mini.show{display:block}}
 @media print{.progress-mini,.watcher-strip,.photo-modal{display:none!important}}
 
+
+/* PATCH v5.5: login prompt gate */
+.login-gate{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,20,38,.72);backdrop-filter:blur(10px)}
+.login-gate.show{display:flex}
+body.login-required{overflow:hidden}
+body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
+.login-card{width:min(500px,96vw);background:#ffffff;color:#0f172a;border:1px solid rgba(15,23,42,.10);border-radius:28px;padding:20px;box-shadow:0 30px 90px rgba(0,0,0,.34)}
+.login-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid #bfdbfe;background:#eff6ff;color:#174ea6;border-radius:999px;padding:7px 11px;font-weight:950;font-size:12px;letter-spacing:.02em}
+.login-card h2{font-size:30px;line-height:1.02;margin:14px 0 8px;letter-spacing:-.035em}
+.login-card p{margin:0 0 14px;color:#475569;font-weight:750;line-height:1.45}
+.login-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+.login-actions .btn{width:100%;min-height:54px;font-size:16px;border-radius:18px}
+.login-debug{margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:16px;padding:10px 12px;font-size:13px;font-weight:850;line-height:1.4;word-break:break-word}
+.login-note{margin-top:10px;color:#64748b;font-size:12px;font-weight:750;line-height:1.35}
+@media(max-width:430px){.login-card{border-radius:22px;padding:16px}.login-card h2{font-size:26px}.login-actions .btn{min-height:52px}}
+@media print{.login-gate{display:none!important}body.login-required .wrap{filter:none;pointer-events:auto;user-select:auto}}
+
 </style>
 </head>
 <body>
+<div class="login-gate" id="loginGate" role="dialog" aria-modal="true" aria-labelledby="loginGateTitle">
+  <div class="login-card">
+    <span class="login-badge">SECURE TRIP ACCESS</span>
+    <h2 id="loginGateTitle">Sign in to continue</h2>
+    <p>The trip guide will load after Google sign-in. Admin accounts get live controls. Other Google accounts can request access for the secure trip hub.</p>
+    <div class="login-actions">
+      <button class="btn btn-google" type="button" id="gateSignInBtn">Sign in with Google</button>
+    </div>
+    <div class="login-debug" id="gateAuthMessage">Checking existing Google session…</div>
+    <div class="login-note">If the same browser is already signed in, this prompt disappears automatically.</div>
+  </div>
+</div>
 <div class="wrap">
   <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • AUTH FIX v5.3</span>
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • LOGIN PROMPT v5.5</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
     <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
@@ -492,19 +521,28 @@ function initFirebaseTracker(){
     // LOCAL persistence keeps the signed-in state after the Google Auth return.
     try{ trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); }catch(_){}
     bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip();
+    setLoginGate(true, 'Checking existing Google session…');
     trackerAuth.onAuthStateChanged(handleAuthState);
     finishSignInFromRedirect();
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('signInBtn', signInWithGoogle); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('driverModeBtn', () => document.getElementById('driverPanel')?.classList.toggle('open'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
   bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
   bindClick('adminBadge', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
-function resetSignInButton(){ const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; } }
+function setLoginGate(show, message){
+  const gate=document.getElementById('loginGate');
+  const gateMsg=document.getElementById('gateAuthMessage');
+  if(gate) gate.classList.toggle('show', !!show);
+  if(document.body) document.body.classList.toggle('login-required', !!show);
+  if(gateMsg && message) gateMsg.textContent = message;
+  if(show){ setTimeout(()=>{ try{ document.getElementById('gateSignInBtn')?.focus(); }catch(_){} }, 80); }
+}
+function resetSignInButton(){ const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; } const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Sign in with Google'; gateBtn.disabled=false; } }
 async function finishSignInFromRedirect(){
   if(!trackerAuth || !trackerAuth.getRedirectResult) return;
   try{
@@ -523,6 +561,7 @@ async function finishSignInFromRedirect(){
 }
 async function signInWithGoogle(){
   const btn = document.getElementById('signInBtn');
+  const gateBtn = document.getElementById('gateSignInBtn');
   try{
     if(!trackerAuth){
       try{ initFirebaseTracker(); }catch(_){}
@@ -533,6 +572,8 @@ async function signInWithGoogle(){
     provider.addScope('profile');
     provider.setCustomParameters({prompt:'select_account'});
     if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
+    if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
+    setLoginGate(true, 'Opening Google Sign-In…');
     setTrackerMessage('Opening Google Sign-In…');
     try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
 
@@ -550,6 +591,8 @@ async function signInWithGoogle(){
       if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
         setTrackerMessage('Popup did not complete. Redirecting to Google Sign-In…');
         if(btn){ btn.textContent = 'Redirecting to Google…'; }
+        if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
+        setLoginGate(true, 'Redirecting to Google Sign-In…');
         await trackerAuth.signInWithRedirect(provider);
         return;
       }
@@ -575,7 +618,8 @@ document.addEventListener('click', function(e){
 function handleAuthState(user){
   cleanupSecureListeners(); currentUser = user || null; isAdmin = isAdminUser(user); isApproved = false;
   updateAuthUI(); resetSignInButton();
-  if(!user){ setTrackerStatus('Sign in required','offline'); setTrackerMessage('Not signed in.'); showAccessPanel(false); showProtectedHub(false); return; }
+  if(!user){ setTrackerStatus('Sign in required','offline'); setLoginGate(true, 'Not signed in. Tap Sign in with Google to continue.'); setTrackerMessage('Not signed in.'); showAccessPanel(false); showProtectedHub(false); return; }
+  setLoginGate(false);
   const email = authEmail(user) || user.displayName || 'Google user';
   setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Viewer pending approval'));
   setTrackerStatus('Signed in — checking access','live');
@@ -653,6 +697,7 @@ function setTrackerMessage(text){
   const msg = text || '';
   const el=document.getElementById('trackerMessage'); if(el) el.textContent=msg;
   const authEl=document.getElementById('authMessage'); if(authEl) authEl.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in.');
+  const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Tap Sign in with Google to continue.');
   if(msg) console.info('[TripGuide Auth]', msg);
 }
 function authErrorMessage(e){
