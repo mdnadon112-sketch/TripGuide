@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5.26 Stable Repair</title>
+<title>Final Trip — Mobile Google Maps Guide v5.27 Push Key Ready</title>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -253,7 +253,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 
 
   <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • STABLE REPAIR v5.26</span>
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • PUSH KEY READY v5.27</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
     <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
@@ -787,12 +787,7 @@ function initFirebaseTracker(){
     setLoginGate(true, 'Checking existing Firebase session…');
     trackerAuth.onAuthStateChanged(handleAuthState);
     finishSignInFromRedirect();
-  }catch(e){
-    const setupMsg = e && e.message ? e.message : String(e);
-    setTrackerStatus('Tracker setup error','offline');
-    setTrackerMessage(setupMsg);
-    setLoginGate(true, 'Tracker setup error: ' + setupMsg);
-  }
+  }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
@@ -1859,7 +1854,7 @@ function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classLis
 
 
 /* PATCH v5.24: Firebase web push notifications - runtime code only */
-const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'PASTE_FIREBASE_WEB_PUSH_VAPID_KEY_HERE';
+const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b8_KdG9yoywu4VQfz4jdP8nTsvbCrbfIRXYg9NT8B8NwGc';
 let tripGuideMessaging = null;
 
 async function enableTripGuidePush(){
