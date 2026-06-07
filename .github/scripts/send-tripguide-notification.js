@@ -222,29 +222,26 @@ async function main() {
   }
 
   console.log(`attempted=${selected.length} success=${successCount} failure=${failureCount} cleaned=${cleanedCount}`);
-}
 
-async function cleanupFirebase() {
   try {
-    const db = admin.database();
-    if (db && typeof db.goOffline === 'function') {
-      db.goOffline();
+    if (admin.database) {
+      admin.database().goOffline();
     }
-  } catch (error) {
-    console.warn('Firebase database cleanup warning:', error && error.message ? error.message : error);
-  }
+  } catch (_) {}
+
+  setTimeout(() => {
+    process.exit(0);
+  }, 50);
 }
 
 main()
-  .then(async () => {
-    await cleanupFirebase();
-    setTimeout(() => {
-      process.exit(0);
-    }, 50);
-  })
-  .catch(async (err) => {
+  .catch((err) => {
     console.error(err);
-    await cleanupFirebase();
+    try {
+      if (admin.database) {
+        admin.database().goOffline();
+      }
+    } catch (_) {}
     setTimeout(() => {
       process.exit(1);
     }, 50);
