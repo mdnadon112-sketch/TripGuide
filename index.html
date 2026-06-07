@@ -80,6 +80,29 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 @media(max-width:900px){.progress-meta{grid-template-columns:1fr}.message-compose{grid-template-columns:1fr}.watcher-strip{border-radius:16px;align-items:flex-start}.watcher-strip b{white-space:normal}.progress-mini.show{display:block}}
 @media print{.progress-mini,.watcher-strip,.photo-modal{display:none!important}}
 
+/* PATCH v5.9: clickable current watchers full-name list */
+.watcher-strip{cursor:pointer;user-select:none}.watcher-strip:hover{background:rgba(8,20,38,.92)}.watcher-hint{margin-left:auto;color:#cbd5e1;font-size:11px;font-weight:950;white-space:nowrap}.watcher-modal{position:fixed;inset:0;z-index:120;background:rgba(8,20,38,.74);display:none;align-items:center;justify-content:center;padding:18px}.watcher-modal.show{display:flex}.watcher-modal-card{width:min(560px,96vw);max-height:86vh;overflow:auto;background:#fff;color:#0f172a;border-radius:24px;box-shadow:0 25px 80px rgba(0,0,0,.35);border:1px solid rgba(15,23,42,.10)}.watcher-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 16px 12px;border-bottom:1px solid #e2e8f0}.watcher-modal-head h3{margin:0;font-size:23px;letter-spacing:-.02em}.watcher-modal-head p{margin:4px 0 0;color:#64748b;font-weight:750;font-size:13px}.watcher-close{border:1px solid #d9e3f0;background:#fff;border-radius:999px;width:38px;height:38px;font-weight:950;cursor:pointer}.watcher-list{display:grid;gap:8px;padding:12px}.watcher-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:10px}.watcher-avatar{width:44px;height:44px;border-radius:999px;background:#0f172a;color:#fff;display:grid;place-items:center;font-weight:950;overflow:hidden}.watcher-avatar img{width:100%;height:100%;object-fit:cover}.watcher-name{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.watcher-email{color:#64748b;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.watcher-role{background:#e0f2fe;color:#075985;border:1px solid #bae6fd;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;text-transform:capitalize}.watcher-last{grid-column:2 / 4;color:#64748b;font-size:12px;font-weight:750;margin-top:-4px}.watcher-empty{padding:16px;color:#64748b;font-weight:850}
+@media(max-width:520px){.watcher-hint{display:none}.watcher-row{grid-template-columns:40px minmax(0,1fr);}.watcher-role{grid-column:2;justify-self:start}.watcher-last{grid-column:2}.watcher-avatar{width:40px;height:40px}}
+@media print{.watcher-modal{display:none!important}}
+
+/* PATCH v5.10: admin manager grant/remove/promote controls */
+.admin-tool-grid.admin-manager-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)}
+.admin-tool-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.admin-tool-actions .btn{box-shadow:none}
+.user-state-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.state-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 7px;font-size:11px;font-weight:950;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.10);color:#e2e8f0}.state-pill.good{background:#dcfce7;color:#166534;border-color:#bbf7d0}.state-pill.warn{background:#ffedd5;color:#9a3412;border-color:#fed7aa}.state-pill.dark{background:#0f172a;color:#fff;border-color:#334155}.request-card.is-admin{outline:2px solid rgba(34,197,94,.35)}.request-card.is-approved{outline:2px solid rgba(22,102,216,.22)}.admin-section-label{margin:12px 0 8px;color:#e2e8f0;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.08em}.watcher-actions{grid-column:2 / 4;display:flex;gap:7px;flex-wrap:wrap;margin-top:0}.watcher-actions .btn{box-shadow:none}.uid-chip.light{background:#f1f5f9;color:#334155;border-color:#cbd5e1}
+@media(max-width:700px){.admin-tool-grid.admin-manager-grid{grid-template-columns:1fr}.admin-tool-actions{display:grid;grid-template-columns:1fr}.watcher-actions{grid-column:1 / -1}.watcher-actions .btn{flex:1}}
+@media print{.admin-tool-actions,.watcher-actions{display:none!important}}
+/* PATCH v5.11: top-positioned secure hub and live snap button */
+.top-hub{margin:0 0 16px;border-radius:28px;background:linear-gradient(135deg,rgba(8,20,38,.98),rgba(15,23,42,.94));}
+.top-hub .tracker-top h2{font-size:clamp(28px,5vw,44px);line-height:1;margin:0;letter-spacing:-.035em;}
+.top-hub .tracker-top p{font-size:14px;}
+.top-hub #showMikeLaurenBtn{min-height:44px;border-radius:999px;box-shadow:0 10px 22px rgba(22,163,74,.22);}
+@media(max-width:700px){.top-hub .auth-row{width:100%;}.top-hub #showMikeLaurenBtn{width:100%;}}
+
+
+
+.admin-tool-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin:10px 0 12px}.admin-tool-grid .login-input{min-height:42px;border-radius:12px;font-size:14px}.admin-tool-note{color:#cbd5e1;font-size:12px;font-weight:750;line-height:1.35;margin:0 0 10px!important}.uid-chip{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:5px 8px;margin-top:5px;font-size:11px;font-weight:900;color:#e2e8f0;word-break:break-all}
+@media(max-width:700px){.admin-tool-grid{grid-template-columns:1fr}.admin-tool-grid .btn{width:100%}}
+
 
 /* PATCH v5.5: login prompt gate */
 .login-gate{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,20,38,.72);backdrop-filter:blur(10px)}
@@ -92,6 +115,14 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 .login-card p{margin:0 0 14px;color:#475569;font-weight:750;line-height:1.45}
 .login-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
 .login-actions .btn{width:100%;min-height:54px;font-size:16px;border-radius:18px}
+.email-login{margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;display:grid;gap:9px}
+.email-login-label{font-size:12px;font-weight:950;color:#475569;text-transform:uppercase;letter-spacing:.06em}
+.email-login-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.login-input{width:100%;min-height:48px;border-radius:14px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:10px 12px;font-weight:850;font-size:15px;outline:none}
+.login-input:focus{border-color:#1666d8;box-shadow:0 0 0 3px rgba(22,102,216,.15)}
+.auth-email-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:10px}
+.auth-email-row .login-input{min-height:42px;border-radius:12px;font-size:14px}
+@media(max-width:700px){.auth-email-row{grid-template-columns:1fr}.auth-email-row .btn{width:100%}}
 .login-debug{margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:16px;padding:10px 12px;font-size:13px;font-weight:850;line-height:1.4;word-break:break-word}
 .login-note{margin-top:10px;color:#64748b;font-size:12px;font-weight:750;line-height:1.35}
 @media(max-width:430px){.login-card{border-radius:22px;padding:16px}.login-card h2{font-size:26px}.login-actions .btn{min-height:52px}}
@@ -104,27 +135,30 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   <div class="login-card">
     <span class="login-badge">SECURE TRIP ACCESS</span>
     <h2 id="loginGateTitle">Sign in to continue</h2>
-    <p>The trip guide will load after Google sign-in. Admin accounts get live controls. Other Google accounts can request access for the secure trip hub.</p>
+    <p>The trip guide will load after sign-in. Admin accounts get live controls. Other accounts can request access for the secure trip hub.</p>
     <div class="login-actions">
       <button class="btn btn-google" type="button" id="gateSignInBtn">Sign in with Google</button>
     </div>
-    <div class="login-debug" id="gateAuthMessage">Checking existing Google session…</div>
-    <div class="login-note">If the same browser is already signed in, this prompt disappears automatically.</div>
+    <div class="email-login" aria-label="Email sign-in fallback">
+      <div class="email-login-label">Admin fallback login</div>
+      <div class="email-login-grid">
+        <input class="login-input" id="gateEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
+        <input class="login-input" id="gatePasswordInput" type="password" autocomplete="current-password" placeholder="Password">
+        <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Sign in with email</button>
+      </div>
+    </div>
+    <div class="login-debug" id="gateAuthMessage">Checking existing Firebase session…</div>
+    <div class="login-note">Use Google sign-in. Mike can approve viewers, remove access, or promote signed-in accounts to admin from the admin panel.</div>
   </div>
 </div>
 <div class="wrap">
-  <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • LOGIN PROMPT v5.5</span>
-    <h1>Beaufort, SC → Seal Beach, CA</h1>
-    <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
-    <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
-    <div class="stats"><div class="stat"><b>9</b><span>Drive/activity days</span></div><div class="stat"><b>10</b><span>Interactive maps</span></div><div class="stat"><b>27</b><span>Dinner cards</span></div><div class="stat"><b>Mobile</b><span>iPhone + Android first</span></div></div>
-    <section class="tracker-panel" id="liveTracker" aria-label="Live trip tracker">
+  <section class="tracker-panel top-hub" id="liveTracker" aria-label="Live trip tracker">
       <div class="tracker-top">
-        <div><h2>Secure Live Trip Hub</h2><p>Trip guide stays public. Live location, progress, votes, messages, and watchers require approval.</p></div>
+        <div><h2>Secure Live Trip Hub</h2><p>Live location, current watchers, access approvals, admin assignment, and trip messages.</p></div>
         <div class="auth-row">
           <span class="admin-badge" id="adminBadge">0 pending</span>
           <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in required</span></span>
+          <button class="btn btn-go" type="button" id="showMikeLaurenBtn" onclick="showMikeAndLauren()">Show me Mike and Lauren</button>
         </div>
       </div>
       <div class="auth-panel" id="authPanel">
@@ -132,6 +166,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <button class="btn btn-google" type="button" id="signInBtn" onclick="tripGuideSignInClick(event)">Sign in with Google</button>
           <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
           <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
+        </div>
+        <div class="auth-email-row" id="authEmailRow">
+          <input class="login-input" id="authEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
+          <input class="login-input" id="authPasswordInput" type="password" autocomplete="current-password" placeholder="Password">
+          <button class="btn btn-dark btn-small" type="button" id="authEmailSignInBtn">Email sign-in</button>
         </div>
         <div class="tracker-alert auth-debug" id="authMessage">Not signed in.</div>
       </div>
@@ -171,8 +210,20 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <div class="tracker-alert" id="trackerMessage"></div>
         </div>
         <div class="admin-panel hidden" id="adminPanel">
-          <h3>Admin approval panel</h3>
-          <p>Approve or deny Google accounts requesting access to the live trip hub.</p>
+          <h3>Admin and access manager</h3>
+          <p>Approve viewers, remove access, or assign any signed-in Firebase UID as admin. Best workflow: the other account signs in once, then use Assign Admin beside their name or paste their UID below.</p>
+          <div class="admin-tool-grid admin-manager-grid">
+            <input class="login-input" id="manualAdminUid" placeholder="Firebase UID">
+            <input class="login-input" id="manualAdminEmail" type="email" inputmode="email" placeholder="Email label, optional">
+            <input class="login-input" id="manualAdminName" placeholder="Full name label, optional">
+          </div>
+          <div class="admin-tool-actions">
+            <button class="btn btn-go btn-small" type="button" id="manualGrantViewerBtn">Grant Viewer</button>
+            <button class="btn btn-dark btn-small" type="button" id="manualAdminBtn">Assign Admin</button>
+            <button class="btn btn-food btn-small" type="button" id="manualRemoveAccessBtn">Remove Access</button>
+            <button class="btn btn-ghost btn-small" type="button" id="manualRemoveAdminBtn">Remove Admin</button>
+          </div>
+          <p class="admin-tool-note">Admin assignment is UID-based. Email alone is only a label; the person must sign in once so Firebase gives them a UID.</p>
           <div class="request-list" id="requestList"></div>
         </div>
         <div class="message-board" id="messageBoard">
@@ -183,6 +234,14 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         </div>
       </div>
     </section>
+
+
+  <section class="hero" id="overview">
+    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • TOP HUB ADMIN MANAGER v5.11</span>
+    <h1>Beaufort, SC → Seal Beach, CA</h1>
+    <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
+    <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
+    <div class="stats"><div class="stat"><b>9</b><span>Drive/activity days</span></div><div class="stat"><b>10</b><span>Interactive maps</span></div><div class="stat"><b>27</b><span>Dinner cards</span></div><div class="stat"><b>Mobile</b><span>iPhone + Android first</span></div></div>
     <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
     <div class="legend"><span><i style="background:#1666d8"></i>Main anchor stops</span><span><i style="background:#f97316"></i>Optional / alternate</span><span><i style="background:#16a34a"></i>Scenic / activity</span><span><i style="background:#64748b"></i>Fuel / utility</span></div>
   </section>
@@ -480,7 +539,7 @@ function toggleMapSize(dayNum, btn){
 window.toggleMapSize = toggleMapSize;
 
 
-/* PATCH v5: Firebase Auth, approval, live tracker, mileage progress, votes, messages */
+/* PATCH v5.9: Firebase Auth, approval, live tracker, mileage progress, votes, messages */
 const TRACKER_CONFIG = {
   apiKey: "AIzaSyD4juSgEvK9CBX0ROiMnmmJrYYkSwI_2U4",
   authDomain: "tripguide-f5056.firebaseapp.com",
@@ -501,15 +560,21 @@ function authEmail(user){
   const providerEmail = (user.providerData || []).map(p => canonicalEmail(p && p.email)).find(Boolean);
   return providerEmail || '';
 }
-const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com'].map(canonicalEmail);
-function isAdminUser(user){ return !!(user && ADMIN_EMAILS.includes(authEmail(user))); }
+const ADMIN_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com','mdnadon112@googlemail.com','pinnerpatter@googlemail.com'].map(canonicalEmail);
+function isEmailAdminUser(user){ return !!(user && ADMIN_EMAILS.includes(authEmail(user))); }
+function adminUidRef(uid){ return trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`); }
+function adminRecordLooksAdmin(val){ return !!(val && val.admin === true); }
 const TRACKER_BASE = 'tripGuide';
 const TRACKER_PATH = TRACKER_BASE + '/live';
 const OFF_ROUTE_METERS = 16093.44;
 let trackerDb = null, trackerAuth = null, trackerRef = null, currentUser = null, isAdmin = false, isApproved = false;
 let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
-let accessListenerRef = null, ownRequestRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
+let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
+let adminExtraListenerRefs = [];
+let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}};
+let viewerAccessInitialized = false;
 let allVotes = {}, foodPreviewKey = null;
+let currentPresenceViewers = [];
 let lastAuthErrorText = '', lastAuthErrorAt = 0;
 function rememberAuthError(text){
   lastAuthErrorText = text || '';
@@ -534,18 +599,23 @@ function initFirebaseTracker(){
     trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH);
     // LOCAL persistence keeps the signed-in state after the Google Auth return.
     try{ trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); }catch(_){}
-    bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip();
-    setLoginGate(true, 'Checking existing Google session…');
+    bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip(); createWatcherModal();
+    setLoginGate(true, 'Checking existing Firebase session…');
     trackerAuth.onAuthStateChanged(handleAuthState);
     finishSignInFromRedirect();
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
-  bindClick('centerLiveBtn', centerLiveLocation); bindClick('driverModeBtn', () => document.getElementById('driverPanel')?.classList.toggle('open'));
+  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
+  bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => document.getElementById('driverPanel')?.classList.toggle('open'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
   bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
   bindClick('adminBadge', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
+  bindClick('manualAdminBtn', makeManualAdmin);
+  bindClick('manualGrantViewerBtn', manualGrantViewer);
+  bindClick('manualRemoveAccessBtn', manualRemoveAccess);
+  bindClick('manualRemoveAdminBtn', manualRemoveAdmin);
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
 function setLoginGate(show, message){
@@ -556,7 +626,11 @@ function setLoginGate(show, message){
   if(gateMsg && message) gateMsg.textContent = message;
   if(show){ setTimeout(()=>{ try{ document.getElementById('gateSignInBtn')?.focus(); }catch(_){} }, 80); }
 }
-function resetSignInButton(){ const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; } const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Sign in with Google'; gateBtn.disabled=false; } }
+function resetSignInButton(){
+  const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; }
+  const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Sign in with Google'; gateBtn.disabled=false; }
+  const emailBtns=['gateEmailSignInBtn','authEmailSignInBtn']; emailBtns.forEach(id=>{ const b=document.getElementById(id); if(b){ b.textContent=id==='gateEmailSignInBtn'?'Sign in with email':'Email sign-in'; b.disabled=false; } });
+}
 async function finishSignInFromRedirect(){
   if(!trackerAuth || !trackerAuth.getRedirectResult) return;
   try{
@@ -620,6 +694,38 @@ async function signInWithGoogle(){
     if(!currentUser) resetSignInButton();
   }
 }
+async function signInWithEmailPassword(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    const gateEmail = document.getElementById('gateEmailInput')?.value || '';
+    const authEmailValue = document.getElementById('authEmailInput')?.value || '';
+    const gatePass = document.getElementById('gatePasswordInput')?.value || '';
+    const authPass = document.getElementById('authPasswordInput')?.value || '';
+    const email = String(gateEmail || authEmailValue).trim().toLowerCase();
+    const password = String(gatePass || authPass);
+    if(!email || !password){ rememberAuthError('Enter the Firebase email and password, then tap Sign in with email.'); return; }
+    const gateBtn=document.getElementById('gateEmailSignInBtn');
+    const authBtn=document.getElementById('authEmailSignInBtn');
+    if(gateBtn){ gateBtn.textContent='Signing in…'; gateBtn.disabled=true; }
+    if(authBtn){ authBtn.textContent='Signing in…'; authBtn.disabled=true; }
+    setLoginGate(true, 'Signing in with Firebase email/password…');
+    setTrackerMessage('Signing in with Firebase email/password…');
+    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+    const result = await trackerAuth.signInWithEmailAndPassword(email, password);
+    if(result && result.user){
+      try{ await result.user.getIdToken(true); }catch(_){}
+      currentUser = result.user;
+      clearAuthError();
+      updateAuthUI();
+      setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
+    }
+  }catch(e){
+    rememberAuthError(authErrorMessage(e));
+  }finally{
+    if(!currentUser) resetSignInButton();
+  }
+}
 function tripGuideSignInClick(event){
   if(event){ event.preventDefault(); event.stopPropagation(); }
   setTrackerMessage('Sign-in button clicked. Opening Google…');
@@ -632,7 +738,11 @@ document.addEventListener('click', function(e){
   if(btn){ tripGuideSignInClick(e); }
 }, true);
 function handleAuthState(user){
-  cleanupSecureListeners(); currentUser = user || null; isAdmin = isAdminUser(user); isApproved = false;
+  cleanupSecureListeners();
+  currentUser = user || null;
+  isAdmin = isEmailAdminUser(user);
+  isApproved = false;
+  viewerAccessInitialized = false;
   updateAuthUI(); resetSignInButton();
   if(!user){
     const err = recentAuthError();
@@ -642,7 +752,7 @@ function handleAuthState(user){
       setTrackerMessage(err);
     } else {
       setTrackerStatus('Sign in required','offline');
-      setLoginGate(true, 'Not signed in. Tap Sign in with Google to continue.');
+      setLoginGate(true, 'Not signed in. Sign in with Google to continue.');
       setTrackerMessage('Not signed in.');
     }
     showAccessPanel(false); showProtectedHub(false); return;
@@ -650,11 +760,42 @@ function handleAuthState(user){
   clearAuthError();
   setLoginGate(false);
   const email = authEmail(user) || user.displayName || 'Google user';
-  setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Viewer pending approval'));
+  setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Checking admin override'));
   setTrackerStatus('Signed in — checking access','live');
-  if(isAdmin){ isApproved = true; setTrackerStatus('Admin signed in','live'); showAccessPanel(false); enableProtectedHub(); listenAdminRequests(); return; }
+
+  if(isAdmin){ enterAdminSession('email admin'); return; }
+
+  // UID-admin override: allows Mike to promote any signed-in Google account even if the email claim does not match.
+  adminUidListenerRef = adminUidRef(user.uid);
+  adminUidListenerRef.on('value', snap => {
+    if(adminRecordLooksAdmin(snap.val())){
+      enterAdminSession('UID admin override');
+    } else {
+      enterViewerAccessFlow();
+    }
+  }, err => {
+    setTrackerMessage('Admin override check failed: ' + (err.message || String(err)) + '. Falling back to viewer request flow.');
+    enterViewerAccessFlow();
+  });
+}
+function enterAdminSession(reason){
+  if(!currentUser) return;
+  isAdmin = true; isApproved = true; viewerAccessInitialized = false;
+  updateAuthUI();
+  setLoginGate(false);
+  setTrackerMessage('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user') + ' • Admin' + (reason ? ' (' + reason + ')' : ''));
+  setTrackerStatus('Admin signed in','live');
+  showAccessPanel(false);
+  enableProtectedHub();
+  listenAdminRequests();
+}
+function enterViewerAccessFlow(){
+  if(!currentUser || isAdmin || viewerAccessInitialized) return;
+  viewerAccessInitialized = true;
+  const user = currentUser;
+  setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + ' • Viewer pending approval');
   ownRequestRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests/${user.uid}`); ownRequestRef.on('value', snap => renderOwnRequest(snap.val()));
-  trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`).on('value', snap => {
+  approvedUserRef = trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`); approvedUserRef.on('value', snap => {
     isApproved = !!(snap.val() && snap.val().approved === true);
     if(isApproved){ setTrackerStatus('Approved viewer','live'); showAccessPanel(false); enableProtectedHub(); }
     else { setTrackerStatus('Access required','offline'); showProtectedHub(false); showAccessPanel(true); }
@@ -662,14 +803,19 @@ function handleAuthState(user){
 }
 function cleanupSecureListeners(){
   try{ if(accessListenerRef){ accessListenerRef.off(); accessListenerRef=null; } }catch(e){}
+  try{ (adminExtraListenerRefs||[]).forEach(ref=>{ try{ ref.off(); }catch(_){} }); adminExtraListenerRefs=[]; adminSnapshots={requests:{}, approved:{}, admins:{}, presence:{}}; }catch(e){}
   try{ if(ownRequestRef){ ownRequestRef.off(); ownRequestRef=null; } }catch(e){}
+  try{ if(approvedUserRef){ approvedUserRef.off(); approvedUserRef=null; } }catch(e){}
+  try{ if(adminUidListenerRef){ adminUidListenerRef.off(); adminUidListenerRef=null; } }catch(e){}
   try{ if(liveListenerRef){ liveListenerRef.off(); liveListenerRef=null; } }catch(e){}
   try{ if(messagesListenerRef){ messagesListenerRef.off(); messagesListenerRef=null; } }catch(e){}
   try{ if(votesListenerRef){ votesListenerRef.off(); votesListenerRef=null; } }catch(e){}
   if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
+  viewerAccessInitialized = false;
 }
 function updateAuthUI(){
   const signed=!!currentUser; document.getElementById('signInBtn')?.classList.toggle('hidden', signed); document.getElementById('signOutBtn')?.classList.toggle('hidden', !signed);
+  document.getElementById('authEmailRow')?.classList.toggle('hidden', signed);
   const userEl=document.getElementById('authUser'); userEl?.classList.toggle('hidden', !signed);
   if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || authEmail(currentUser) || 'Signed in') + ' — ' + (authEmail(currentUser) || 'no email') + (isAdmin ? ' • Admin' : ''); }
   document.getElementById('driverModeBtn')?.classList.toggle('hidden', !isAdmin); document.getElementById('adminBadge')?.classList.toggle('show', false);
@@ -686,47 +832,175 @@ function renderOwnRequest(req){
 function requestTrackerAccess(){
   if(!currentUser){ signInWithGoogle(); return; }
   const u=currentUser;
-  trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set({uid:u.uid,email:u.email||'',name:u.displayName||u.email||'Google user',photoURL:u.photoURL||'',status:'pending',requestedAt:Date.now()}).then(()=>setTrackerMessage('Access request sent.')).catch(e=>setTrackerMessage(e.message || String(e)));
+  trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set({uid:u.uid,email:authEmail(u)||u.email||'',name:u.displayName||authEmail(u)||u.email||'Google user',photoURL:u.photoURL||'',status:'pending',requestedAt:Date.now()}).then(()=>setTrackerMessage('Access request sent.')).catch(e=>setTrackerMessage(e.message || String(e)));
 }
 function enableProtectedHub(){
   showProtectedHub(true); updateAuthUI(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes();
 }
 function listenAdminRequests(){
   const panel=document.getElementById('adminPanel'); panel?.classList.remove('hidden');
+  // Keep one live admin-management view backed by requests, approved users, admins, and current presence.
   accessListenerRef = trackerDb.ref(`${TRACKER_BASE}/accessRequests`);
-  accessListenerRef.on('value', snap => renderAdminRequests(snap.val() || {}), err => { setTrackerMessage('Admin requests failed: ' + (err.message || err)); });
+  accessListenerRef.on('value', snap => { adminSnapshots.requests = snap.val() || {}; renderAdminManager(); }, err => { setTrackerMessage('Admin requests failed: ' + (err.message || err)); });
+  const wire = (path, key, label) => {
+    const ref = trackerDb.ref(`${TRACKER_BASE}/${path}`);
+    ref.on('value', snap => { adminSnapshots[key] = snap.val() || {}; renderAdminManager(); }, err => setTrackerMessage(label + ' read failed: ' + (err.message || err)));
+    adminExtraListenerRefs.push(ref);
+  };
+  wire('approvedUsers','approved','Approved users');
+  wire('admins','admins','Admins');
+  wire('presence','presence','Presence');
 }
-function renderAdminRequests(data){
+function mergeAdminUser(map, raw, source){
+  if(!raw || !raw.uid) return;
+  const uid=String(raw.uid);
+  const existing=map.get(uid) || {uid};
+  const pick=(k)=>{ if(raw[k] !== undefined && raw[k] !== null && String(raw[k]) !== '') existing[k]=raw[k]; };
+  ['email','name','photoURL','requestedAt','decidedAt','approvedAt','createdAt','lastSeen','createdBy','approvedBy','decidedBy'].forEach(pick);
+  existing.sources = existing.sources || new Set(); existing.sources.add(source);
+  if(source==='request'){ existing.requestStatus = raw.status || existing.requestStatus || 'unknown'; existing.requestAdmin = raw.admin === true || existing.requestAdmin; }
+  if(source==='approved'){ existing.approved = raw.approved === true; }
+  if(source==='admin'){ existing.admin = raw.admin === true; }
+  if(source==='presence'){ existing.present = true; existing.role = raw.role || existing.role; }
+  map.set(uid, existing);
+}
+function adminUserMap(){
+  const map=new Map();
+  Object.values(adminSnapshots.requests||{}).forEach(r=>mergeAdminUser(map,r,'request'));
+  Object.entries(adminSnapshots.approved||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'approved'));
+  Object.entries(adminSnapshots.admins||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'admin'));
+  Object.entries(adminSnapshots.presence||{}).forEach(([uid,r])=>mergeAdminUser(map,Object.assign({uid},r||{}),'presence'));
+  return map;
+}
+function isBuiltInAdminEmail(email){ return ADMIN_EMAILS.includes(canonicalEmail(email)); }
+function adminActor(){ return authEmail(currentUser) || (currentUser && currentUser.email) || 'admin'; }
+function adminSeedForUid(uid){ return adminUserMap().get(String(uid||'')) || {uid:String(uid||'')}; }
+function adminSeedFromManual(){
+  const uid=String(document.getElementById('manualAdminUid')?.value||'').trim();
+  const email=canonicalEmail(document.getElementById('manualAdminEmail')?.value||'');
+  const name=String(document.getElementById('manualAdminName')?.value||'').trim();
+  const existing=uid ? adminSeedForUid(uid) : {};
+  return {uid,email:email || existing.email || '',name:name || existing.name || email || existing.email || uid,photoURL:existing.photoURL || ''};
+}
+function safeUidArg(uid){ return esc(String(uid||'')); }
+function renderAdminManager(){
   const list=document.getElementById('requestList'); const badge=document.getElementById('adminBadge'); if(!list || !badge) return;
-  const pending=Object.values(data).filter(r=>r && r.status==='pending');
+  const users=Array.from(adminUserMap().values()).filter(u=>u.uid);
+  const pending=users.filter(u=>u.requestStatus==='pending');
   badge.textContent = pending.length + ' pending'; badge.classList.toggle('show', pending.length>0 && isAdmin);
-  if(!pending.length){ list.innerHTML='<div class="request-card">No pending requests.</div>'; return; }
-  pending.sort((a,b)=>(b.requestedAt||0)-(a.requestedAt||0));
-  list.innerHTML = pending.map(r=>`<div class="request-card"><div class="request-main"><img src="${esc(r.photoURL||'')}" alt=""><div class="request-text"><b>${esc(r.name||'Google user')}</b><span>${esc(r.email||'')} • ${esc(formatAge(Date.now() - Number(r.requestedAt||0)))}</span></div></div><div class="request-actions"><button class="btn btn-go btn-small" onclick="approveAccess('${esc(r.uid)}')">Approve</button><button class="btn btn-food btn-small" onclick="denyAccess('${esc(r.uid)}')">Deny</button></div></div>`).join('');
+  if(!users.length){ list.innerHTML='<div class="request-card">No users yet. Have the other Google account sign in and tap Request Access. Their UID will appear here.</div>'; return; }
+  users.sort((a,b)=>{
+    const ap=(a.requestStatus==='pending')?1:0, bp=(b.requestStatus==='pending')?1:0;
+    if(ap!==bp) return bp-ap;
+    return Number(b.lastSeen||b.requestedAt||b.approvedAt||b.createdAt||0)-Number(a.lastSeen||a.requestedAt||a.approvedAt||a.createdAt||0);
+  });
+  list.innerHTML = '<div class="admin-section-label">Users / access / admins</div>' + users.map(renderAdminUserCard).join('');
 }
-function approveAccess(uid){ if(!isAdmin || !uid) return; const reqRef=trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`); reqRef.once('value').then(s=>{const r=s.val()||{}; return Promise.all([trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set({approved:true,uid,email:r.email||'',name:r.name||'',photoURL:r.photoURL||'',approvedAt:Date.now(),approvedBy:currentUser.email}), reqRef.update({status:'approved',decidedAt:Date.now(),decidedBy:currentUser.email})]);}).catch(e=>setTrackerMessage(e.message||String(e))); }
-function denyAccess(uid){ if(!isAdmin || !uid) return; Promise.all([trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(), trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'denied',decidedAt:Date.now(),decidedBy:currentUser.email})]).catch(e=>setTrackerMessage(e.message||String(e))); }
-window.approveAccess=approveAccess; window.denyAccess=denyAccess;
+function renderAdminUserCard(u){
+  const uid=String(u.uid||'');
+  const email=canonicalEmail(u.email||'');
+  const name=u.name || email || uid;
+  const hard=isBuiltInAdminEmail(email);
+  const effectiveAdmin=!!u.admin || hard;
+  const approved=!!u.approved;
+  const status=u.requestStatus || (approved?'approved':(effectiveAdmin?'admin':'no request'));
+  const photo=u.photoURL || '';
+  const when = u.lastSeen ? 'last seen ' + formatAge(Date.now()-Number(u.lastSeen)) : (u.requestedAt ? 'requested ' + formatAge(Date.now()-Number(u.requestedAt)) : 'no recent presence');
+  const classes = ['request-card']; if(effectiveAdmin) classes.push('is-admin'); else if(approved) classes.push('is-approved');
+  const buttons = [];
+  if(!approved) buttons.push(`<button class="btn btn-go btn-small" onclick="grantViewerAccess('${safeUidArg(uid)}')">Grant Viewer</button>`);
+  if(approved) buttons.push(`<button class="btn btn-food btn-small" onclick="removeViewerAccess('${safeUidArg(uid)}')">Remove Access</button>`);
+  if(!effectiveAdmin) buttons.push(`<button class="btn btn-dark btn-small" onclick="makeAdminByUid('${safeUidArg(uid)}')">Make Admin</button>`);
+  if(effectiveAdmin && !hard) buttons.push(`<button class="btn btn-ghost btn-small" onclick="removeAdmin('${safeUidArg(uid)}')">Remove Admin</button>`);
+  if(hard) buttons.push(`<span class="state-pill dark">Built-in admin</span>`);
+  if(status !== 'denied') buttons.push(`<button class="btn btn-ghost btn-small" onclick="denyAccess('${safeUidArg(uid)}')">Deny / Remove All</button>`);
+  return `<div class="${classes.join(' ')}"><div class="request-main"><img src="${esc(photo)}" alt=""><div class="request-text"><b>${esc(name)}</b><span>${esc(email || 'no email label')} • ${esc(when)}</span><span class="uid-chip">UID: ${esc(uid)}</span><div class="user-state-pills"><span class="state-pill ${approved?'good':'warn'}">Viewer: ${approved?'approved':'not approved'}</span><span class="state-pill ${effectiveAdmin?'good':'warn'}">Admin: ${effectiveAdmin?'yes':'no'}</span><span class="state-pill">Request: ${esc(status)}</span></div></div></div><div class="request-actions">${buttons.join('')}</div></div>`;
+}
+function userRecordForWrite(uid, seed){
+  const existing=adminSeedForUid(uid);
+  const s=seed || existing || {};
+  const email=canonicalEmail(s.email || existing.email || '');
+  return {uid:String(uid),email,name:s.name || existing.name || email || String(uid),photoURL:s.photoURL || existing.photoURL || ''};
+}
+function approveAccess(uid){ return grantViewerAccess(uid); }
+function grantViewerAccess(uid, seed){
+  if(!isAdmin || !uid) return;
+  const r=userRecordForWrite(uid, seed);
+  return Promise.all([
+    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set(Object.assign({approved:true,approvedAt:Date.now(),approvedBy:adminActor()}, r)),
+    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update(Object.assign({status:'approved',decidedAt:Date.now(),decidedBy:adminActor()}, r))
+  ]).then(()=>setTrackerMessage('Viewer access granted for ' + (r.email || r.name || uid) + '.')).catch(e=>setTrackerMessage('Grant viewer failed: ' + (e.message||String(e))));
+}
+function removeViewerAccess(uid){
+  if(!isAdmin || !uid) return;
+  return Promise.all([
+    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(),
+    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'revoked',revokedAt:Date.now(),revokedBy:adminActor(),approved:false})
+  ]).then(()=>setTrackerMessage('Viewer access removed for UID ' + uid + '.')).catch(e=>setTrackerMessage('Remove access failed: ' + (e.message||String(e))));
+}
+function makeAdminFromRequest(uid){ return makeAdminByUid(uid); }
+function makeAdminByUid(uid, seed){
+  if(!isAdmin || !uid) return;
+  const r=userRecordForWrite(uid, seed);
+  return Promise.all([
+    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).set(Object.assign({admin:true,createdAt:Date.now(),createdBy:adminActor()}, r)),
+    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).set(Object.assign({approved:true,approvedAt:Date.now(),approvedBy:adminActor()}, r)),
+    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update(Object.assign({status:'approved',admin:true,decidedAt:Date.now(),decidedBy:adminActor()}, r))
+  ]).then(()=>setTrackerMessage('Admin assigned for ' + (r.email || r.name || uid) + '. Have that account reload.')).catch(e=>setTrackerMessage('Make Admin failed: ' + (e.message||String(e))));
+}
+function removeAdmin(uid){
+  if(!isAdmin || !uid) return;
+  const r=adminSeedForUid(uid);
+  if(isBuiltInAdminEmail(r.email)){ setTrackerMessage((r.email || uid) + ' is a built-in email admin. Remove it from ADMIN_EMAILS and database rules to fully revoke admin.'); return; }
+  return Promise.all([
+    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
+    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({admin:false,adminRevokedAt:Date.now(),adminRevokedBy:adminActor()})
+  ]).then(()=>setTrackerMessage('Admin removed for UID ' + uid + '.')).catch(e=>setTrackerMessage('Remove admin failed: ' + (e.message||String(e))));
+}
+function makeManualAdmin(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Enter the Firebase UID first.'); return; } return makeAdminByUid(s.uid, s); }
+function manualGrantViewer(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Enter the Firebase UID first.'); return; } return grantViewerAccess(s.uid, s); }
+function manualRemoveAccess(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Enter the Firebase UID first.'); return; } return removeViewerAccess(s.uid); }
+function manualRemoveAdmin(){ const s=adminSeedFromManual(); if(!s.uid){ setTrackerMessage('Enter the Firebase UID first.'); return; } return removeAdmin(s.uid); }
+function denyAccess(uid){
+  if(!isAdmin || !uid) return;
+  return Promise.all([
+    trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${uid}`).remove(),
+    trackerDb.ref(`${TRACKER_BASE}/admins/${uid}`).remove(),
+    trackerDb.ref(`${TRACKER_BASE}/accessRequests/${uid}`).update({status:'denied',approved:false,admin:false,decidedAt:Date.now(),decidedBy:adminActor()})
+  ]).then(()=>setTrackerMessage('Access denied and removable admin override removed for UID ' + uid + '.')).catch(e=>setTrackerMessage('Deny/remove failed: ' + (e.message||String(e))));
+}
+window.approveAccess=approveAccess; window.grantViewerAccess=grantViewerAccess; window.removeViewerAccess=removeViewerAccess; window.denyAccess=denyAccess; window.makeAdminFromRequest=makeAdminFromRequest; window.makeAdminByUid=makeAdminByUid; window.makeManualAdmin=makeManualAdmin; window.manualGrantViewer=manualGrantViewer; window.manualRemoveAccess=manualRemoveAccess; window.manualRemoveAdmin=manualRemoveAdmin; window.removeAdmin=removeAdmin;
 function listenLiveTracker(){ if(liveListenerRef) return; liveListenerRef=trackerRef; liveListenerRef.on('value', snap=>updateTrackerFromFirebase(snap.val()), err=>{setTrackerStatus('Tracker read blocked','offline'); setTrackerMessage(err.message||String(err));}); }
 function startPresence(){
   if(!currentUser || (!isAdmin && !isApproved)) return;
   const ref=trackerDb.ref(`${TRACKER_BASE}/presence/${currentUser.uid}`);
-  const update=()=>ref.set({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',role:isAdmin?'admin':'viewer',lastSeen:Date.now()}).catch(()=>{});
+  const update=()=>ref.set({uid:currentUser.uid,email:authEmail(currentUser)||currentUser.email||'',name:currentUser.displayName||authEmail(currentUser)||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',role:isAdmin?'admin':'viewer',lastSeen:Date.now()}).catch(()=>{});
   ref.onDisconnect().remove(); update(); if(presenceInterval) clearInterval(presenceInterval); presenceInterval=setInterval(update,30000);
   trackerDb.ref(`${TRACKER_BASE}/presence`).on('value', snap=>renderPresence(snap.val()||{}));
 }
 function renderPresence(data){
-  const now=Date.now(); const viewers=Object.values(data).filter(v=>v && now - Number(v.lastSeen||0) < 90000);
+  const now=Date.now();
+  const viewers=Object.values(data)
+    .filter(v=>v && now - Number(v.lastSeen||0) < 90000)
+    .sort((a,b)=>String(a.name||a.email||'').localeCompare(String(b.name||b.email||'')));
+  currentPresenceViewers = viewers;
   const strip=document.getElementById('watcherStrip'); if(!strip) return;
   strip.classList.toggle('show', viewers.length>0 && (isAdmin || isApproved));
-  strip.innerHTML = `<b>Current people watching</b><div class="bubble-list">${viewers.map(v=>profileBubble(v.photoURL, v.name || v.email || 'Viewer')).join('')}</div>`;
+  strip.onclick = openWatcherModal;
+  strip.setAttribute('role','button');
+  strip.setAttribute('tabindex','0');
+  strip.setAttribute('aria-label','Show current people watching full names');
+  strip.onkeydown = e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openWatcherModal(); } };
+  const countText = viewers.length + ' watching';
+  strip.innerHTML = `<b>Current people watching</b><div class="bubble-list">${viewers.map(v=>profileBubble(v.photoURL, v.name || v.email || 'Viewer')).join('')}</div><span class="watcher-hint">${esc(countText)} • tap for names</span>`;
+  renderWatcherModalList();
 }
 function profileBubble(photo, name){ const initials=String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(); return `<span class="profile-bubble" title="${esc(name||'Viewer')}">${photo?`<img src="${esc(photo)}" alt="${esc(name||'viewer')}">`:esc(initials)}</span>`; }
 function setTrackerMessage(text){
   const msg = text || '';
   const el=document.getElementById('trackerMessage'); if(el) el.textContent=msg;
   const authEl=document.getElementById('authMessage'); if(authEl) authEl.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in.');
-  const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Tap Sign in with Google to continue.');
+  const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Sign in with Google or email/password to continue.');
   if(msg) console.info('[TripGuide Auth]', msg);
 }
 function authErrorMessage(e){
@@ -735,7 +1009,11 @@ function authErrorMessage(e){
   if(code === 'auth/admin-restricted-operation') return 'Firebase Auth is rejecting this Google account before TripGuide can mark it as admin/viewer. MD works because MD already exists in Authentication → Users. Enable account creation in Firebase Console → Authentication → Settings → User actions, then have pinnerpatter@gmail.com sign in once. The database rules already include pinner as an admin email. (' + code + ')';
   if(code === 'auth/account-exists-with-different-credential') return 'Firebase found this email under a different sign-in method. Sign in using the original method for that email or enable/link the Google provider for the same account. (' + code + ')';
   if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account under Authentication → Users. (' + code + ')';
-  if(code === 'auth/operation-not-allowed') return 'Google sign-in provider is disabled or blocked in Firebase Authentication → Sign-in method. (' + code + ')';
+  if(code === 'auth/operation-not-allowed') return 'This sign-in provider is disabled in Firebase Authentication → Sign-in method. Enable Google for Google sign-in, and enable Email/Password if using the fallback login. (' + code + ')';
+  if(code === 'auth/user-not-found') return 'No Firebase Auth user exists for that email. Add the user manually in Firebase Console → Authentication → Users → Add user, then use that same email and password. (' + code + ')';
+  if(code === 'auth/wrong-password') return 'The Firebase email/password is incorrect for that account. Reset or change the password in Firebase Console → Authentication → Users. (' + code + ')';
+  if(code === 'auth/invalid-credential') return 'Firebase rejected that email/password. Confirm the account exists under Authentication → Users and that Email/Password is enabled under Sign-in method. (' + code + ')';
+  if(code === 'auth/invalid-email') return 'The email address format is invalid. (' + code + ')';
   if(code === 'auth/unauthorized-domain') return 'Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains. (' + code + ')';
   if(code === 'auth/popup-closed-by-user') return 'Google Sign-In popup was closed before Firebase received the login. Try again in Chrome/Safari, not an in-app browser. (' + code + ')';
   if(code === 'auth/web-storage-unsupported') return 'This browser is blocking the storage Firebase needs to finish sign-in. Try Chrome/Safari with private browsing off. (' + code + ')';
@@ -753,7 +1031,7 @@ window.addEventListener('error', function(e){
 });
 
 function startDriverTracking(){
-  if(!isAdmin || !currentUser){ setTrackerMessage('Admin Google sign-in required.'); return; }
+  if(!isAdmin || !currentUser){ setTrackerMessage('Admin sign-in required.'); return; }
   if(!navigator.geolocation){ setTrackerMessage('This browser does not support location tracking.'); return; }
   if(geoWatchId !== null) navigator.geolocation.clearWatch(geoWatchId);
   setTrackerStatus('Starting tracking…','offline'); setTrackerMessage('Allow location permission. Keep this page open while driving.');
@@ -764,7 +1042,7 @@ function startDriverTracking(){
     trackerRef.set(payload).then(()=>{setTrackerStatus('Live tracking active','live'); setTrackerMessage('Live location sent.');}).catch(e=>{setTrackerStatus('Write failed','offline'); setTrackerMessage(e.message||String(e));});
   }, err=>{setTrackerStatus('Location blocked','offline'); setTrackerMessage(err.message||'Location permission failed.');},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
 }
-function stopDriverTracking(){ if(!isAdmin){ setTrackerMessage('Admin Google sign-in required.'); return; } if(geoWatchId!==null){navigator.geolocation.clearWatch(geoWatchId); geoWatchId=null;} trackerRef.update({trackingActive:false,lastUpdated:Date.now()}).then(()=>{setTrackerStatus('Tracking stopped','offline'); setTrackerMessage('Live sharing stopped.');}).catch(e=>setTrackerMessage(e.message||String(e))); }
+function stopDriverTracking(){ if(!isAdmin){ setTrackerMessage('Admin sign-in required.'); return; } if(geoWatchId!==null){navigator.geolocation.clearWatch(geoWatchId); geoWatchId=null;} trackerRef.update({trackingActive:false,lastUpdated:Date.now()}).then(()=>{setTrackerStatus('Tracking stopped','offline'); setTrackerMessage('Live sharing stopped.');}).catch(e=>setTrackerMessage(e.message||String(e))); }
 function updateTrackerFromFirebase(data){
   const lastEl=document.getElementById('trackerLast'), accEl=document.getElementById('trackerAccuracy'), speedEl=document.getElementById('trackerSpeed'), dayEl=document.getElementById('trackerDay');
   if(!data || typeof data.lat !== 'number' || typeof data.lng !== 'number'){ latestLiveLocation=null; setTrackerStatus('No active location yet','offline'); if(lastEl)lastEl.textContent='No signal'; if(accEl)accEl.textContent='—'; if(speedEl)speedEl.textContent='—'; if(dayEl)dayEl.textContent='—'; updateProgressBanner(null); return; }
@@ -830,6 +1108,43 @@ function updateProgressBanner(progress, data){
 }
 function createProgressMini(){ if(document.getElementById('progressMini')) return; const el=document.createElement('div'); el.id='progressMini'; el.className='progress-mini'; el.textContent='Waiting for live location'; document.body.appendChild(el); }
 function createWatcherStrip(){ const shell=document.querySelector('.overview-map'); if(shell && !document.getElementById('watcherStrip')){ const el=document.createElement('div'); el.id='watcherStrip'; el.className='watcher-strip'; shell.appendChild(el); } }
+function createWatcherModal(){
+  if(document.getElementById('watcherModal')) return;
+  const el=document.createElement('div');
+  el.className='watcher-modal';
+  el.id='watcherModal';
+  el.addEventListener('click',e=>{ if(e.target===el) closeWatcherModal(); });
+  el.innerHTML = `<div class="watcher-modal-card"><div class="watcher-modal-head"><div><h3>Current people watching</h3><p id="watcherModalSub">Live viewer list</p></div><button class="watcher-close" type="button" onclick="closeWatcherModal()" aria-label="Close watcher list">×</button></div><div class="watcher-list" id="watcherModalList"><div class="watcher-empty">No active viewers.</div></div></div>`;
+  document.body.appendChild(el);
+}
+function watcherInitials(name){ return String(name||'?').trim().split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase() || '?'; }
+function watcherDisplayName(v){ return v.name || v.email || 'Viewer'; }
+function renderWatcherModalList(){
+  const list=document.getElementById('watcherModalList');
+  const sub=document.getElementById('watcherModalSub');
+  if(!list) return;
+  const viewers=currentPresenceViewers || [];
+  if(sub) sub.textContent = viewers.length ? `${viewers.length} active viewer${viewers.length===1?'':'s'} in the last 90 seconds` : 'No active viewers';
+  if(!viewers.length){ list.innerHTML='<div class="watcher-empty">No active viewers right now.</div>'; return; }
+  list.innerHTML = viewers.map(v=>{
+    const name=watcherDisplayName(v);
+    const email=v.email || '';
+    const role=v.role || 'viewer';
+    const lastSeen=v.lastSeen ? formatAge(Date.now()-Number(v.lastSeen)) : 'recently';
+    const photo=v.photoURL || '';
+    const uid=v.uid || '';
+    const actions=(isAdmin && uid) ? `<div class="watcher-actions"><button class="btn btn-go btn-small" onclick="grantViewerAccess('${esc(uid)}')">Grant Viewer</button><button class="btn btn-dark btn-small" onclick="makeAdminByUid('${esc(uid)}')">Make Admin</button><button class="btn btn-food btn-small" onclick="removeViewerAccess('${esc(uid)}')">Remove Access</button></div>` : '';
+    return `<div class="watcher-row"><div class="watcher-avatar">${photo?`<img src="${esc(photo)}" alt="${esc(name)}">`:esc(watcherInitials(name))}</div><div><div class="watcher-name">${esc(name)}</div>${email?`<div class="watcher-email">${esc(email)}</div>`:''}${uid?`<div class="watcher-email">UID: ${esc(uid)}</div>`:''}</div><span class="watcher-role">${esc(role)}</span><div class="watcher-last">Last seen ${esc(lastSeen)}</div>${actions}</div>`;
+  }).join('');
+}
+function openWatcherModal(){
+  if(!(isAdmin || isApproved)) return;
+  createWatcherModal();
+  renderWatcherModalList();
+  document.getElementById('watcherModal')?.classList.add('show');
+}
+function closeWatcherModal(){ document.getElementById('watcherModal')?.classList.remove('show'); }
+window.openWatcherModal=openWatcherModal; window.closeWatcherModal=closeWatcherModal;
 function registerTrackableMap(key, map){ if(!key||!map)return; trackableMaps.set(key,map); if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay); }
 let LiveAvatarOverlay = null;
 function ensureLiveAvatarOverlayClass(){
@@ -852,13 +1167,29 @@ function updateLiveMarkerOnMap(key,map,data){ if(!ensureLiveAvatarOverlayClass()
 }
 function removeLiveMarker(key){ const overlay=liveDriverMarkers.get(key); if(overlay){ overlay.setMap(null); liveDriverMarkers.delete(key); } const c=liveAccuracyCircles.get(key); if(c){ c.setMap(null); liveAccuracyCircles.delete(key); } }
 function centerLiveLocation(){ if(!latestLiveLocation){setTrackerMessage('No live location has been received yet.');return;} const progress=computeProgressForPosition(latestLiveLocation); const day=progress?.activeDay||latestLiveLocation.activeDay||1; const map=dayMaps.get(day)||overviewMapRef||Array.from(trackableMaps.values())[0]; if(!map){setTrackerMessage('Map has not loaded yet.');return;} const pos={lat:Number(latestLiveLocation.lat),lng:Number(latestLiveLocation.lng)}; map.setCenter(pos); map.setZoom(Math.max(map.getZoom()||8,12)); const sec=document.getElementById('day-'+day)||document.getElementById('overview'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'}); setTrackerMessage('Centered live driver marker.'); }
+function showMikeAndLauren(){
+  if(!latestLiveLocation){ setTrackerMessage('No live location has been received yet. Start tracking first.'); return; }
+  const progress = computeProgressForPosition(latestLiveLocation);
+  const day = progress?.activeDay || latestLiveLocation.activeDay || window.__autoActiveDay || window.__activeDay || 1;
+  initDayMap(Number(day));
+  const sec = document.getElementById('day-' + day) || document.getElementById('overview');
+  if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'});
+  const pos = {lat:Number(latestLiveLocation.lat), lng:Number(latestLiveLocation.lng)};
+  setTimeout(()=>{
+    const maps = [overviewMapRef, dayMaps.get(Number(day))].filter(Boolean);
+    maps.forEach(map=>{ map.setCenter(pos); map.setZoom(Math.max(map.getZoom()||8, 12)); });
+    updateLiveMarkerEverywhere(latestLiveLocation, day);
+    setTrackerMessage('Showing Mike and Lauren on Day ' + day + '.');
+  }, 450);
+}
+window.showMikeAndLauren = showMikeAndLauren;
 function listenMessages(){ if(messagesListenerRef) return; messagesListenerRef=trackerDb.ref(`${TRACKER_BASE}/messages`); messagesListenerRef.limitToLast(50).on('value', snap=>renderMessages(snap.val()||{}), err=>setTrackerMessage(err.message||String(err))); }
-function sendTripMessage(){ if(!currentUser || (!isAdmin&&!isApproved)) return; const input=document.getElementById('messageInput'); const text=(input?.value||'').trim(); if(!text) return; const link=(text.match(/https?:\/\/\S+/)||[])[0]||''; trackerDb.ref(`${TRACKER_BASE}/messages`).push({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',text,link,createdAt:Date.now()}).then(()=>{if(input)input.value='';}).catch(e=>setTrackerMessage(e.message||String(e))); }
+function sendTripMessage(){ if(!currentUser || (!isAdmin&&!isApproved)) return; const input=document.getElementById('messageInput'); const text=(input?.value||'').trim(); if(!text) return; const link=(text.match(/https?:\/\/\S+/)||[])[0]||''; trackerDb.ref(`${TRACKER_BASE}/messages`).push({uid:currentUser.uid,email:authEmail(currentUser)||currentUser.email||'',name:currentUser.displayName||authEmail(currentUser)||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',text,link,createdAt:Date.now()}).then(()=>{if(input)input.value='';}).catch(e=>setTrackerMessage(e.message||String(e))); }
 function renderMessages(data){ const list=document.getElementById('messageList'); if(!list)return; const msgs=Object.entries(data).map(([id,m])=>({id,...m})).filter(m=>m.text).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,25); if(!msgs.length){list.innerHTML='<div class="message-card">No messages yet.</div>';return;} list.innerHTML=msgs.map(m=>`<div class="message-card"><div class="message-main"><img src="${esc(m.photoURL||'')}" alt=""><div class="message-text"><b>${esc(m.name||'Viewer')}</b><span>${esc(formatAge(Date.now()-Number(m.createdAt||0)))}</span><p class="message-body">${linkify(esc(m.text))}</p>${m.link?`<a class="suggestion-link" target="_blank" rel="noopener" href="${esc(m.link)}">Open suggestion</a>`:''}${isAdmin?` <button class="btn btn-food btn-small" onclick="deleteMessage('${esc(m.id)}')">Delete</button>`:''}</div></div></div>`).join(''); }
 function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g,'<a class="suggestion-link" target="_blank" rel="noopener" href="$1">Open link</a>'); }
 function deleteMessage(id){ if(isAdmin && id) trackerDb.ref(`${TRACKER_BASE}/messages/${id}`).remove(); } window.deleteMessage=deleteMessage;
 function listenVotes(){ if(votesListenerRef) return; votesListenerRef=trackerDb.ref(`${TRACKER_BASE}/votes`); votesListenerRef.on('value', snap=>{ allVotes=snap.val()||{}; renderVotes(); }, err=>setTrackerMessage(err.message||String(err))); }
-function voteForFood(day,key,name){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before voting.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).set({uid:currentUser.uid,email:currentUser.email||'',name:currentUser.displayName||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',foodKey:key,foodName:name,updatedAt:Date.now()}).catch(e=>setTrackerMessage(e.message||String(e))); }
+function voteForFood(day,key,name){ if(!currentUser || (!isAdmin&&!isApproved)){ setTrackerMessage('Sign in and get approved before voting.'); return; } trackerDb.ref(`${TRACKER_BASE}/votes/${day}/${currentUser.uid}`).set({uid:currentUser.uid,email:authEmail(currentUser)||currentUser.email||'',name:currentUser.displayName||authEmail(currentUser)||currentUser.email||'Viewer',photoURL:currentUser.photoURL||'',foodKey:key,foodName:name,updatedAt:Date.now()}).catch(e=>setTrackerMessage(e.message||String(e))); }
 window.voteForFood=voteForFood;
 function renderVotes(){ document.querySelectorAll('[data-vote-key]').forEach(card=>{ const key=card.dataset.voteKey, day=card.dataset.day; const dayVotes=allVotes[day]||{}; const voters=Object.values(dayVotes).filter(v=>v.foodKey===key); const count=document.getElementById('votes-'+key), bubbles=document.getElementById('voters-'+key), leader=document.getElementById('leader-'+key); if(count)count.textContent=voters.length+' vote'+(voters.length===1?'':'s'); if(bubbles)bubbles.innerHTML=voters.map(v=>profileBubble(v.photoURL,v.name||v.email||'Viewer')).join(''); card.classList.toggle('vote-selected', !!(currentUser && dayVotes[currentUser.uid] && dayVotes[currentUser.uid].foodKey===key)); });
   // leader pass without pipeline for browser safety
