@@ -510,6 +510,20 @@ let trackerDb = null, trackerAuth = null, trackerRef = null, currentUser = null,
 let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
 let accessListenerRef = null, ownRequestRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
 let allVotes = {}, foodPreviewKey = null;
+let lastAuthErrorText = '', lastAuthErrorAt = 0;
+function rememberAuthError(text){
+  lastAuthErrorText = text || '';
+  lastAuthErrorAt = Date.now();
+  setTrackerMessage(lastAuthErrorText);
+}
+function recentAuthError(){
+  return lastAuthErrorText && (Date.now() - lastAuthErrorAt < 45000) ? lastAuthErrorText : '';
+}
+function clearAuthError(){
+  lastAuthErrorText = '';
+  lastAuthErrorAt = 0;
+}
+
 
 function initFirebaseTracker(){
   if(trackerInitialized) return;
@@ -550,11 +564,12 @@ async function finishSignInFromRedirect(){
     if(result && result.user){
       try{ await result.user.getIdToken(true); }catch(_){}
       currentUser = result.user;
+      clearAuthError();
       updateAuthUI();
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
     }
   }catch(e){
-    setTrackerMessage('Google Sign-In return failed: ' + authErrorMessage(e));
+    rememberAuthError('Google Sign-In return failed: ' + authErrorMessage(e));
   }finally{
     resetSignInButton();
   }
@@ -583,6 +598,7 @@ async function signInWithGoogle(){
       if(result && result.user){
         try{ await result.user.getIdToken(true); }catch(_){}
         currentUser = result.user;
+        clearAuthError();
         updateAuthUI();
         setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
       }
@@ -596,10 +612,10 @@ async function signInWithGoogle(){
         await trackerAuth.signInWithRedirect(provider);
         return;
       }
-      setTrackerMessage(authErrorMessage(e));
+      rememberAuthError(authErrorMessage(e));
     }
   }catch(e){
-    setTrackerMessage('Sign-In setup error: ' + authErrorMessage(e));
+    rememberAuthError('Sign-In setup error: ' + authErrorMessage(e));
   }finally{
     if(!currentUser) resetSignInButton();
   }
@@ -618,7 +634,20 @@ document.addEventListener('click', function(e){
 function handleAuthState(user){
   cleanupSecureListeners(); currentUser = user || null; isAdmin = isAdminUser(user); isApproved = false;
   updateAuthUI(); resetSignInButton();
-  if(!user){ setTrackerStatus('Sign in required','offline'); setLoginGate(true, 'Not signed in. Tap Sign in with Google to continue.'); setTrackerMessage('Not signed in.'); showAccessPanel(false); showProtectedHub(false); return; }
+  if(!user){
+    const err = recentAuthError();
+    if(err){
+      setTrackerStatus('Sign-in blocked','offline');
+      setLoginGate(true, err);
+      setTrackerMessage(err);
+    } else {
+      setTrackerStatus('Sign in required','offline');
+      setLoginGate(true, 'Not signed in. Tap Sign in with Google to continue.');
+      setTrackerMessage('Not signed in.');
+    }
+    showAccessPanel(false); showProtectedHub(false); return;
+  }
+  clearAuthError();
   setLoginGate(false);
   const email = authEmail(user) || user.displayName || 'Google user';
   setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Viewer pending approval'));
@@ -703,7 +732,9 @@ function setTrackerMessage(text){
 function authErrorMessage(e){
   const code = (e && e.code) ? e.code : '';
   const raw = (e && e.message) ? e.message : String(e || 'Unknown error');
-  if(code === 'auth/admin-restricted-operation') return 'Firebase is blocking new account creation. MD works because that account already exists. Enable Identity Platform/Firebase user sign-up or manually add this Google account under Authentication → Users, then try again. (' + code + ')';
+  if(code === 'auth/admin-restricted-operation') return 'Firebase Auth is rejecting this Google account before TripGuide can mark it as admin/viewer. MD works because MD already exists in Authentication → Users. Enable account creation in Firebase Console → Authentication → Settings → User actions, then have pinnerpatter@gmail.com sign in once. The database rules already include pinner as an admin email. (' + code + ')';
+  if(code === 'auth/account-exists-with-different-credential') return 'Firebase found this email under a different sign-in method. Sign in using the original method for that email or enable/link the Google provider for the same account. (' + code + ')';
+  if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account under Authentication → Users. (' + code + ')';
   if(code === 'auth/operation-not-allowed') return 'Google sign-in provider is disabled or blocked in Firebase Authentication → Sign-in method. (' + code + ')';
   if(code === 'auth/unauthorized-domain') return 'Google Sign-In blocked: add mdnadon112-sketch.github.io under Firebase Authentication → Settings → Authorized domains. (' + code + ')';
   if(code === 'auth/popup-closed-by-user') return 'Google Sign-In popup was closed before Firebase received the login. Try again in Chrome/Safari, not an in-app browser. (' + code + ')';
@@ -711,6 +742,16 @@ function authErrorMessage(e){
   return (code ? code + ': ' : '') + raw;
 }
 function setTrackerStatus(text, state){ const status=document.getElementById('trackerStatus'), dot=document.getElementById('trackerDot'); if(status) status.textContent=text; if(dot){dot.classList.remove('live','offline'); if(state) dot.classList.add(state);} }
+window.addEventListener('unhandledrejection', function(e){
+  const reason = e && e.reason ? e.reason : e;
+  const msg = reason && (reason.code || reason.message) ? authErrorMessage(reason) : String(reason || 'Unknown sign-in failure');
+  if(String(msg).includes('auth/') || String(msg).toLowerCase().includes('firebase')) rememberAuthError('Unhandled auth error: ' + msg);
+});
+window.addEventListener('error', function(e){
+  const msg = e && e.message ? e.message : '';
+  if(msg && /firebase|auth|sign/i.test(msg)) rememberAuthError('Page auth error: ' + msg);
+});
+
 function startDriverTracking(){
   if(!isAdmin || !currentUser){ setTrackerMessage('Admin Google sign-in required.'); return; }
   if(!navigator.geolocation){ setTrackerMessage('This browser does not support location tracking.'); return; }
