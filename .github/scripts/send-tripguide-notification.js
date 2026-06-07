@@ -224,7 +224,44 @@ async function main() {
   console.log(`attempted=${selected.length} success=${successCount} failure=${failureCount} cleaned=${cleanedCount}`);
 }
 
-main().catch((error) => {
-  console.error(error.message || error);
-  process.exit(1);
-});
+async function cleanupFirebase() {
+  try {
+    if (typeof admin.database === 'function') {
+      const db = admin.database();
+      if (db && typeof db.goOffline === 'function') {
+        db.goOffline();
+      }
+    }
+  } catch (error) {
+    console.error(error && error.message ? error.message : error);
+  }
+
+  if (Array.isArray(admin.apps) && admin.apps.length > 0) {
+    await Promise.all(admin.apps.map((app) => app.delete()));
+  }
+}
+
+async function run() {
+  let exitCode = 0;
+
+  try {
+    await main();
+  } catch (error) {
+    exitCode = 1;
+    console.error(error && error.stack ? error.stack : (error && error.message ? error.message : error));
+  } finally {
+    try {
+      await cleanupFirebase();
+    } catch (error) {
+      exitCode = 1;
+      console.error(error && error.stack ? error.stack : (error && error.message ? error.message : error));
+    }
+
+    if (exitCode === 0) {
+      process.exit(0);
+    }
+    process.exit(1);
+  }
+}
+
+run();
