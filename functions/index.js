@@ -49,12 +49,11 @@ function isActiveTokenRecord(record, now) {
   return lastSeen > 0 && (now - lastSeen) <= NINETY_DAYS_MS;
 }
 
-function cleanupReasonForError(code) {
+function classifySendError(code) {
   const value = String(code || '');
-  if (value.includes('registration-token-not-registered')) return 'not-registered';
-  if (value.includes('invalid-registration-token')) return 'invalid-token';
-  if (value.includes('invalid-argument')) return 'send-failed';
-  return '';
+  if (value.includes('registration-token-not-registered')) return { reason: 'not-registered', disable: true };
+  if (value.includes('invalid-registration-token')) return { reason: 'invalid-token', disable: true };
+  return { reason: 'send-failed', disable: false };
 }
 
 function toBatches(items, size) {
@@ -171,13 +170,16 @@ exports.sendTripGuideNotification = onCall(async (request) => {
       if (result.success) return;
       const item = batch[idx];
       const code = result.error && result.error.code;
-      const reason = cleanupReasonForError(code);
-      if (!reason) return;
-      cleanupUpdates[`${item.uid}/${item.tokenId}/enabled`] = false;
-      cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupReason`] = reason;
-      cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupAt`] = now;
+      const failure = classifySendError(code);
+      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureReason`] = failure.reason;
+      cleanupUpdates[`${item.uid}/${item.tokenId}/lastSendFailureAt`] = now;
       cleanupUpdates[`${item.uid}/${item.tokenId}/lastErrorCode`] = String(code || 'unknown-error');
-      cleanedCount += 1;
+      if (failure.disable) {
+        cleanupUpdates[`${item.uid}/${item.tokenId}/enabled`] = false;
+        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupReason`] = failure.reason;
+        cleanupUpdates[`${item.uid}/${item.tokenId}/cleanupAt`] = now;
+        cleanedCount += 1;
+      }
     });
   }
 

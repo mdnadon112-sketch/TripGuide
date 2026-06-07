@@ -228,7 +228,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <button class="btn btn-google" type="button" id="enablePushBtn">Enable Notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
         </div>
-        <div class="push-diagnostics" id="pushDiagnosticsPanel">
+        <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications not enabled.</div>
+        <div class="tracker-modes hidden" id="pushDiagnosticsToggleWrap">
+          <button class="btn btn-dark btn-small" type="button" id="togglePushDiagnosticsBtn">Advanced Push Diagnostics</button>
+        </div>
+        <div class="push-diagnostics hidden" id="pushDiagnosticsPanel">
           <div><h3>Push Diagnostics</h3><p>Checks browser readiness, service worker registration, and saved push tokens for this device.</p></div>
           <div class="push-diagnostics-grid">
             <div class="push-diagnostics-card">
@@ -285,7 +289,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
               <div class="admin-tool-grid">
                 <input class="login-input" id="pushSendUidInput" placeholder="Single user UID (required for Single user)">
                 <input class="login-input" id="pushSendUrlInput" placeholder="Optional URL (default /TripGuide/)">
-                <button class="btn btn-go" type="button" id="sendPushNotificationBtn">Send test notification</button>
+                <button class="btn btn-go" type="button" id="sendPushNotificationBtn">Send Notification</button>
               </div>
               <p class="admin-tool-note">Use the Single user target with a UID from Firebase Authentication/Database user records.</p>
               <div class="tracker-alert" id="pushSendResult"></div>
@@ -1087,6 +1091,7 @@ document.addEventListener('click', function(e){
 function handleAuthState(user){
   cleanupSecureListeners();
   currentUser = user || null;
+  pushDiagnosticsExpanded = false;
   isAdmin = isEmailAdminUser(user);
   isApproved = false;
   viewerAccessInitialized = false;
@@ -2028,6 +2033,10 @@ const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b
 let tripGuideMessaging = null, tripGuideFunctions = null;
 let tripGuideServiceWorkerRegistration = null, tripGuideServiceWorkerPromise = null, currentUserPushTokenRef = null, adminPushTokensRef = null;
 let pushDiagnosticsState = createPushDiagnosticsState();
+const pushDiagnosticsDebugOverride = (() => {
+  try{ return new URLSearchParams(window.location.search).get('debugPush') === '1'; }catch(_){ return false; }
+})();
+let pushDiagnosticsExpanded = false;
 
 function createPushDiagnosticsState(){
   return {
@@ -2094,6 +2103,18 @@ function setPushSendResult(text, bad){
   el.textContent = String(text || '');
   el.style.color = bad ? '#fecaca' : '#bbf7d0';
 }
+function statusTextForPush(){
+  const permission = String(pushDiagnosticsState && pushDiagnosticsState.browser && pushDiagnosticsState.browser.permission || '').toLowerCase();
+  if(permission === 'denied') return 'Notifications blocked for this browser/site.';
+  if(pushDiagnosticsState && pushDiagnosticsState.currentToken && pushDiagnosticsState.currentToken.enabled === true) return 'Notifications enabled for this device.';
+  return 'Notifications not enabled.';
+}
+function togglePushDiagnosticsPanel(){
+  if(!isAdmin) return;
+  if(pushDiagnosticsDebugOverride) return;
+  pushDiagnosticsExpanded = !pushDiagnosticsExpanded;
+  renderPushDiagnostics();
+}
 function getTripGuideFunctions(){
   if(!window.firebase || !firebase.functions) throw new Error('Firebase Functions SDK is missing in this browser session.');
   if(!tripGuideFunctions) tripGuideFunctions = firebase.app().functions('us-central1');
@@ -2136,7 +2157,7 @@ async function sendTripGuideNotificationFromAdmin(){
     setPushSendResult(message, true);
     setTrackerMessage(message);
   }finally{
-    if(btn){ btn.disabled = false; btn.textContent = 'Send test notification'; }
+    if(btn){ btn.disabled = false; btn.textContent = 'Send Notification'; }
   }
 }
 function maskPushToken(token){
@@ -2184,6 +2205,23 @@ async function saveCurrentUserPushToken(token, enabled){
 function setText(id, value){ const el=document.getElementById(id); if(el) el.textContent = value; }
 function renderPushDiagnostics(){
   const state = pushDiagnosticsState || createPushDiagnosticsState();
+  const statusLine = document.getElementById('pushNotificationStatusLine');
+  if(statusLine) statusLine.textContent = statusTextForPush();
+  const toggleWrap = document.getElementById('pushDiagnosticsToggleWrap');
+  if(toggleWrap) toggleWrap.classList.toggle('hidden', !isAdmin);
+  const toggleBtn = document.getElementById('togglePushDiagnosticsBtn');
+  if(toggleBtn){
+    if(pushDiagnosticsDebugOverride){
+      toggleBtn.textContent = 'Advanced Push Diagnostics (debugPush=1)';
+      toggleBtn.disabled = true;
+    } else {
+      toggleBtn.textContent = pushDiagnosticsExpanded ? 'Hide Advanced Push Diagnostics' : 'Advanced Push Diagnostics';
+      toggleBtn.disabled = false;
+    }
+  }
+  const panel = document.getElementById('pushDiagnosticsPanel');
+  const showPanel = !!(isAdmin && (pushDiagnosticsExpanded || pushDiagnosticsDebugOverride));
+  if(panel) panel.classList.toggle('hidden', !showPanel);
   setText('pushSupportServiceWorker', yesNoText(!!state.browser.serviceWorkerSupported));
   setText('pushSupportNotification', yesNoText(!!state.browser.notificationSupported));
   setText('pushSupportMessaging', yesNoText(!!state.browser.firebaseMessagingAvailable));
@@ -2522,18 +2560,27 @@ function bindSendPushNotificationButton(){
     btn.addEventListener('click', sendTripGuideNotificationFromAdmin);
   }
 }
+function bindPushDiagnosticsToggleButton(){
+  const btn = document.getElementById('togglePushDiagnosticsBtn');
+  if(btn && !btn.dataset.boundPushDiagToggle){
+    btn.dataset.boundPushDiagToggle = 'true';
+    btn.addEventListener('click', togglePushDiagnosticsPanel);
+  }
+}
 
 document.addEventListener('click', function(e){
-  const target = e.target && e.target.closest ? e.target.closest('#enablePushBtn, #disablePushBtn, #cleanupPushTokensBtn, #sendPushNotificationBtn') : null;
+  const target = e.target && e.target.closest ? e.target.closest('#enablePushBtn, #disablePushBtn, #cleanupPushTokensBtn, #sendPushNotificationBtn, #togglePushDiagnosticsBtn') : null;
   if(!target) return;
   if(target.id === 'enablePushBtn' && target.dataset.boundPush) return;
   if(target.id === 'disablePushBtn' && target.dataset.boundDisablePush) return;
   if(target.id === 'cleanupPushTokensBtn' && target.dataset.boundCleanupPush) return;
   if(target.id === 'sendPushNotificationBtn' && target.dataset.boundSendPush) return;
+  if(target.id === 'togglePushDiagnosticsBtn' && target.dataset.boundPushDiagToggle) return;
   if(target.id === 'enablePushBtn') enableTripGuidePush();
   if(target.id === 'disablePushBtn') disableTripGuidePushOnDevice();
   if(target.id === 'cleanupPushTokensBtn') cleanDisabledOrStalePushTokens();
   if(target.id === 'sendPushNotificationBtn') sendTripGuideNotificationFromAdmin();
+  if(target.id === 'togglePushDiagnosticsBtn') togglePushDiagnosticsPanel();
 }, true);
 
 normalizeTripPinLabels();
@@ -2544,6 +2591,7 @@ try{ bindPushButton(); }catch(_){}
 try{ bindDisablePushButton(); }catch(_){}
 try{ bindCleanupPushButton(); }catch(_){}
 try{ bindSendPushNotificationButton(); }catch(_){}
+try{ bindPushDiagnosticsToggleButton(); }catch(_){}
 initFirebaseTracker();
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places,geometry&callback=initApp&loading=async"></script>
