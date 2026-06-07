@@ -258,6 +258,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
                 <div class="push-diag-row"><span class="push-diag-label">enabled</span><span class="push-diag-value" id="pushTokenEnabled">—</span></div>
                 <div class="push-diag-row"><span class="push-diag-label">Masked token</span><span class="push-diag-value" id="pushTokenMasked">—</span></div>
               </div>
+              <div class="tracker-modes"><button class="btn btn-food" type="button" id="disablePushBtn">Disable Notifications on This Device</button></div>
               <div class="push-diag-error" id="pushTokenError"></div>
             </div>
           </div>
@@ -268,6 +269,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
               <div class="tracker-card"><b>Total users with tokens</b><span id="pushAdminUserCount">0</span></div>
               <div class="tracker-card"><b>Total enabled tokens</b><span id="pushAdminEnabledCount">0</span></div>
             </div>
+            <div class="tracker-modes"><button class="btn btn-dark" type="button" id="cleanupPushTokensBtn">Clean Disabled/Stale Tokens</button></div>
             <div class="push-token-list" id="pushAdminTokenList"><div class="push-token-empty">Admin token details load after an admin signs in.</div></div>
           </div>
         </div>
@@ -2028,8 +2030,31 @@ function detectPushPlatformHint(){
   if(/win|mac|linux|cros/.test(platform) || /windows|macintosh|linux|x11|cros/.test(ua)) return 'Desktop';
   return 'Unknown';
 }
+function detectPushDeviceLabel(){
+  const ua = String((navigator && navigator.userAgent) || '').toLowerCase();
+  const platform = detectPushPlatformHint();
+  const isStandalone = !!((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone);
+  const isEdge = ua.includes('edg/');
+  const isFirefox = ua.includes('firefox/');
+  const isChrome = ua.includes('chrome/') && !isEdge;
+  const isSafari = ua.includes('safari/') && !isChrome && !isEdge && !ua.includes('crios/') && !ua.includes('fxios/');
+  if(platform === 'Android' && isChrome) return 'Android Chrome';
+  if(platform === 'iOS' && isStandalone) return 'iPhone Home Screen';
+  if(platform === 'iOS' && isSafari) return 'iPhone Safari';
+  if(platform === 'Desktop' && isEdge) return 'Desktop Edge';
+  if(platform === 'Desktop' && isChrome) return 'Desktop Chrome';
+  if(platform === 'Desktop' && isSafari) return 'Desktop Safari';
+  if(platform === 'Desktop' && isFirefox) return 'Desktop Firefox';
+  return 'Unknown browser';
+}
 function yesNoText(value){ return value ? 'Yes' : 'No'; }
 function boolText(value){ return value === true ? 'true' : (value === false ? 'false' : '—'); }
+function pushTokenStatusLabel(entry){
+  if(entry && entry.enabled === false) return 'Disabled';
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const lastSeen = Number(entry && entry.lastSeen || 0);
+  return (Date.now() - lastSeen) <= THIRTY_DAYS_MS ? 'Active' : 'Stale';
+}
 function formatPushTimestamp(value){
   const num = Number(value || 0);
   if(!num) return '—';
@@ -2046,6 +2071,42 @@ function maskPushToken(token){
   if(!value) return '—';
   if(value.length <= 16) return value;
   return `${value.slice(0,10)}…${value.slice(-6)}`;
+}
+function pushTokenKeyFromToken(token){
+  const key = String(token || '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(-120);
+  return key || `token_${Date.now()}`;
+}
+function findPushTokenEntry(records, token){
+  const target = String(token || '');
+  if(!target) return null;
+  for(const [tokenId, record] of Object.entries(records || {})){
+    if(record && String(record.token || '') === target) return { tokenId, record };
+  }
+  return null;
+}
+async function saveCurrentUserPushToken(token, enabled){
+  const now = Date.now();
+  const userTokenPath = `${TRACKER_BASE}/pushTokens/${currentUser.uid}`;
+  const userTokenRef = trackerDb.ref(userTokenPath);
+  const snap = await userTokenRef.get();
+  const records = snap.val() || {};
+  const existing = findPushTokenEntry(records, token);
+  const tokenId = existing ? existing.tokenId : pushTokenKeyFromToken(token);
+  const previous = existing && existing.record ? existing.record : {};
+  const tokenRecord = {
+    token,
+    platform: detectPushPlatformHint().toLowerCase(),
+    deviceLabel: detectPushDeviceLabel(),
+    enabled: enabled === true,
+    lastSeen: now,
+    displayName: currentUser.displayName || authEmail(currentUser) || 'TripGuide user',
+    name: currentUser.displayName || authEmail(currentUser) || 'TripGuide user',
+    email: authEmail(currentUser) || currentUser.email || '',
+    photoURL: currentUser.photoURL || '',
+    createdAt: existing ? Number(previous.createdAt || now) : now
+  };
+  await trackerDb.ref(`${userTokenPath}/${tokenId}`).set(tokenRecord);
+  return { tokenId, tokenRecord, existed: !!existing };
 }
 function setText(id, value){ const el=document.getElementById(id); if(el) el.textContent = value; }
 function renderPushDiagnostics(){
@@ -2076,7 +2137,7 @@ function renderPushDiagnostics(){
     } else if(!(state.admin.entries || []).length){
       list.innerHTML = '<div class="push-token-empty">No saved push tokens found yet.</div>';
     } else {
-      list.innerHTML = state.admin.entries.map(entry => `<div class="push-token-item"><b>${esc(entry.name || entry.email || entry.uid || 'TripGuide user')}</b><span>${esc(entry.email || 'no email saved')} • ${esc(entry.platform || 'unknown platform')}</span><div class="push-token-meta"><div><small>createdAt</small><strong>${esc(formatPushTimestamp(entry.createdAt))}</strong></div><div><small>lastSeen</small><strong>${esc(formatPushTimestamp(entry.lastSeen))}</strong></div><div><small>enabled</small><strong>${esc(boolText(entry.enabled))}</strong></div><div><small>Token</small><strong>${esc(maskPushToken(entry.token))}</strong></div></div></div>`).join('');
+      list.innerHTML = state.admin.entries.map(entry => `<div class="push-token-item"><b>${esc(entry.name || entry.email || entry.uid || 'TripGuide user')}</b><span>${esc(entry.email || 'no email saved')} • ${esc(entry.platform || 'unknown platform')} • ${esc(entry.deviceLabel || 'Unknown browser')}</span><div class="push-token-meta"><div><small>Status</small><strong>${esc(pushTokenStatusLabel(entry))}</strong></div><div><small>enabled</small><strong>${esc(boolText(entry.enabled))}</strong></div><div><small>createdAt</small><strong>${esc(formatPushTimestamp(entry.createdAt))}</strong></div><div><small>lastSeen</small><strong>${esc(formatPushTimestamp(entry.lastSeen))}</strong></div><div><small>Token</small><strong>${esc(maskPushToken(entry.token))}</strong></div></div></div>`).join('');
     }
   }
 }
@@ -2170,9 +2231,10 @@ function listenAdminPushTokens(){
         if(record && record.token){
           entries.push({
             uid,
-            name: record.name || '',
+            name: record.displayName || record.name || '',
             email: record.email || '',
             platform: record.platform || 'unknown',
+            deviceLabel: record.deviceLabel || 'Unknown browser',
             createdAt: record.createdAt || null,
             lastSeen: record.lastSeen || null,
             enabled: record.enabled === true,
@@ -2264,32 +2326,95 @@ async function enableTripGuidePush(){
       return;
     }
 
-    const now = Date.now();
-    const tokenId = token.replace(/[^a-zA-Z0-9_-]/g, '_').slice(-120);
-    const tokenRecord = {
-      token,
-      platform: detectPushPlatformHint().toLowerCase(),
-      email: authEmail(currentUser) || currentUser.email || '',
-      name: currentUser.displayName || authEmail(currentUser) || 'TripGuide user',
-      enabled: true,
-      createdAt: now,
-      lastSeen: now
-    };
     try{
-      await trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}/${tokenId}`).set(tokenRecord);
+      const saved = await saveCurrentUserPushToken(token, true);
+      pushDiagnosticsState.currentToken = {
+        saved: true,
+        createdAt: saved.tokenRecord.createdAt || null,
+        lastSeen: saved.tokenRecord.lastSeen || null,
+        enabled: true,
+        masked: maskPushToken(token),
+        error: ''
+      };
     }catch(writeError){
       const safeError = safePushError(writeError);
-      pushDiagnosticsState.currentToken = { saved: false, createdAt: now, lastSeen: now, enabled: true, masked: maskPushToken(token), error: 'Token created but save failed: ' + safeError };
+      pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: true, masked: maskPushToken(token), error: 'Token created but save failed: ' + safeError };
       renderPushDiagnostics();
       setTrackerMessage('Notification token created, but it could not be saved: ' + safeError);
       return;
     }
-
-    pushDiagnosticsState.currentToken = { saved: true, createdAt: now, lastSeen: now, enabled: true, masked: maskPushToken(token), error: '' };
     renderPushDiagnostics();
     setTrackerMessage('Notifications enabled for this device.');
   }catch(e){
     setTrackerMessage('Enable notifications failed: ' + safePushError(e));
+  }
+}
+async function disableTripGuidePushOnDevice(){
+  try{
+    await refreshPushBrowserDiagnostics();
+    if(!currentUser || !trackerDb){ setTrackerMessage('Sign in before disabling notifications on this device.'); return; }
+    if(!firebase.messaging){ setTrackerMessage('Firebase Messaging is missing in this browser session.'); return; }
+    const registration = await ensureTripGuideServiceWorkerRegistration();
+    tripGuideMessaging = firebase.messaging();
+    const token = await tripGuideMessaging.getToken({
+      vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
+      serviceWorkerRegistration: registration
+    });
+    if(!token){
+      setTrackerMessage('No saved token found for this device.');
+      return;
+    }
+    const userTokenRef = trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}`);
+    const snap = await userTokenRef.get();
+    const existing = findPushTokenEntry(snap.val() || {}, token);
+    if(!existing){
+      setTrackerMessage('No saved token found for this device.');
+      return;
+    }
+    const now = Date.now();
+    await userTokenRef.child(existing.tokenId).update({ enabled: false, lastSeen: now });
+    pushDiagnosticsState.currentToken = {
+      saved: true,
+      createdAt: existing.record && existing.record.createdAt || null,
+      lastSeen: now,
+      enabled: false,
+      masked: maskPushToken(token),
+      error: ''
+    };
+    renderPushDiagnostics();
+    setTrackerMessage('Notifications disabled for this device.');
+  }catch(e){
+    setTrackerMessage('Disable notifications failed: ' + safePushError(e));
+  }
+}
+async function cleanDisabledOrStalePushTokens(){
+  if(!isAdmin || !trackerDb){ setTrackerMessage('Only admins can clean push tokens.'); return; }
+  if(!window.confirm('Clean disabled tokens older than 30 days and stale enabled tokens older than 90 days?')) return;
+  const now = Date.now();
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
+  try{
+    const ref = trackerDb.ref(`${TRACKER_BASE}/pushTokens`);
+    const snap = await ref.get();
+    const raw = snap.val() || {};
+    const updates = {};
+    let removed = 0;
+    Object.entries(raw).forEach(([uid, tokenMap]) => {
+      Object.entries(tokenMap || {}).forEach(([tokenId, record]) => {
+        if(!record) return;
+        const lastSeen = Number(record.lastSeen || record.createdAt || 0);
+        const isDisabledOld = record.enabled === false && (now - lastSeen) > THIRTY_DAYS_MS;
+        const isStaleEnabledOld = record.enabled === true && (now - lastSeen) > NINETY_DAYS_MS;
+        if(isDisabledOld || isStaleEnabledOld){
+          updates[`${uid}/${tokenId}`] = null;
+          removed += 1;
+        }
+      });
+    });
+    if(removed > 0) await ref.update(updates);
+    setTrackerMessage(`Removed ${removed} token${removed === 1 ? '' : 's'}.`);
+  }catch(e){
+    setTrackerMessage('Token cleanup failed: ' + safePushError(e));
   }
 }
 
@@ -2300,10 +2425,30 @@ function bindPushButton(){
     btn.addEventListener('click', enableTripGuidePush);
   }
 }
+function bindDisablePushButton(){
+  const btn = document.getElementById('disablePushBtn');
+  if(btn && !btn.dataset.boundDisablePush){
+    btn.dataset.boundDisablePush = 'true';
+    btn.addEventListener('click', disableTripGuidePushOnDevice);
+  }
+}
+function bindCleanupPushButton(){
+  const btn = document.getElementById('cleanupPushTokensBtn');
+  if(btn && !btn.dataset.boundCleanupPush){
+    btn.dataset.boundCleanupPush = 'true';
+    btn.addEventListener('click', cleanDisabledOrStalePushTokens);
+  }
+}
 
 document.addEventListener('click', function(e){
-  const btn = e.target && e.target.closest ? e.target.closest('#enablePushBtn') : null;
-  if(btn){ enableTripGuidePush(); }
+  const target = e.target && e.target.closest ? e.target.closest('#enablePushBtn, #disablePushBtn, #cleanupPushTokensBtn') : null;
+  if(!target) return;
+  if(target.id === 'enablePushBtn' && target.dataset.boundPush) return;
+  if(target.id === 'disablePushBtn' && target.dataset.boundDisablePush) return;
+  if(target.id === 'cleanupPushTokensBtn' && target.dataset.boundCleanupPush) return;
+  if(target.id === 'enablePushBtn') enableTripGuidePush();
+  if(target.id === 'disablePushBtn') disableTripGuidePushOnDevice();
+  if(target.id === 'cleanupPushTokensBtn') cleanDisabledOrStalePushTokens();
 }, true);
 
 normalizeTripPinLabels();
@@ -2311,6 +2456,8 @@ renderStatic();
 renderPushDiagnostics();
 refreshPushBrowserDiagnostics().catch(()=>{});
 try{ bindPushButton(); }catch(_){}
+try{ bindDisablePushButton(); }catch(_){}
+try{ bindCleanupPushButton(); }catch(_){}
 initFirebaseTracker();
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnVAHb3pJaCjqCSkMB8BeLqgrn4CR803A&libraries=places,geometry&callback=initApp&loading=async"></script>
