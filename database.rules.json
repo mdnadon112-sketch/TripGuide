@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "tripGuide": {
+      "messages": {
+        ".indexOn": ["createdAt"]
+      }
+    }
+  }
+}
