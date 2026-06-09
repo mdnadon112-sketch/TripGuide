@@ -41,6 +41,132 @@
           ".write": "auth != null && (auth.uid === $uid || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')"
         }
       },
+      "tripStats": {
+        "summary": {
+          ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          "$metric": {
+            ".validate": "!newData.exists() || (newData.child('score').isNumber() && (!newData.child('uid').exists() || newData.child('uid').isString()) && (!newData.child('timestamp').exists() || newData.child('timestamp').isNumber()) && (!newData.child('activeDay').exists() || newData.child('activeDay').isNumber()))"
+          }
+        },
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".write": "auth != null && ((auth.uid === $uid && (auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')) || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true)",
+          "topSpeed": {
+            ".validate": "!newData.exists() || (newData.child('mph').isNumber() && newData.child('score').isNumber() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+          },
+          "bestGpsLock": {
+            ".validate": "!newData.exists() || (newData.child('accuracyMeters').isNumber() && newData.child('score').isNumber() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+          },
+          "longestStop": {
+            ".validate": "!newData.exists() || (newData.child('durationMs').isNumber() && newData.child('score').isNumber() && newData.child('startTime').isNumber() && newData.child('endTime').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+          },
+          "longestDrivingStretch": {
+            ".validate": "!newData.exists() || (newData.child('durationMs').isNumber() && newData.child('score').isNumber() && newData.child('startTime').isNumber() && newData.child('endTime').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+          },
+          "mostMilesInOneDay": {
+            ".validate": "!newData.exists() || (newData.child('miles').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString() && newData.child('timestamp').isNumber())"
+          },
+          "slowestCrawl": {
+            ".validate": "!newData.exists() || (newData.child('durationMs').isNumber() && newData.child('score').isNumber() && newData.child('underMph').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+          },
+          "biggestOffRoute": {
+            ".validate": "!newData.exists() || (newData.child('distanceMeters').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('timestamp').isNumber() && newData.child('uid').isString())"
+          },
+          "biggestProgressJump": {
+            ".validate": "!newData.exists() || (newData.child('miles').isNumber() && newData.child('meters').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('timestamp').isNumber() && newData.child('uid').isString())"
+          },
+          "dailyMiles": {
+            "$day": {
+              ".validate": "!newData.exists() || (newData.child('miles').isNumber() && newData.child('meters').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString() && newData.child('timestamp').isNumber())"
+            }
+          },
+          "earliestDeparture": {
+            "$day": {
+              ".validate": "!newData.exists() || (newData.child('timestamp').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+            }
+          },
+          "latestArrival": {
+            "$day": {
+              ".validate": "!newData.exists() || (newData.child('timestamp').isNumber() && newData.child('score').isNumber() && newData.child('activeDay').isNumber() && newData.child('uid').isString())"
+            }
+          }
+        }
+      },
+      "dailyRecaps": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "$day": {
+          "comments": {
+            "$commentId": {
+              ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || ((auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com') && ((newData.exists() && newData.child('uid').val() === auth.uid) || (!newData.exists() && data.child('uid').val() === auth.uid))))",
+              ".validate": "!newData.exists() || (newData.child('uid').isString() && newData.child('displayName').isString() && newData.child('text').isString() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber())"
+            }
+          },
+          "roadPainScore": {
+            ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+            ".validate": "!newData.exists() || (newData.child('score').isNumber() && newData.child('updatedAt').isNumber())"
+          },
+          "dailyVerdict": {
+            ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+            ".validate": "!newData.exists() || (newData.child('text').isString() && newData.child('updatedAt').isNumber())"
+          },
+          "metrics": {
+            "$metric": {
+              ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+              ".validate": "!newData.exists() || newData.isNumber()"
+            }
+          }
+        }
+      },
+      "rightCounters": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "mike": {
+          ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "lauren": {
+          ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "taps": {
+          "$tapId": {
+            ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || ((auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com') && newData.child('uid').val() === auth.uid))",
+            ".validate": "!newData.exists() || (newData.child('uid').isString() && newData.child('displayName').isString() && newData.child('selectedSide').isString() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber())"
+          }
+        }
+      },
+      "rightCounterHistory": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "$entryId": {
+          ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || ((auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com') && newData.child('uid').val() === auth.uid))",
+          ".validate": "!newData.exists() || (newData.child('uid').isString() && newData.child('displayName').isString() && newData.child('selectedSide').isString() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber())"
+        }
+      },
+      "stopTags": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "$day": {
+          "$stopId": {
+            ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+            ".validate": "!newData.exists() || ((newData.child('tag').isString() || !newData.child('tag').exists()) && (newData.child('displayName').isString() || !newData.child('displayName').exists()) && (newData.child('note').isString() || !newData.child('note').exists()) && (newData.child('updatedAt').isNumber() || newData.child('timestamp').isNumber()))"
+          }
+        }
+      },
+      "vibeChecks": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "$uid": {
+          ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || ((auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com') && auth.uid === $uid))",
+          ".validate": "!newData.exists() || (newData.child('uid').isString() && newData.child('vibe').isString() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber())"
+        }
+      },
+      "vibeHistory": {
+        ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        "$day": {
+          "$entryId": {
+            ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || ((auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com') && newData.child('uid').val() === auth.uid))",
+            ".validate": "!newData.exists() || (newData.child('uid').isString() && newData.child('vibe').isString() && newData.child('timestamp').isNumber() && newData.child('activeDay').isNumber())"
+          }
+        }
+      },
       "messages": {
         ".read": "auth != null && (root.child('tripGuide/approvedUsers/' + auth.uid + '/approved').val() === true || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
         "$messageId": {

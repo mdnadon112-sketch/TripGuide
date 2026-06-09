@@ -96,10 +96,106 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .hub-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .hub-tab{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#e2e8f0;border-radius:999px;padding:8px 11px;font-weight:950;font-size:12px;cursor:pointer}
 .hub-tab.active{background:#e0f2fe;color:#075985;border-color:#bae6fd}
+.trip-metrics-shell{margin-top:10px;display:grid;gap:8px}
+.mission-bar{position:sticky;top:8px;z-index:38;background:rgba(8,20,38,.95);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mission-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.16);color:#e2e8f0;background:rgba(255,255,255,.08)}
+.mission-chip.good{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.mission-chip.warn{background:#fef3c7;color:#92400e;border-color:#fde68a}
+.mission-chip.bad{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+.today-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 12px;display:grid;gap:7px}
+.today-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.today-row b{font-size:13px;color:#fff}
+.today-row span{font-size:12px;color:#cbd5e1;font-weight:850}
+.today-next{font-size:13px;font-weight:900;color:#fff}
+.today-after{font-size:12px;font-weight:850;color:#cbd5e1}
+.gps-compact{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 12px;display:grid;gap:6px}
+.gps-compact-row{display:flex;flex-wrap:wrap;gap:8px;font-size:13px;font-weight:900;color:#e2e8f0}
+.gps-compact-row b{color:#fff}
+.ayt-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 12px;display:grid;gap:7px}
+.ayt-head{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:#e2e8f0;font-weight:900}
+.ayt-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
+.ayt-fill{height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#60a5fa);transition:width .35s ease}
+.ayt-status{font-size:12px;color:#cbd5e1;font-weight:850}
+.vibe-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.vibe-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 10px;display:flex;gap:10px;align-items:center}
+.vibe-avatar{width:38px;height:38px;border-radius:999px;border:2px solid rgba(255,255,255,.45);display:grid;place-items:center;font-size:12px;font-weight:950;background:#0f172a;color:#fff;overflow:hidden;cursor:pointer}
+.vibe-avatar img{width:100%;height:100%;object-fit:cover}
+.vibe-meta b{display:block;font-size:12px;color:#fff}
+.vibe-meta span{display:block;font-size:12px;color:#cbd5e1;font-weight:850}
+.vibe-pick-btn{margin-left:auto;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}
+.right-counter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right-counter-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;color:#e2e8f0}
+.right-counter-chip b{color:#fff}
+.right-counter-note{font-size:12px;color:#cbd5e1;font-weight:850}
+.trip-superlatives{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
+.trip-superlatives summary{cursor:pointer;list-style:none;padding:10px 12px;font-weight:950;font-size:13px;color:#e2e8f0;display:flex;align-items:center;justify-content:space-between}
+.trip-superlatives summary::-webkit-details-marker{display:none}
+.trip-superlatives summary::after{content:'+';font-size:15px;color:#cbd5e1}
+.trip-superlatives[open] summary::after{content:'-'}
+.trip-superlatives-body{display:grid;gap:7px;padding:0 12px 12px}
+.superlative-row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-top:1px dashed rgba(255,255,255,.12);padding-top:7px}
+.superlative-row:first-child{border-top:none;padding-top:0}
+.superlative-row b{font-size:12px;color:#cbd5e1;font-weight:900}
+.superlative-row span{font-size:13px;color:#fff;font-weight:950;text-align:right}
+.recap-section{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+.recap-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.recap-head h3{margin:0;font-size:19px}
+.recap-grid{margin-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.recap-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 9px}
+.recap-item b{display:block;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.recap-item span{display:block;margin-top:3px;font-size:14px;color:#0f172a;font-weight:900}
+.recap-comments{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px}
+.recap-comments h4,.stop-tag-wrap h4{margin:0 0 7px;font-size:14px}
+.recap-comment-list{display:grid;gap:7px}
+.recap-comment{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:8px 9px}
+.recap-comment b{display:block;font-size:13px;color:#0f172a}
+.recap-comment p{margin:4px 0 0;color:#334155;font-size:13px;font-weight:700;line-height:1.35}
+.recap-comment small{color:#64748b;font-size:11px;font-weight:700}
+.recap-compose{display:grid;gap:7px;margin-top:8px}
+.recap-compose textarea{width:100%;min-height:60px;border:1px solid #cbd5e1;border-radius:12px;padding:8px 9px;font-weight:700}
+.stop-tag-wrap{margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px}
+.stop-tag-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:7px}
+.stop-tag-list{display:grid;gap:6px;margin-top:8px}
+.stop-tag-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:7px 8px;font-size:12px;color:#334155;font-weight:800}
+.recap-pain{margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0}
+.recap-pain b{font-size:12px;color:#334155}
+.recap-pain p{margin:5px 0 0;color:#475569;font-size:13px;font-weight:800}
+.vibe-picker{position:fixed;inset:0;z-index:150;background:rgba(8,20,38,.7);display:none;align-items:center;justify-content:center;padding:16px}
+.vibe-picker.show{display:flex}
+.vibe-picker-card{width:min(560px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:20px;padding:14px;border:1px solid #e2e8f0}
+.vibe-picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.vibe-option{border:1px solid #dbe4f0;background:#f8fafc;color:#0f172a;border-radius:12px;padding:8px 9px;font-size:13px;font-weight:850;cursor:pointer;text-align:left}
+.more-menu{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
+.more-menu summary{cursor:pointer;list-style:none;padding:10px 12px;font-weight:950;font-size:13px;color:#e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.more-menu summary::-webkit-details-marker{display:none}
+.more-menu-body{padding:0 12px 12px;display:grid;gap:8px}
+.more-menu-links{display:flex;flex-wrap:wrap;gap:7px}
+.more-menu-links .btn{box-shadow:none}
 .hub-section{margin-top:12px}
 .hub-section .progress-panel,.hub-section .message-board,.hub-section .admin-panel{margin-top:0}
-@media(max-width:900px){.progress-meta{grid-template-columns:1fr}.message-compose{grid-template-columns:1fr}.watcher-strip{border-radius:16px;align-items:flex-start}.watcher-strip b{white-space:normal}.progress-mini.show{display:block}}
+@media(max-width:900px){.progress-meta{grid-template-columns:1fr}.message-compose{grid-template-columns:1fr}.watcher-strip{border-radius:16px;align-items:flex-start}.watcher-strip b{white-space:normal}.progress-mini.show{display:block}.superlative-row{flex-direction:column}.superlative-row span{text-align:left}.recap-grid,.vibe-strip,.vibe-picker-grid{grid-template-columns:1fr}.stop-tag-grid{grid-template-columns:1fr}}
 @media print{.progress-mini,.watcher-strip,.photo-modal{display:none!important}}
+
+.day-status-strip{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:10px}
+.day-status-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;border:1px solid #dbe4f0;background:#f8fafc;color:#334155}
+.day-status-chip.active{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.day-status-chip.future{background:#e0f2fe;color:#075985;border-color:#bae6fd}
+.day-status-chip.complete{background:#f1f5f9;color:#334155;border-color:#e2e8f0}
+.day-summary-strip{margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:9px 10px;display:none;gap:6px}
+.day-summary-strip b{font-size:12px;color:#334155}
+.day-summary-strip span{font-size:12px;color:#475569;font-weight:800}
+.day-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.day.collapsed .day-body{display:none}
+.day.collapsed .day-summary-strip{display:grid}
+.day-collapse-btn{border:1px solid var(--line);background:#fff;color:#334155;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;cursor:pointer}
+.day.active-day{outline:2px solid rgba(22,163,74,.3)}
+.day.future-day{opacity:.98}
+.day.completed-day .day-kicker .pill{opacity:.92}
+
+.bottom-bar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.bottom-day{grid-column:1 / -1}
+.bottom-nav-btn{display:inline-flex;justify-content:center;align-items:center;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:12px;font-weight:850;min-height:40px;padding:0 6px}
+.bottom-nav-btn.active{background:#16a34a;color:#fff;border-color:#22c55e}
 
 /* PATCH v5.9: clickable current watchers full-name list */
 .watcher-strip{cursor:pointer;user-select:none}.watcher-strip:hover{background:rgba(8,20,38,.92)}.watcher-hint{margin-left:auto;color:#cbd5e1;font-size:11px;font-weight:950;white-space:nowrap}.watcher-modal{position:fixed;inset:0;z-index:120;background:rgba(8,20,38,.74);display:none;align-items:center;justify-content:center;padding:18px}.watcher-modal.show{display:flex}.watcher-modal-card{width:min(560px,96vw);max-height:86vh;overflow:auto;background:#fff;color:#0f172a;border-radius:24px;box-shadow:0 25px 80px rgba(0,0,0,.35);border:1px solid rgba(15,23,42,.10)}.watcher-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 16px 12px;border-bottom:1px solid #e2e8f0}.watcher-modal-head h3{margin:0;font-size:23px;letter-spacing:-.02em}.watcher-modal-head p{margin:4px 0 0;color:#64748b;font-weight:750;font-size:13px}.watcher-close{border:1px solid #d9e3f0;background:#fff;border-radius:999px;width:38px;height:38px;font-weight:950;cursor:pointer}.watcher-list{display:grid;gap:8px;padding:12px}.watcher-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:10px}.watcher-avatar{width:44px;height:44px;border-radius:999px;background:#0f172a;color:#fff;display:grid;place-items:center;font-weight:950;overflow:hidden}.watcher-avatar img{width:100%;height:100%;object-fit:cover}.watcher-name{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.watcher-email{color:#64748b;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.watcher-role{background:#e0f2fe;color:#075985;border:1px solid #bae6fd;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;text-transform:capitalize}.watcher-last{grid-column:2 / 4;color:#64748b;font-size:12px;font-weight:750;margin-top:-4px}.watcher-empty{padding:16px;color:#64748b;font-weight:850}
@@ -348,6 +444,77 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <button class="hub-tab" type="button" id="hubTabMessages" data-hub-tab="messages" role="tab" aria-selected="false">Messages</button>
           <button class="hub-tab hidden" type="button" id="hubTabAdmin" data-hub-tab="admin" role="tab" aria-selected="false">Admin</button>
         </div>
+        <div class="trip-metrics-shell" id="tripMetricsShell">
+          <div class="mission-bar" id="missionBar">
+            <span class="mission-chip" id="missionDayChip">Day -- Active</span>
+            <span class="mission-chip" id="missionProgressChip">--% done</span>
+            <span class="mission-chip" id="missionGpsChip">GPS --</span>
+            <span class="mission-chip" id="missionNextChip">Next: --</span>
+          </div>
+          <div class="today-card" id="todayCard">
+            <div class="today-row"><b id="todayTitle">Today — Day --</b><span id="todayStatus">Status: Data says ask again later.</span></div>
+            <div class="today-next" id="todayNextStop">Next stop: --</div>
+            <div class="today-after" id="todayAfterStop">After that: --</div>
+            <div class="today-row"><span id="todayVibeMike">Mike: --</span><span id="todayVibeLauren">Lauren: --</span></div>
+            <div class="today-row"><button class="btn btn-go btn-small" type="button" id="todayGoBtn">GO TO NEXT STOP</button><span id="todayGoHint">View Full Route below</span></div>
+          </div>
+          <div class="gps-compact" id="gpsCompactPanel" aria-live="polite">
+            <div class="gps-compact-row" id="gpsCompactPrimary"><b>GPS Strength:</b> -- <b>Accuracy:</b> --</div>
+          </div>
+          <div class="ayt-card" id="areWeThereCard">
+            <div class="ayt-head"><b>Are We There Yet?</b><span id="aytPct">--% done</span></div>
+            <div class="ayt-bar"><div class="ayt-fill" id="aytFill"></div></div>
+            <div class="ayt-status" id="aytStatus">Status: Data says ask again later.</div>
+          </div>
+          <div class="vibe-strip" id="vibeStrip">
+            <div class="vibe-card" id="vibeCardMike">
+              <span class="vibe-avatar" id="vibeAvatarMike">M</span>
+              <span class="vibe-meta"><b>Mike</b><span id="vibeTextMike">--</span></span>
+              <button class="vibe-pick-btn" type="button" id="vibePickMikeBtn">Set vibe</button>
+            </div>
+            <div class="vibe-card" id="vibeCardLauren">
+              <span class="vibe-avatar" id="vibeAvatarLauren">L</span>
+              <span class="vibe-meta"><b>Lauren</b><span id="vibeTextLauren">--</span></span>
+              <button class="vibe-pick-btn" type="button" id="vibePickLaurenBtn">Set vibe</button>
+            </div>
+          </div>
+          <details class="trip-superlatives" id="tripSuperlativesPanel">
+            <summary>Trip Superlatives</summary>
+            <div class="trip-superlatives-body">
+              <div class="right-counter-row">
+                <button class="btn btn-go btn-small" type="button" id="mikeRightBtn">Mike was right</button>
+                <button class="btn btn-food btn-small" type="button" id="laurenRightBtn">Lauren was right</button>
+                <span class="right-counter-chip">Mike: <b id="mikeRightCount">0</b></span>
+                <span class="right-counter-chip">Lauren: <b id="laurenRightCount">0</b></span>
+              </div>
+              <div class="right-counter-note" id="rightCounterRuling">Current ruling: Pending investigation.</div>
+              <div class="superlative-row"><b>Fastest we allegedly moved</b><span id="metricTopSpeed">--</span></div>
+              <div class="superlative-row"><b>Best GPS lock</b><span id="metricBestGps">--</span></div>
+              <div class="superlative-row"><b>Longest "quick stop"</b><span id="metricLongestStop">--</span></div>
+              <div class="superlative-row"><b>Longest time locked in</b><span id="metricLongestStretch">--</span></div>
+              <div class="superlative-row"><b>Biggest mileage day</b><span id="metricMostMiles">--</span></div>
+              <div class="superlative-row"><b>Slowest crawl</b><span id="metricSlowestCrawl">--</span></div>
+              <div class="superlative-row"><b>Most suspicious route decision</b><span id="metricOffRoute">--</span></div>
+              <div class="superlative-row"><b>Earliest roll-out</b><span id="metricEarliestDeparture">--</span></div>
+              <div class="superlative-row"><b>Latest "finally there" moment</b><span id="metricLatestArrival">--</span></div>
+              <div class="superlative-row"><b>Biggest chunk of map erased</b><span id="metricProgressJump">--</span></div>
+              <div class="superlative-row"><b>Best day so far</b><span id="metricBestDay">--</span></div>
+              <div class="superlative-row"><b>Most cooked day so far</b><span id="metricWorstDay">--</span></div>
+            </div>
+          </details>
+          <details class="more-menu" id="moreMenuPanel">
+            <summary>More</summary>
+            <div class="more-menu-body">
+              <div class="more-menu-links">
+                <a class="btn btn-ghost btn-small" href="#overview">Map</a>
+                <a class="btn btn-ghost btn-small" href="#days">Journal</a>
+                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('messages')">Messages</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('live')">Live</button>
+                <button class="btn btn-dark btn-small" type="button" onclick="setHubTab('admin')" id="moreAdminBtn">Admin</button>
+              </div>
+            </div>
+          </details>
+        </div>
         <div class="hub-section" id="hubSectionProgress" data-hub-section="progress">
           <div class="progress-panel" id="progressPanel">
           <div class="progress-line"><strong id="tripProgressTitle">Trip progress: calculating route miles</strong><span id="tripProgressPct">—</span></div>
@@ -370,7 +537,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <div class="tracker-modes">
           <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center live marker</button>
           <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
-          <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
+          <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver Mode</button>
         </div>
         <div class="push-diagnostics hidden" id="pushRecommendPanel">
           <div><h3>Turn On Trip Updates</h3><p>Get updates when Mike and Lauren post, arrive, or start moving.</p></div>
@@ -502,7 +669,16 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   <main id="days"></main>
   <div class="footer">Built as a single self-contained HTML file. Internet is required for Google Maps, Google Places photos, and map tiles.</div>
 </div>
-<div class="bottom-bar" id="bottomBar"><span class="bottom-day" id="bottomDay">Day 1</span><a id="bottomGo" class="btn btn-go" target="_blank" rel="noopener">GO</a><a id="bottomWaze" class="btn btn-waze" target="_blank" rel="noopener">Waze</a></div>
+<div class="bottom-bar" id="bottomBar">
+  <span class="bottom-day" id="bottomDay">Day 1</span>
+  <a class="bottom-nav-btn active" id="bottomNavToday" href="#liveTracker">Today</a>
+  <a class="bottom-nav-btn" id="bottomNavMap" href="#overview">Map</a>
+  <a class="bottom-nav-btn" id="bottomNavJournal" href="#days">Journal</a>
+  <a class="bottom-nav-btn" id="bottomNavFood" href="#day-1">Food</a>
+  <button class="bottom-nav-btn" id="bottomNavMore" type="button" onclick="toggleMoreMenuFromBottom()">More</button>
+  <a id="bottomGo" class="btn btn-go" target="_blank" rel="noopener">GO</a>
+  <a id="bottomWaze" class="btn btn-waze" target="_blank" rel="noopener">Waze</a>
+</div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
@@ -677,6 +853,10 @@ function renderStatic(){
   root.innerHTML = TRIP.days.map(renderDay).join('');
   document.querySelectorAll('[data-food-card]').forEach(card=>hydrateFoodCard(card));
   observeDayForBottomBar();
+  initializeDayCards();
+  document.getElementById('bottomNavFood')?.setAttribute('href', '#day-1');
+  window.addEventListener('scroll', updateBottomNavActive, {passive:true});
+  window.addEventListener('resize', updateBottomNavActive, {passive:true});
 }
 function renderDay(d){
   return `<section class="day" id="day-${d.day}" data-day="${d.day}">
@@ -684,15 +864,60 @@ function renderDay(d){
       <div>
         <div class="day-kicker"><span class="pill">Day ${d.day}</span><span class="pill">${esc(d.date)}</span><span class="pill">${esc(d.drive)}</span></div>
         <h2>${esc(d.title)}</h2><p class="day-sub">${esc(d.subtitle)}</p>
+        <div class="day-status-strip"><span class="day-status-chip" id="dayStatus-${d.day}">Status: --</span><button class="day-collapse-btn" type="button" onclick="toggleDayCard(${d.day})" id="dayToggleBtn-${d.day}">Collapse</button></div>
       </div>
       <div class="go-stack"><a class="btn btn-go go-main" href="${esc(d.google_full)}" target="_blank" rel="noopener">GO</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><button class="btn btn-google" type="button" onclick="focusMap(${d.day})">Map</button></div>
     </header>
+    <div class="day-summary-strip" id="daySummary-${d.day}"><b>No recap yet.</b><span>Add a comment after today gets interesting.</span></div>
+    <div class="day-body" id="dayBody-${d.day}">
     <div class="day-grid">
       <div class="map-column"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><button class="map-expand" type="button" onclick="toggleMapSize(${d.day}, this)">Expand map</button><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div>${renderKindLegend(allDayMapItems(d), 'map-legend')}</div>
       <aside class="side"><div class="info-grid"><div class="info"><b>Overnight</b><span>${esc(d.overnight)}</span></div><div class="info"><b>Drive</b><span>${esc(d.drive)}</span></div></div><div class="warn">${esc(d.warning)}</div><div class="todo"><h3>What we’re doing</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="route-list">${d.stops.map(s=>renderRouteItem(s)).join('')}</div></aside>
     </div>
     <section class="food-section"><div class="food-head"><h3>Dinner / food options</h3><span class="pill">Photos load from Google Places</span></div><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section>
+    <section class="recap-section" id="recapDay-${d.day}">
+      <div class="recap-head"><h3>Day ${d.day} Recap</h3><span class="pill">Road trip receipts</span></div>
+      <div class="recap-grid">
+        <div class="recap-item"><b>Route summary</b><span>${esc(d.subtitle || '--')}</span></div>
+        <div class="recap-item"><b>Miles covered</b><span id="recapMiles-${d.day}">--</span></div>
+        <div class="recap-item"><b>Fastest we allegedly moved</b><span id="recapTopSpeed-${d.day}">--</span></div>
+        <div class="recap-item"><b>Longest "quick stop"</b><span id="recapLongestStop-${d.day}">--</span></div>
+        <div class="recap-item"><b>Slowest crawl</b><span id="recapSlowestCrawl-${d.day}">--</span></div>
+        <div class="recap-item"><b>Arrival</b><span id="recapArrival-${d.day}">--</span></div>
+        <div class="recap-item"><b>Longest driving stretch</b><span id="recapStretch-${d.day}">--</span></div>
+      </div>
+      <div class="stop-tag-wrap">
+        <h4>Stop tags</h4>
+        <div class="stop-tag-grid">
+          <select class="login-input" id="stopTagTarget-${d.day}"></select>
+          <select class="login-input" id="stopTagType-${d.day}"></select>
+          <button class="btn btn-dark btn-small" type="button" onclick="saveStopTag(${d.day})">Save tag</button>
+        </div>
+        <div class="stop-tag-grid" style="margin-top:6px;grid-template-columns:minmax(0,1fr) auto;">
+          <input class="login-input" id="stopTagNote-${d.day}" placeholder="Optional stop note">
+          <button class="btn btn-ghost btn-small" type="button" onclick="addManualStopTag(${d.day})">Add stop note</button>
+        </div>
+        <div class="stop-tag-list" id="stopTagList-${d.day}"><div class="stop-tag-item">No stop tags yet.</div></div>
+      </div>
+      <div class="recap-comments">
+        <h4>Comments</h4>
+        <div class="recap-comment-list" id="recapComments-${d.day}"><div class="recap-comment"><b>Trip Notes</b><p>No comments yet.</p></div></div>
+        <div class="recap-compose" id="recapCompose-${d.day}">
+          <textarea id="recapInput-${d.day}" placeholder="Add a day recap comment"></textarea>
+          <div class="tracker-modes" style="margin-top:0;"><button class="btn btn-go btn-small" type="button" onclick="addRecapComment(${d.day})">Post recap comment</button></div>
+        </div>
+      </div>
+      <div class="recap-pain">
+        <b id="recapPain-${d.day}">Road Pain Score: --</b>
+        <p id="recapDiagnosis-${d.day}">Diagnosis: Not enough evidence.</p>
+        <div class="tracker-modes" style="margin-top:8px;">
+          <input class="login-input" id="recapVerdictInput-${d.day}" placeholder="Optional daily verdict/diagnosis update">
+          <button class="btn btn-dark btn-small" type="button" onclick="saveDailyVerdict(${d.day})">Save diagnosis</button>
+        </div>
+      </div>
+    </section>
     <details class="drawer"><summary>Show all stop links</summary><div class="drawer-body"><div class="food-grid">${d.stops.map(s=>renderStopLinkCard(s)).join('')}</div></div></details>
+    </div>
   </section>`;
 }
 function renderRouteItem(s){return `<div class="route-item"><span class="pin-dot" style="background:${colorFor(s.kind)}">${esc(s.displayLabel || s.label)}</span><div><b>${esc(s.name)}</b><p>${esc(labelForKind(s.kind))}${s.note ? ' — ' + esc(s.note) : ''}</p></div></div>`;}
@@ -762,7 +987,7 @@ function initApp(){
   mapsReady = true; geocoder = new google.maps.Geocoder(); directionsService = new google.maps.DirectionsService();
   ensureLiveAvatarOverlayClass();
   const serviceDiv = document.createElement('div'); document.body.appendChild(serviceDiv); placesService = new google.maps.places.PlacesService(serviceDiv);
-  normalizeTripPinLabels(); renderStatic(); initOverviewMap(); initLazyDayMaps(); precomputeRouteMetrics();
+  normalizeTripPinLabels(); renderStatic(); renderDailyRecaps(); createVibePicker(); renderVibeStrip(); renderRightCounters(); renderAreWeThere(null); updateMissionAndToday(null, null); initOverviewMap(); initLazyDayMaps(); precomputeRouteMetrics();
   if(latestLiveLocation) updateLiveMarkerEverywhere(latestLiveLocation, window.__autoActiveDay || latestLiveLocation.activeDay);
 }
 window.initApp = initApp;
@@ -957,11 +1182,14 @@ function observeDayForBottomBar(){
     bottomWaze.href = d.waze_final;
     bottomGo.setAttribute('aria-label','Open Day ' + d.day + ' Google full route');
     bottomWaze.setAttribute('aria-label','Open Day ' + d.day + ' Waze final stop');
+    document.getElementById('bottomNavFood')?.setAttribute('href', '#day-' + d.day);
     document.querySelectorAll('#quick a').forEach(a=>{
       const match = a.getAttribute('href') === '#day-' + d.day;
       a.classList.toggle('active', match);
       if(match){ a.setAttribute('aria-current','true'); } else { a.removeAttribute('aria-current'); }
     });
+    updateDayCardStates();
+    updateMissionAndToday(lastValidProgress, latestLiveLocation);
   }
 
   function dayFromPoint(){
@@ -1135,11 +1363,18 @@ function upsertSignedInUserProfile(user){
 const TRACKER_BASE = 'tripGuide';
 const TRACKER_PATH = TRACKER_BASE + '/live'; // legacy single-driver path, kept for old clients only
 const LIVE_TRACKERS_PATH = TRACKER_BASE + '/liveTrackers';
+const TRIP_STATS_PATH = TRACKER_BASE + '/tripStats';
+const TRIP_STATS_SUMMARY_PATH = TRIP_STATS_PATH + '/summary';
+const DAILY_RECAPS_PATH = TRACKER_BASE + '/dailyRecaps';
+const RIGHT_COUNTERS_PATH = TRACKER_BASE + '/rightCounters';
+const STOP_TAGS_PATH = TRACKER_BASE + '/stopTags';
+const VIBE_CHECKS_PATH = TRACKER_BASE + '/vibeChecks';
+const VIBE_HISTORY_PATH = TRACKER_BASE + '/vibeHistory';
 const LIVE_TRACKER_EMAILS = ['mdnadon112@gmail.com','pinnerpatter@gmail.com','mdnadon112@googlemail.com','pinnerpatter@googlemail.com'].map(canonicalEmail);
 const OFF_ROUTE_METERS = 16093.44;
 let trackerDb = null, trackerAuth = null, trackerRef = null, liveTrackersRef = null, currentUser = null, isAdmin = false, isApproved = false;
 let geoWatchId = null, lastTrackerWrite = 0, routeCache = new Map(), routeTotalsReady = false, totalTripMeters = 0, lastValidProgress = null;
-let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, blockedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null;
+let accessListenerRef = null, ownRequestRef = null, approvedUserRef = null, blockedUserRef = null, adminUidListenerRef = null, liveListenerRef = null, presenceInterval = null, messagesListenerRef = null, votesListenerRef = null, tripStatsSummaryListenerRef = null, dailyRecapsListenerRef = null, rightCountersListenerRef = null, stopTagsListenerRef = null, vibeChecksListenerRef = null, vibeHistoryListenerRef = null;
 let adminExtraListenerRefs = [];
 let adminSnapshots = {requests:{}, approved:{}, admins:{}, presence:{}, users:{}, blocked:{}};
 let adminManagerTab = 'active';
@@ -1151,6 +1386,18 @@ let currentPresenceViewers = [];
 let latestLiveLocations = {};
 let latestLiveTrackers = [];
 let displayedLiveTrackers = [];
+let tripStatsSummary = {};
+let tripStatsRuntimeByUid = {};
+let dailyRecapsData = {};
+let rightCountersData = {mike:0, lauren:0};
+let stopTagsData = {};
+let vibeChecksData = {};
+let vibeHistoryData = {};
+let rightCounterCooldownUntil = 0;
+let vibePickerTarget = null;
+let roadPainWriteCache = {};
+let dayCollapsePrefs = {};
+let dayCollapseInitialized = false;
 let tripGuideForegroundMessageBound = false;
 let currentHubTab = 'progress';
 let authReady = false;
@@ -1176,6 +1423,8 @@ let selectedPersistenceMode = 'default';
 let authBootState = 'initializing';
 let viewerAccessStateResolved = false;
 let viewerAccessLoadState = {admin:false, blocked:false, approved:false, request:false};
+const STOP_TAG_OPTIONS = ['Fuel','Food','Coffee','Bathroom','Hotel','Scenic stop','Kid/pet stop','Random side quest','Vehicle check','Unknown'];
+const VIBE_OPTIONS = ['Locked in','Hungry','Over it','Making good time','Needs coffee','Road-trip feral','Questionable decisions','Passenger princess mode','Driver brain active','Emotionally questionable','Just here for snacks','Surviving'];
 function isCoreLiveTrackerEmail(email){ return LIVE_TRACKER_EMAILS.includes(canonicalEmail(email)); }
 function isCoreLiveTrackerUser(user){ return !!(user && isCoreLiveTrackerEmail(authEmail(user) || user.email)); }
 function liveTrackerDisplayName(data){
@@ -1870,10 +2119,16 @@ function bindHubControls(){
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') handleEmailLogin(); }); });
   const regConfirm=document.getElementById('regConfirmInput'); if(regConfirm) regConfirm.addEventListener('keydown', e=>{ if(e.key==='Enter') handleCreateAccount(); });
   const resetEmail=document.getElementById('resetEmailInput'); if(resetEmail) resetEmail.addEventListener('keydown', e=>{ if(e.key==='Enter') handlePasswordReset(); });
-  bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
+  bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => { setHubTab('live'); document.getElementById('liveTracker')?.scrollIntoView({behavior:'smooth', block:'start'}); });
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
   bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
   bindClick('adminBadge', () => setHubTab('admin'));
+  bindClick('vibePickMikeBtn', () => openVibePicker('mike'));
+  bindClick('vibePickLaurenBtn', () => openVibePicker('lauren'));
+  bindClick('vibeAvatarMike', () => openVibePicker('mike'));
+  bindClick('vibeAvatarLauren', () => openVibePicker('lauren'));
+  bindClick('mikeRightBtn', () => tapRightCounter('mike'));
+  bindClick('laurenRightBtn', () => tapRightCounter('lauren'));
   bindClick('manualAdminBtn', makeManualAdmin);
   bindClick('manualGrantViewerBtn', manualGrantViewer);
   bindClick('manualRemoveAccessBtn', manualRemoveAccess);
@@ -2477,6 +2732,12 @@ function cleanupSecureListeners(){
   try{ if(liveListenerRef){ liveListenerRef.off(); liveListenerRef=null; } }catch(e){}
   try{ if(messagesListenerRef){ messagesListenerRef.off(); messagesListenerRef=null; } }catch(e){}
   try{ if(votesListenerRef){ votesListenerRef.off(); votesListenerRef=null; } }catch(e){}
+  try{ if(tripStatsSummaryListenerRef){ tripStatsSummaryListenerRef.off(); tripStatsSummaryListenerRef=null; } }catch(e){}
+  try{ if(dailyRecapsListenerRef){ dailyRecapsListenerRef.off(); dailyRecapsListenerRef=null; } }catch(e){}
+  try{ if(rightCountersListenerRef){ rightCountersListenerRef.off(); rightCountersListenerRef=null; } }catch(e){}
+  try{ if(stopTagsListenerRef){ stopTagsListenerRef.off(); stopTagsListenerRef=null; } }catch(e){}
+  try{ if(vibeChecksListenerRef){ vibeChecksListenerRef.off(); vibeChecksListenerRef=null; } }catch(e){}
+  try{ if(vibeHistoryListenerRef){ vibeHistoryListenerRef.off(); vibeHistoryListenerRef=null; } }catch(e){}
   stopCurrentUserPushTokenListener();
   stopAdminPushTokenListener();
   if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
@@ -2486,6 +2747,19 @@ function cleanupSecureListeners(){
   pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
   pushDiagnosticsState.admin = { usersWithTokens: 0, enabledTokens: 0, entries: [] };
   notificationRecommendationState = { settingsLoadedForUid: '', settings: {}, activeTokenForDevice: false, promptVisible: false };
+  tripStatsSummary = {};
+  tripStatsRuntimeByUid = {};
+  dailyRecapsData = {};
+  rightCountersData = {mike:0, lauren:0};
+  stopTagsData = {};
+  vibeChecksData = {};
+  vibeHistoryData = {};
+  roadPainWriteCache = {};
+  renderTripSuperlatives({});
+  renderGpsCompact([]);
+  renderAreWeThere(null);
+  renderVibeStrip();
+  renderRightCounters();
   showPushRecommendationPrompt(false);
   showPushRecoveryPanel(false);
   renderPushDiagnostics();
@@ -2496,10 +2770,14 @@ function updateAuthUI(){
   const userEl=document.getElementById('authUser'); userEl?.classList.toggle('hidden', !signed);
   if(signed){ const img=document.getElementById('authUserPhoto'); const name=document.getElementById('authUserName'); if(img) img.src=currentUser.photoURL || ''; if(name) name.textContent=(currentUser.displayName || authEmail(currentUser) || 'Signed in') + ' — ' + (authEmail(currentUser) || 'no email') + (isAdmin ? ' • Admin' : ''); }
   document.getElementById('driverModeBtn')?.classList.toggle('hidden', !isAdmin); document.getElementById('adminBadge')?.classList.toggle('show', false);
+  document.getElementById('moreAdminBtn')?.classList.toggle('hidden', !isAdmin);
   if(isAdmin) forceAdminControlsVisible();
   applyHubTabAccess();
   if(document.getElementById('protectedHub') && !document.getElementById('protectedHub').classList.contains('hidden')) setHubTab(currentHubTab || 'progress');
   updateTrackingControlVisibility();
+  renderRightCounters();
+  renderVibeStrip();
+  renderDailyRecaps();
 }
 function forceAdminControlsVisible(){
   // Admin promotion can happen live while the other browser is already open.
@@ -2518,7 +2796,9 @@ function updateTrackingControlVisibility(){
   const startBtn = document.getElementById('startTrackingBtn');
   const stopBtn = document.getElementById('stopTrackingBtn');
   const help = document.querySelector('#driverPanel .driver-help');
+  const driverModeBtn = document.getElementById('driverModeBtn');
   const canShare = !!(isAdmin && isCoreLiveTrackerUser(currentUser));
+  if(driverModeBtn) driverModeBtn.textContent = canShare ? 'Driver Mode' : 'Live Controls';
   if(startBtn){
     startBtn.disabled = !canShare;
     startBtn.textContent = canShare ? 'Start Tracking' : 'Mike/Lauren Only';
@@ -2578,7 +2858,7 @@ function requestTrackerAccess(){
 }
 function enableProtectedHub(){
   currentHubTab = 'progress';
-  showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes(); startPushDiagnostics();
+  showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); listenTripStatsSummary(); listenRoadJournalData(); startPresence(); listenMessages(); listenVotes(); startPushDiagnostics();
   applyNotificationRecommendationState().catch(()=>{});
 }
 function listenAdminRequests(){
@@ -2975,6 +3255,136 @@ function setTrackerMessage(text){
   const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Sign in to continue.');
   if(msg) console.info('[TripGuide Auth]', msg);
 }
+function showJournalToast(text, bad){
+  if(text) setTrackerMessage(text);
+  showActionToast(text || '', !!bad);
+}
+function loadDayCollapsePrefs(){
+  try{
+    const raw = localStorage.getItem('tripGuideDayCollapsePrefs');
+    dayCollapsePrefs = raw ? JSON.parse(raw) : {};
+  }catch(_){ dayCollapsePrefs = {}; }
+}
+function saveDayCollapsePrefs(){
+  try{ localStorage.setItem('tripGuideDayCollapsePrefs', JSON.stringify(dayCollapsePrefs || {})); }catch(_){}
+}
+function dayCardState(day){
+  const active = currentActiveDayNumber();
+  if(day < active) return 'completed';
+  if(day === active) return 'active';
+  return 'future';
+}
+function isDayCollapsed(day){
+  const key = String(day);
+  if(Object.prototype.hasOwnProperty.call(dayCollapsePrefs || {}, key)) return !!dayCollapsePrefs[key];
+  const state = dayCardState(day);
+  return state !== 'active';
+}
+function nextStopsForDay(day){
+  const dayObj = TRIP.days.find(d => Number(d.day) === Number(day));
+  const list = (dayObj && Array.isArray(dayObj.stops)) ? dayObj.stops : [];
+  const ranked = list.filter(s => s && s.name).sort((a,b)=>{
+    const ak = (a.kind === 'start') ? 1 : 0;
+    const bk = (b.kind === 'start') ? 1 : 0;
+    return ak - bk;
+  });
+  return {
+    next: ranked[0] ? (ranked[0].displayLabel ? ranked[0].displayLabel + ' - ' : '') + ranked[0].name : '--',
+    after: ranked[1] ? (ranked[1].displayLabel ? ranked[1].displayLabel + ' - ' : '') + ranked[1].name : '--'
+  };
+}
+function updateDayCardStates(){
+  TRIP.days.forEach(d => {
+    const day = Number(d.day);
+    const card = document.getElementById(`day-${day}`);
+    const chip = document.getElementById(`dayStatus-${day}`);
+    const btn = document.getElementById(`dayToggleBtn-${day}`);
+    const summary = document.getElementById(`daySummary-${day}`);
+    if(!card) return;
+    const state = dayCardState(day);
+    card.classList.toggle('active-day', state === 'active');
+    card.classList.toggle('future-day', state === 'future');
+    card.classList.toggle('completed-day', state === 'completed');
+    if(chip){
+      chip.className = `day-status-chip ${state === 'active' ? 'active' : (state === 'future' ? 'future' : 'complete')}`;
+      chip.textContent = state === 'active' ? 'Today' : (state === 'future' ? 'Upcoming' : 'Completed');
+    }
+    const collapsed = isDayCollapsed(day);
+    card.classList.toggle('collapsed', collapsed);
+    if(btn) btn.textContent = collapsed ? 'Expand' : 'Collapse';
+    if(summary){
+      const recap = dailyRecapsData[day] || {};
+      const m = recap.metrics || {};
+      const miles = Number.isFinite(Number(m.milesCoveredMi)) ? `${Number(m.milesCoveredMi).toFixed(0)} mi` : '--';
+      const top = Number.isFinite(Number(m.topSpeedMph)) ? `${Math.round(Number(m.topSpeedMph))} mph` : '--';
+      const pain = computeRoadPainScore(day, recap);
+      summary.innerHTML = `<b>${state === 'future' ? 'Planned day.' : 'Recap snapshot.'}</b><span>Miles: ${esc(miles)} • Top: ${esc(top)} • Pain: ${pain === null ? '--' : pain.toFixed(1) + '/10'}</span>`;
+    }
+  });
+  updateBottomNavActive();
+}
+function initializeDayCards(){
+  if(dayCollapseInitialized) return;
+  dayCollapseInitialized = true;
+  loadDayCollapsePrefs();
+  updateDayCardStates();
+}
+function toggleDayCard(day){
+  const key = String(day);
+  dayCollapsePrefs[key] = !isDayCollapsed(day);
+  saveDayCollapsePrefs();
+  updateDayCardStates();
+}
+window.toggleDayCard = toggleDayCard;
+function updateMissionAndToday(progress, primary){
+  const day = currentActiveDayNumber();
+  const pct = progress && Number.isFinite(Number(progress.dayCompletedMeters)) && Number.isFinite(Number(progress.dayTotalMeters)) && Number(progress.dayTotalMeters) > 0
+    ? Math.max(0, Math.min(100, (Number(progress.dayCompletedMeters) / Number(progress.dayTotalMeters)) * 100))
+    : null;
+  const gps = primary && Number.isFinite(Number(primary.accuracy)) ? `GPS ${Math.round(gpsStrengthPercent(primary.accuracy) || 0)}%` : 'GPS --';
+  const stops = nextStopsForDay(day);
+  setMetricText('missionDayChip', `Day ${day} Active`);
+  setMetricText('missionProgressChip', pct === null ? '--% done' : `${Math.round(pct)}% done`);
+  setMetricText('missionGpsChip', gps);
+  setMetricText('missionNextChip', `Next: ${stops.next}`);
+  const dayChip = document.getElementById('missionProgressChip');
+  if(dayChip){
+    dayChip.className = 'mission-chip ' + (pct === null ? 'warn' : (pct >= 80 ? 'good' : (pct >= 40 ? 'warn' : 'bad')));
+  }
+  setMetricText('todayTitle', `Today - Day ${day}`);
+  setMetricText('todayStatus', `Status: ${areWeThereStatus(pct)}`);
+  setMetricText('todayNextStop', `Next stop: ${stops.next}`);
+  setMetricText('todayAfterStop', `After that: ${stops.after}`);
+  const mike = mikeLaurenTargetFromSlug('mike');
+  const lauren = mikeLaurenTargetFromSlug('lauren');
+  setMetricText('todayVibeMike', `Mike: ${((mike.uid && vibeChecksData[mike.uid]) ? vibeChecksData[mike.uid].vibe : '--') || '--'}`);
+  setMetricText('todayVibeLauren', `Lauren: ${((lauren.uid && vibeChecksData[lauren.uid]) ? vibeChecksData[lauren.uid].vibe : '--') || '--'}`);
+  const goBtn = document.getElementById('todayGoBtn');
+  const dayObj = TRIP.days.find(x => Number(x.day) === Number(day));
+  if(goBtn){
+    goBtn.onclick = () => { if(dayObj && dayObj.google_full) window.open(dayObj.google_full, '_blank', 'noopener'); };
+    goBtn.disabled = !dayObj;
+  }
+}
+function toggleMoreMenuFromBottom(){
+  const details = document.getElementById('moreMenuPanel');
+  if(details) details.open = !details.open;
+  if(details && details.open) details.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+window.toggleMoreMenuFromBottom = toggleMoreMenuFromBottom;
+function updateBottomNavActive(){
+  const activeDay = currentActiveDayNumber();
+  const ids = ['bottomNavToday','bottomNavMap','bottomNavJournal','bottomNavFood'];
+  ids.forEach(id => document.getElementById(id)?.classList.remove('active'));
+  const y = window.scrollY + 120;
+  const daySec = document.getElementById(`day-${activeDay}`);
+  const journalTop = document.getElementById('days')?.offsetTop || 0;
+  const mapTop = document.getElementById('overview')?.offsetTop || 0;
+  if(y >= journalTop && daySec && y <= daySec.offsetTop + Math.max(300, daySec.offsetHeight)) document.getElementById('bottomNavFood')?.classList.add('active');
+  else if(y >= journalTop) document.getElementById('bottomNavJournal')?.classList.add('active');
+  else if(y >= mapTop) document.getElementById('bottomNavMap')?.classList.add('active');
+  else document.getElementById('bottomNavToday')?.classList.add('active');
+}
 function authErrorMessage(e){
   const code = (e && e.code) ? e.code : '';
   const raw = (e && e.message) ? e.message : String(e || 'Unknown error');
@@ -3035,6 +3445,8 @@ function startDriverTracking(){
   geoWatchId = navigator.geolocation.watchPosition(pos => {
     const now=Date.now(); if(now-lastTrackerWrite<5000) return; lastTrackerWrite=now; const c=pos.coords;
     const payload = trackerPayloadForPosition(c, now);
+    const statsSample = normalizeLiveTrackerRecord(payload.uid, payload);
+    if(statsSample) processTripStatsSample(statsSample);
     liveTrackersRef.child(currentUser.uid).set(payload)
       .then(()=>{setTrackerStatus(liveTrackerDisplayName(payload) + ' live tracking active','live'); setTrackerMessage(liveTrackerDisplayName(payload) + ' live location sent.');})
       .catch(e=>{setTrackerStatus('Write failed','offline'); setTrackerMessage(e.message||String(e));});
@@ -3097,7 +3509,7 @@ function updateTrackerFromFirebase(data){
   displayedLiveTrackers = trackersForDisplay(trackers);
   const primary = choosePrimaryTracker(displayedLiveTrackers.length ? displayedLiveTrackers : trackers);
   latestLiveLocation = primary || null;
-  if(!primary){ latestLiveLocation=null; setTrackerStatus('No active location yet','offline'); if(lastEl)lastEl.textContent='No signal'; if(accEl)accEl.textContent='—'; if(speedEl)speedEl.textContent='—'; if(dayEl)dayEl.textContent='—'; updateProgressBanner(null); updateLiveMarkerEverywhere([]); return; }
+  if(!primary){ latestLiveLocation=null; setTrackerStatus('No active location yet','offline'); if(lastEl)lastEl.textContent='No signal'; if(accEl)accEl.textContent='—'; if(speedEl)speedEl.textContent='—'; if(dayEl)dayEl.textContent='—'; updateProgressBanner(null); updateLiveMarkerEverywhere([]); renderGpsCompact(trackers); renderVibeStrip(); updateMissionAndToday(null, null); return; }
   const activeCount = displayedLiveTrackers.filter(t=>t.active).length;
   const statusName = activeCount > 1 ? 'Mike and Lauren live' : (primary.active ? (liveTrackerDisplayName(primary) + ' live') : (liveTrackerDisplayName(primary) + ' last known'));
   setTrackerStatus(statusName, activeCount ? 'live':'offline');
@@ -3107,6 +3519,652 @@ function updateTrackerFromFirebase(data){
   const day = primary.computedDay; if(dayEl)dayEl.textContent=day?'Day '+day:'—';
   updateProgressBanner(primary.progress, primary);
   updateLiveMarkerEverywhere(displayedLiveTrackers.length ? displayedLiveTrackers : [primary], day);
+  renderGpsCompact(displayedLiveTrackers.length ? displayedLiveTrackers : trackers);
+  renderVibeStrip();
+  updateMissionAndToday(primary.progress, primary);
+}
+function gpsStrengthPercent(accuracyMeters){
+  const a = Number(accuracyMeters);
+  if(!Number.isFinite(a) || a <= 0) return null;
+  if(a <= 10) return 100;
+  if(a <= 25) return 90;
+  if(a <= 50) return 75;
+  if(a <= 75) return 60;
+  if(a <= 100) return 45;
+  if(a <= 250) return 25;
+  return 10;
+}
+function formatClock(ts){
+  const n = Number(ts || 0);
+  if(!n) return '--';
+  try{
+    return new Date(n).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  }catch(_){ return '--'; }
+}
+function formatDurationMs(ms){
+  const value = Number(ms || 0);
+  if(!Number.isFinite(value) || value <= 0) return '--';
+  const min = Math.round(value / 60000);
+  if(min < 60) return `${min} min`;
+  const hr = Math.floor(min / 60);
+  const rem = min % 60;
+  return rem ? `${hr} hr ${rem} min` : `${hr} hr`;
+}
+function isFreshTrackerSample(sample){
+  return !!(sample && Number(sample.ageMs || 0) <= 90 * 1000 && sample.active);
+}
+function renderGpsCompact(trackers){
+  const panel = document.getElementById('gpsCompactPanel');
+  if(!panel) return;
+  const list = (trackers || []).filter(Boolean).slice(0,2);
+  if(!list.length){
+    panel.innerHTML = '<div class="gps-compact-row"><b>GPS Strength:</b> -- <b>Accuracy:</b> --</div>';
+    return;
+  }
+  const rows = list.map((t, idx) => {
+    const fresh = isFreshTrackerSample(t);
+    const strength = fresh ? gpsStrengthPercent(t.accuracy) : null;
+    const acc = fresh && Number.isFinite(Number(t.accuracy)) && Number(t.accuracy) > 0 ? `±${Math.round(Number(t.accuracy))} m` : '--';
+    const strengthText = (fresh && strength !== null) ? `${strength}%` : '--';
+    const name = liveTrackerDisplayName(t);
+    if(list.length === 1){
+      return `<div class="gps-compact-row"><b>GPS Strength:</b> ${esc(strengthText)} <b>Accuracy:</b> ${esc(acc)}</div>`;
+    }
+    return `<div class="gps-compact-row"><b>${esc(name)} GPS:</b> ${esc(strengthText)} <b>Accuracy:</b> ${esc(acc)}</div>`;
+  });
+  panel.innerHTML = rows.join('');
+}
+function setMetricText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value || '--';
+}
+function renderTripSuperlatives(summary){
+  const s = summary || {};
+  setMetricText('metricTopSpeed', Number.isFinite(Number(s.topSpeed && s.topSpeed.mph)) ? `${Math.round(Number(s.topSpeed.mph))} mph` : '--');
+  setMetricText('metricBestGps', Number.isFinite(Number(s.bestGpsLock && s.bestGpsLock.accuracyMeters)) ? `±${Math.round(Number(s.bestGpsLock.accuracyMeters))} m` : '--');
+  setMetricText('metricLongestStop', Number.isFinite(Number(s.longestStop && s.longestStop.durationMs)) ? formatDurationMs(Number(s.longestStop.durationMs)) : '--');
+  setMetricText('metricLongestStretch', Number.isFinite(Number(s.longestDrivingStretch && s.longestDrivingStretch.durationMs)) ? formatDurationMs(Number(s.longestDrivingStretch.durationMs)) : '--');
+  setMetricText('metricMostMiles', Number.isFinite(Number(s.mostMilesInOneDay && s.mostMilesInOneDay.miles)) ? `${Number(s.mostMilesInOneDay.miles).toFixed(0)} mi` : '--');
+  setMetricText('metricSlowestCrawl', Number.isFinite(Number(s.slowestCrawl && s.slowestCrawl.durationMs)) ? `${formatDurationMs(Number(s.slowestCrawl.durationMs))} under 15 mph` : '--');
+  setMetricText('metricOffRoute', Number.isFinite(Number(s.biggestOffRoute && s.biggestOffRoute.distanceMeters)) ? `${metersToMiles(Number(s.biggestOffRoute.distanceMeters)).toFixed(1)} mi` : '--');
+  setMetricText('metricEarliestDeparture', Number.isFinite(Number(s.earliestDeparture && s.earliestDeparture.timestamp)) ? formatClock(Number(s.earliestDeparture.timestamp)) : '--');
+  setMetricText('metricLatestArrival', Number.isFinite(Number(s.latestArrival && s.latestArrival.timestamp)) ? formatClock(Number(s.latestArrival.timestamp)) : '--');
+  setMetricText('metricProgressJump', Number.isFinite(Number(s.biggestProgressJump && s.biggestProgressJump.miles)) ? `${Number(s.biggestProgressJump.miles).toFixed(1)} mi` : '--');
+}
+function listenTripStatsSummary(){
+  if(tripStatsSummaryListenerRef || !trackerDb) return;
+  tripStatsSummaryListenerRef = trackerDb.ref(TRIP_STATS_SUMMARY_PATH);
+  tripStatsSummaryListenerRef.on('value', snap => {
+    tripStatsSummary = snap.val() || {};
+    renderTripSuperlatives(tripStatsSummary);
+    renderDailyRecaps();
+  }, () => {
+    tripStatsSummary = {};
+    renderTripSuperlatives({});
+    renderDailyRecaps();
+  });
+}
+function currentActiveDayNumber(){
+  return Number(window.__autoActiveDay || window.__activeDay || 1);
+}
+function canEditRoadJournal(){
+  return !!(isAdmin || (currentUser && isCoreLiveTrackerUser(currentUser)));
+}
+function canEditOwnRoadEntry(uid){
+  if(isAdmin) return true;
+  return !!(currentUser && currentUser.uid === uid && isCoreLiveTrackerUser(currentUser));
+}
+function areWeThereStatus(pct){
+  if(!Number.isFinite(pct)) return 'Data says ask again later.';
+  if(pct <= 10) return 'We literally just started.';
+  if(pct <= 35) return 'Unfortunately, no.';
+  if(pct <= 65) return 'We are in the thick of it.';
+  if(pct <= 85) return 'Actually getting there.';
+  if(pct < 100) return 'Almost. Do not jinx it.';
+  return 'Yes. Finally.';
+}
+function renderAreWeThere(progress){
+  const pctEl = document.getElementById('aytPct');
+  const fillEl = document.getElementById('aytFill');
+  const statusEl = document.getElementById('aytStatus');
+  const pct = progress && Number.isFinite(Number(progress.tripCompletedMeters)) && Number.isFinite(Number(progress.totalTripMeters)) && Number(progress.totalTripMeters) > 0
+    ? Math.max(0, Math.min(100, (Number(progress.tripCompletedMeters) / Number(progress.totalTripMeters)) * 100))
+    : null;
+  if(pctEl) pctEl.textContent = pct === null ? '--% done' : `${Math.round(pct)}% done`;
+  if(fillEl) fillEl.style.width = pct === null ? '0%' : `${pct}%`;
+  if(statusEl) statusEl.textContent = `Status: ${areWeThereStatus(pct)}`;
+}
+function mikeLaurenTargetFromSlug(slug){
+  const targetEmail = slug === 'mike' ? 'mdnadon112@gmail.com' : 'pinnerpatter@gmail.com';
+  const fromTrackers = (latestLiveTrackers || []).find(t => canonicalEmail(t.email) === targetEmail);
+  if(fromTrackers) return {uid:String(fromTrackers.uid || ''), email:targetEmail, name: liveTrackerDisplayName(fromTrackers), photoURL:fromTrackers.driverPhotoURL || ''};
+  const fromVibe = Object.values(vibeChecksData || {}).find(v => canonicalEmail(v.email) === targetEmail || canonicalEmail(v.canonicalEmail) === targetEmail);
+  if(fromVibe) return {uid:String(fromVibe.uid || ''), email:targetEmail, name: slug === 'mike' ? 'Mike' : 'Lauren', photoURL:fromVibe.photoURL || ''};
+  return {uid:'', email:targetEmail, name: slug === 'mike' ? 'Mike' : 'Lauren', photoURL:''};
+}
+function renderVibeStrip(){
+  const applyCard = (slug) => {
+    const target = mikeLaurenTargetFromSlug(slug);
+    const avatar = document.getElementById(slug === 'mike' ? 'vibeAvatarMike' : 'vibeAvatarLauren');
+    const text = document.getElementById(slug === 'mike' ? 'vibeTextMike' : 'vibeTextLauren');
+    const btn = document.getElementById(slug === 'mike' ? 'vibePickMikeBtn' : 'vibePickLaurenBtn');
+    const vibe = (target.uid && vibeChecksData[target.uid] && vibeChecksData[target.uid].vibe) ? vibeChecksData[target.uid].vibe : '--';
+    if(avatar){
+      if(target.photoURL) avatar.innerHTML = `<img src="${esc(target.photoURL)}" alt="${esc(target.name)}">`;
+      else avatar.textContent = target.name[0] || '?';
+    }
+    if(text) text.textContent = vibe;
+    if(btn){
+      const canEdit = canEditRoadJournal() && (!!target.uid ? (isAdmin || currentUser.uid === target.uid) : false);
+      btn.disabled = !canEdit;
+      btn.textContent = canEdit ? 'Set vibe' : 'View only';
+    }
+  };
+  applyCard('mike');
+  applyCard('lauren');
+  updateMissionAndToday(lastValidProgress, latestLiveLocation);
+}
+function createVibePicker(){
+  if(document.getElementById('vibePicker')) return;
+  const shell = document.createElement('div');
+  shell.id = 'vibePicker';
+  shell.className = 'vibe-picker';
+  shell.addEventListener('click', (e) => { if(e.target === shell) closeVibePicker(); });
+  shell.innerHTML = `<div class="vibe-picker-card"><div class="recap-head"><h3 id="vibePickerTitle">Set vibe</h3><button class="btn btn-ghost btn-small" type="button" onclick="closeVibePicker()">Close</button></div><div class="vibe-picker-grid" id="vibePickerGrid"></div></div>`;
+  document.body.appendChild(shell);
+}
+function openVibePicker(slug){
+  const target = mikeLaurenTargetFromSlug(slug);
+  if(!target.uid || !canEditRoadJournal() || (!isAdmin && currentUser.uid !== target.uid)) return;
+  vibePickerTarget = target;
+  createVibePicker();
+  const title = document.getElementById('vibePickerTitle');
+  if(title) title.textContent = `${target.name} vibe check`;
+  const grid = document.getElementById('vibePickerGrid');
+  if(grid){
+    grid.innerHTML = VIBE_OPTIONS.map(v => `<button class="vibe-option" type="button" onclick="saveVibeSelection('${esc(v)}')">${esc(v)}</button>`).join('');
+  }
+  document.getElementById('vibePicker')?.classList.add('show');
+}
+function closeVibePicker(){ document.getElementById('vibePicker')?.classList.remove('show'); vibePickerTarget = null; }
+window.closeVibePicker = closeVibePicker;
+function saveVibeSelection(vibe){
+  if(!vibePickerTarget || !trackerDb || !currentUser) return;
+  const now = Date.now();
+  const day = currentActiveDayNumber();
+  const payload = {uid:vibePickerTarget.uid, email:vibePickerTarget.email, displayName:vibePickerTarget.name, photoURL:vibePickerTarget.photoURL || '', vibe:String(vibe || ''), timestamp:now, activeDay:day, updatedByUid:currentUser.uid};
+  trackerDb.ref(`${VIBE_CHECKS_PATH}/${vibePickerTarget.uid}`).set(payload)
+    .then(()=>trackerDb.ref(`${VIBE_HISTORY_PATH}/${day}`).push(payload))
+    .then(()=>{ closeVibePicker(); showJournalToast(vibePickerTarget.name + ' vibe updated.'); })
+    .catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.saveVibeSelection = saveVibeSelection;
+function rightCounterRuling(mike, lauren){
+  if(mike === lauren) return 'Current ruling: The data is inconclusive.';
+  if(mike > lauren) return 'Current ruling: Mike leads. Lauren has filed an appeal.';
+  return 'Current ruling: Lauren leads. Mike disputes the findings.';
+}
+function renderRightCounters(){
+  const mike = Number(rightCountersData.mike || 0);
+  const lauren = Number(rightCountersData.lauren || 0);
+  setMetricText('mikeRightCount', String(mike));
+  setMetricText('laurenRightCount', String(lauren));
+  setMetricText('rightCounterRuling', rightCounterRuling(mike, lauren));
+  const canTap = canEditRoadJournal();
+  const mikeBtn = document.getElementById('mikeRightBtn');
+  const laurenBtn = document.getElementById('laurenRightBtn');
+  if(mikeBtn) mikeBtn.disabled = !canTap;
+  if(laurenBtn) laurenBtn.disabled = !canTap;
+}
+function tapRightCounter(side){
+  if(!canEditRoadJournal() || !trackerDb) return;
+  const now = Date.now();
+  if(now < rightCounterCooldownUntil){ showJournalToast('Give it a second before tapping again.', true); return; }
+  rightCounterCooldownUntil = now + 6000;
+  const day = currentActiveDayNumber();
+  const sideKey = side === 'lauren' ? 'lauren' : 'mike';
+  const tap = {timestamp:now, uid:currentUser.uid, displayName:currentUser.displayName || authEmail(currentUser) || 'Driver', selectedSide:sideKey, activeDay:day};
+  trackerDb.ref(`${RIGHT_COUNTERS_PATH}/taps`).push(tap)
+    .then(()=>trackerDb.ref(`${TRACKER_BASE}/rightCounterHistory`).push(tap))
+    .then(()=>trackerDb.ref(`${RIGHT_COUNTERS_PATH}/${sideKey}`).transaction(v => Number(v || 0) + 1))
+    .then(()=>showJournalToast((sideKey === 'mike' ? 'Mike' : 'Lauren') + ' got a point.'))
+    .catch(e=>showJournalToast(e.message || String(e), true));
+}
+function listenRoadJournalData(){
+  if(!trackerDb) return;
+  if(!dailyRecapsListenerRef){
+    dailyRecapsListenerRef = trackerDb.ref(DAILY_RECAPS_PATH);
+    dailyRecapsListenerRef.on('value', snap => { dailyRecapsData = snap.val() || {}; renderDailyRecaps(); }, ()=>{ dailyRecapsData = {}; renderDailyRecaps(); });
+  }
+  if(!rightCountersListenerRef){
+    rightCountersListenerRef = trackerDb.ref(RIGHT_COUNTERS_PATH);
+    rightCountersListenerRef.on('value', snap => { const v = snap.val() || {}; rightCountersData = {mike:Number(v.mike || 0), lauren:Number(v.lauren || 0)}; renderRightCounters(); }, ()=>{ rightCountersData = {mike:0,lauren:0}; renderRightCounters(); });
+  }
+  if(!stopTagsListenerRef){
+    stopTagsListenerRef = trackerDb.ref(STOP_TAGS_PATH);
+    stopTagsListenerRef.on('value', snap => { stopTagsData = snap.val() || {}; renderDailyRecaps(); }, ()=>{ stopTagsData = {}; renderDailyRecaps(); });
+  }
+  if(!vibeChecksListenerRef){
+    vibeChecksListenerRef = trackerDb.ref(VIBE_CHECKS_PATH);
+    vibeChecksListenerRef.on('value', snap => { vibeChecksData = snap.val() || {}; renderVibeStrip(); renderDailyRecaps(); }, ()=>{ vibeChecksData = {}; renderVibeStrip(); renderDailyRecaps(); });
+  }
+  if(!vibeHistoryListenerRef){
+    vibeHistoryListenerRef = trackerDb.ref(VIBE_HISTORY_PATH);
+    vibeHistoryListenerRef.on('value', snap => { vibeHistoryData = snap.val() || {}; renderDailyRecaps(); }, ()=>{ vibeHistoryData = {}; renderDailyRecaps(); });
+  }
+}
+function recapMetricValue(dayRecap, key){
+  return dayRecap && dayRecap.metrics ? dayRecap.metrics[key] : null;
+}
+function roadPainDiagnosis(score){
+  if(!Number.isFinite(score)) return 'Not enough evidence.';
+  if(score <= 2) return 'Suspiciously smooth.';
+  if(score <= 4) return 'Manageable. Nobody had to become a different person.';
+  if(score <= 6) return 'Functional, but with emotional seasoning.';
+  if(score <= 8) return 'Functional, but emotionally questionable.';
+  return 'The highway chose violence.';
+}
+function computeRoadPainScore(day, recap){
+  const m = (recap && recap.metrics) || {};
+  let score = 0;
+  if(Number.isFinite(Number(m.slowestCrawlMs))) score += Math.min(3, Number(m.slowestCrawlMs) / (60 * 60 * 1000) * 1.4);
+  if(Number.isFinite(Number(m.longestStopMs))) score += Math.min(2.2, Number(m.longestStopMs) / (60 * 60 * 1000));
+  if(Number.isFinite(Number(m.latestArrivalTs))){
+    const hr = new Date(Number(m.latestArrivalTs)).getHours();
+    if(hr >= 20) score += Math.min(1.8, (hr - 19) * 0.45);
+  }
+  if(Number.isFinite(Number(m.offRouteMetersMax))) score += Math.min(2.2, metersToMiles(Number(m.offRouteMetersMax)) * 0.9);
+  if(Number.isFinite(Number(m.longestDrivingStretchMs))) score += Math.min(1.4, Number(m.longestDrivingStretchMs) / (3 * 60 * 60 * 1000));
+  const vibes = Object.values(vibeHistoryData[day] || {});
+  if(vibes.some(v => ['Over it','Hungry','Needs coffee','Emotionally questionable'].includes(String(v.vibe || '')))) score += 0.8;
+  if(score <= 0) return null;
+  return Math.min(10, Math.round(score * 10) / 10);
+}
+function maybeWriteRoadPain(day, score){
+  if(!canEditRoadJournal() || !trackerDb || score === null) return;
+  const prev = Number(roadPainWriteCache[day]);
+  if(Number.isFinite(prev) && Math.abs(prev - Number(score)) < 0.1) return;
+  roadPainWriteCache[day] = Number(score);
+  trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/roadPainScore`).set({score:Number(score), updatedAt:Date.now(), updatedByUid:currentUser ? currentUser.uid : '', source:'computed'}).catch(()=>{});
+}
+function ensureStopTagSelects(day){
+  const targetSel = document.getElementById(`stopTagTarget-${day}`);
+  const tagSel = document.getElementById(`stopTagType-${day}`);
+  if(tagSel && !tagSel.dataset.loaded){
+    tagSel.innerHTML = STOP_TAG_OPTIONS.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    tagSel.dataset.loaded = '1';
+  }
+  if(targetSel){
+    const routeStops = (TRIP.days.find(d => d.day === day)?.stops || []).map((s, idx) => ({id:`route-${idx+1}`, label:(s.displayLabel || s.label || `Stop ${idx+1}`) + ' — ' + s.name}));
+    const detected = Object.entries(stopTagsData[day] || {}).map(([k,v]) => ({id:k, label:v && v.displayName ? v.displayName : k}));
+    const all = [...routeStops, ...detected].slice(0, 40);
+    if(!all.length){ targetSel.innerHTML = '<option value="manual">Manual stop note</option>'; }
+    else { targetSel.innerHTML = all.map(x=>`<option value="${esc(x.id)}">${esc(x.label)}</option>`).join(''); }
+  }
+}
+function renderDailyRecaps(){
+  TRIP.days.forEach(d => {
+    const day = Number(d.day);
+    const canEdit = canEditRoadJournal();
+    const recap = dailyRecapsData[day] || {};
+    const metrics = recap.metrics || {};
+    setMetricText(`recapMiles-${day}`, Number.isFinite(Number(metrics.milesCoveredMi)) ? `${Number(metrics.milesCoveredMi).toFixed(0)} mi` : '--');
+    setMetricText(`recapTopSpeed-${day}`, Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--');
+    setMetricText(`recapLongestStop-${day}`, Number.isFinite(Number(metrics.longestStopMs)) ? formatDurationMs(Number(metrics.longestStopMs)) : '--');
+    setMetricText(`recapSlowestCrawl-${day}`, Number.isFinite(Number(metrics.slowestCrawlMs)) ? `${formatDurationMs(Number(metrics.slowestCrawlMs))} under 15 mph` : '--');
+    setMetricText(`recapArrival-${day}`, Number.isFinite(Number(metrics.latestArrivalTs)) ? formatClock(Number(metrics.latestArrivalTs)) : '--');
+    setMetricText(`recapStretch-${day}`, Number.isFinite(Number(metrics.longestDrivingStretchMs)) ? formatDurationMs(Number(metrics.longestDrivingStretchMs)) : '--');
+
+    const commentsWrap = document.getElementById(`recapComments-${day}`);
+    const composeWrap = document.getElementById(`recapCompose-${day}`);
+    const comments = Object.entries((recap.comments || {})).map(([id,c])=>({id,...c})).sort((a,b)=>Number(a.timestamp||0)-Number(b.timestamp||0));
+    if(commentsWrap){
+      if(!comments.length){
+        commentsWrap.innerHTML = '<div class="recap-comment"><b>Trip Notes</b><p>No comments yet.</p></div>';
+      } else {
+        commentsWrap.innerHTML = comments.map(c => {
+          const canEdit = canEditOwnRoadEntry(String(c.uid || ''));
+          return `<div class="recap-comment"><b>${esc(c.displayName || 'Driver')}</b><small>${esc(formatAge(Date.now()-Number(c.timestamp||0)))}</small><p>${esc(c.text || '')}</p>${canEdit?`<div class="tracker-modes" style="margin-top:6px;"><button class="btn btn-ghost btn-small" type="button" onclick="editRecapComment(${day},'${esc(c.id)}')">Edit</button><button class="btn btn-food btn-small" type="button" onclick="deleteRecapComment(${day},'${esc(c.id)}')">Delete</button></div>`:''}</div>`;
+        }).join('');
+      }
+    }
+    if(composeWrap) composeWrap.classList.toggle('hidden', !canEdit);
+    ensureStopTagSelects(day);
+    renderStopTags(day);
+    const recapRoot = document.getElementById(`recapDay-${day}`);
+    if(recapRoot){
+      recapRoot.querySelectorAll('input,textarea,select,button').forEach(el => {
+        if(el.classList.contains('btn-food') && /Delete/.test(el.textContent || '')) return;
+        if(el.getAttribute('onclick') && (el.getAttribute('onclick').includes('deleteRecapComment') || el.getAttribute('onclick').includes('editRecapComment'))) return;
+        if(el.closest('.recap-compose') || el.closest('.stop-tag-wrap') || String(el.id || '').includes('recapVerdictInput')) el.disabled = !canEdit;
+      });
+    }
+    const score = computeRoadPainScore(day, recap);
+    maybeWriteRoadPain(day, score);
+    const painEl = document.getElementById(`recapPain-${day}`);
+    const diagEl = document.getElementById(`recapDiagnosis-${day}`);
+    if(painEl) painEl.textContent = `Road Pain Score: ${score === null ? '--' : score.toFixed(1) + ' / 10'}`;
+    const manualDiag = recap.dailyVerdict && recap.dailyVerdict.text ? recap.dailyVerdict.text : '';
+    if(diagEl) diagEl.textContent = `Diagnosis: ${manualDiag || roadPainDiagnosis(score)}`;
+    const verdictInput = document.getElementById(`recapVerdictInput-${day}`);
+    if(verdictInput && !verdictInput.dataset.seeded && manualDiag){ verdictInput.value = manualDiag; verdictInput.dataset.seeded = '1'; }
+  });
+  renderBestWorstDays();
+  updateDayCardStates();
+}
+function renderStopTags(day){
+  const list = document.getElementById(`stopTagList-${day}`);
+  if(!list) return;
+  const tags = Object.entries(stopTagsData[day] || {}).map(([id,v])=>({id,...(v||{})})).sort((a,b)=>Number(b.updatedAt||b.timestamp||0)-Number(a.updatedAt||a.timestamp||0));
+  if(!tags.length){ list.innerHTML = '<div class="stop-tag-item">No stop tags yet.</div>'; return; }
+  list.innerHTML = tags.map(t => `<div class="stop-tag-item"><b>${esc(t.tag || 'Unknown')}</b> • ${esc(t.displayName || t.id || 'Stop')} • ${esc(formatDurationMs(Number(t.durationMs||0)))}${t.note ? ` • ${esc(t.note)}` : ''}</div>`).join('');
+}
+function renderBestWorstDays(){
+  const days = TRIP.days.map(d => Number(d.day));
+  let best = null;
+  let worst = null;
+  days.forEach(day => {
+    const recap = dailyRecapsData[day] || {};
+    const m = recap.metrics || {};
+    const score = computeRoadPainScore(day, recap);
+    const miles = Number(m.milesCoveredMi || 0);
+    if(!best || miles > best.miles || (miles === best.miles && (score !== null && score < best.score))){ best = {day, miles, score}; }
+    if(score !== null && (!worst || score > worst.score)){ worst = {day, score}; }
+  });
+  setMetricText('metricBestDay', best && best.miles > 0 ? `Day ${best.day} — biggest mileage day` : '--');
+  setMetricText('metricWorstDay', worst ? `Day ${worst.day} — highest road pain day` : '--');
+}
+function saveDailyVerdict(day){
+  if(!canEditRoadJournal() || !trackerDb) return;
+  const input = document.getElementById(`recapVerdictInput-${day}`);
+  const text = String(input && input.value || '').trim();
+  trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/dailyVerdict`).set({text, updatedAt:Date.now(), updatedByUid:currentUser.uid, displayName:currentUser.displayName || authEmail(currentUser) || 'Driver'})
+    .then(()=>showJournalToast('Daily diagnosis saved.'))
+    .catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.saveDailyVerdict = saveDailyVerdict;
+function addRecapComment(day){
+  if(!canEditRoadJournal() || !trackerDb || !currentUser) return;
+  const input = document.getElementById(`recapInput-${day}`);
+  const text = String(input && input.value || '').trim();
+  if(!text) return;
+  const payload = {uid:currentUser.uid, email:authEmail(currentUser) || currentUser.email || '', displayName:currentUser.displayName || authEmail(currentUser) || 'Driver', text, timestamp:Date.now(), activeDay:Number(day)};
+  trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/comments`).push(payload)
+    .then(()=>{ if(input) input.value = ''; showJournalToast('Recap comment saved.'); })
+    .catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.addRecapComment = addRecapComment;
+function deleteRecapComment(day, commentId){
+  if(!trackerDb || !canEditRoadJournal()) return;
+  const comment = dailyRecapsData[day] && dailyRecapsData[day].comments ? dailyRecapsData[day].comments[commentId] : null;
+  if(!comment || !canEditOwnRoadEntry(String(comment.uid || ''))) return;
+  trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/comments/${commentId}`).remove().then(()=>showJournalToast('Comment deleted.')).catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.deleteRecapComment = deleteRecapComment;
+function editRecapComment(day, commentId){
+  if(!trackerDb || !canEditRoadJournal()) return;
+  const comment = dailyRecapsData[day] && dailyRecapsData[day].comments ? dailyRecapsData[day].comments[commentId] : null;
+  if(!comment || !canEditOwnRoadEntry(String(comment.uid || ''))) return;
+  const next = window.prompt('Edit recap comment', String(comment.text || ''));
+  if(next === null) return;
+  const text = String(next).trim();
+  if(!text){ deleteRecapComment(day, commentId); return; }
+  trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/comments/${commentId}`).update({text, updatedAt:Date.now()}).then(()=>showJournalToast('Comment updated.')).catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.editRecapComment = editRecapComment;
+function saveStopTag(day){
+  if(!canEditRoadJournal() || !trackerDb) return;
+  const stopId = String(document.getElementById(`stopTagTarget-${day}`)?.value || 'manual').trim();
+  const tag = String(document.getElementById(`stopTagType-${day}`)?.value || 'Unknown').trim() || 'Unknown';
+  const note = String(document.getElementById(`stopTagNote-${day}`)?.value || '').trim();
+  const existing = (stopTagsData[day] && stopTagsData[day][stopId]) || {};
+  const payload = Object.assign({}, existing, {tag, note, updatedAt:Date.now(), updatedByUid:currentUser.uid, displayName:existing.displayName || stopId});
+  trackerDb.ref(`${STOP_TAGS_PATH}/${day}/${stopId}`).set(payload).then(()=>showJournalToast('Stop tag saved.')).catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.saveStopTag = saveStopTag;
+function addManualStopTag(day){
+  if(!canEditRoadJournal() || !trackerDb) return;
+  const note = String(document.getElementById(`stopTagNote-${day}`)?.value || '').trim();
+  const stopId = 'manual-' + Date.now();
+  const payload = {tag:'Unknown', note, updatedAt:Date.now(), updatedByUid:currentUser.uid, displayName:'Manual stop note'};
+  trackerDb.ref(`${STOP_TAGS_PATH}/${day}/${stopId}`).set(payload).then(()=>showJournalToast('Manual stop note saved.')).catch(e=>showJournalToast(e.message || String(e), true));
+}
+window.addManualStopTag = addManualStopTag;
+function tripStatsRuntime(uid){
+  if(!tripStatsRuntimeByUid[uid]){
+    tripStatsRuntimeByUid[uid] = {
+      speedSamples: [],
+      lastValidatedSpeed: null,
+      lowMotionStart: 0,
+      lowMotionLast: 0,
+      lowMotionPoint: null,
+      drivingStart: 0,
+      crawlStart: 0,
+      crawlLast: 0,
+      crawlStartMeters: null,
+      crawlLastMeters: null,
+      prevPoint: null,
+      prevProgress: null,
+      wroteTopSpeed: 0,
+      wroteBestGps: Infinity,
+      wroteOffRoute: 0,
+      detectedStops: {}
+    };
+  }
+  return tripStatsRuntimeByUid[uid];
+}
+function median(values){
+  const arr = (values || []).slice().sort((a,b)=>a-b);
+  if(!arr.length) return null;
+  const mid = Math.floor(arr.length / 2);
+  return arr.length % 2 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
+}
+function isCleanMovingSample(sample, mph){
+  if(!sample || !sample.active || Number(sample.ageMs || 0) > 90 * 1000) return false;
+  if(!Number.isFinite(Number(sample.accuracy)) || Number(sample.accuracy) <= 0 || Number(sample.accuracy) > 75) return false;
+  if(!Number.isFinite(mph) || mph < 3 || mph > 150) return false;
+  return true;
+}
+function pushTripStatIfBetter(uid, key, candidate){
+  if(!trackerDb || !uid || !candidate || !Number.isFinite(Number(candidate.score))) return;
+  trackerDb.ref(`${TRIP_STATS_PATH}/${uid}/${key}`).transaction(current => {
+    const currScore = Number(current && current.score);
+    if(!current || !Number.isFinite(currScore) || Number(candidate.score) > currScore){
+      return candidate;
+    }
+    return current;
+  });
+}
+function pushTripSummaryIfBetter(key, candidate){
+  if(!trackerDb || !candidate || !Number.isFinite(Number(candidate.score))) return;
+  trackerDb.ref(`${TRIP_STATS_SUMMARY_PATH}/${key}`).transaction(current => {
+    const currScore = Number(current && current.score);
+    if(!current || !Number.isFinite(currScore) || Number(candidate.score) > currScore){
+      return candidate;
+    }
+    return current;
+  });
+}
+function pushTripTopSpeed(uid, candidate){
+  if(!trackerDb || !uid || !candidate || !Number.isFinite(Number(candidate.mph))) return;
+  trackerDb.ref(`${TRIP_STATS_PATH}/${uid}/topSpeed`).transaction(current => {
+    const currMph = Number(current && current.mph);
+    if(!current || !Number.isFinite(currMph) || Number(candidate.mph) >= currMph + 1){
+      return candidate;
+    }
+    return current;
+  });
+  trackerDb.ref(`${TRIP_STATS_SUMMARY_PATH}/topSpeed`).transaction(current => {
+    const currMph = Number(current && current.mph);
+    if(!current || !Number.isFinite(currMph) || Number(candidate.mph) >= currMph + 1){
+      return candidate;
+    }
+    return current;
+  });
+}
+function upsertDailyRecapMetric(day, key, value, mode){
+  if(!trackerDb || !Number.isFinite(Number(day))) return;
+  const ref = trackerDb.ref(`${DAILY_RECAPS_PATH}/${day}/metrics/${key}`);
+  if(mode === 'max'){
+    ref.transaction(curr => {
+      const c = Number(curr);
+      if(!Number.isFinite(c) || Number(value) > c) return Number(value);
+      return curr;
+    });
+    return;
+  }
+  if(mode === 'min'){
+    ref.transaction(curr => {
+      const c = Number(curr);
+      if(!Number.isFinite(c) || Number(value) < c) return Number(value);
+      return curr;
+    });
+    return;
+  }
+  ref.set(Number(value));
+}
+function upsertDetectedStopTag(day, stopKey, payload){
+  if(!trackerDb || !day || !stopKey) return;
+  trackerDb.ref(`${STOP_TAGS_PATH}/${day}/${stopKey}`).transaction(curr => {
+    if(curr) return curr;
+    return payload;
+  });
+}
+function processTripStatsSample(sample){
+  if(!sample || !trackerDb || !sample.uid || !isCoreLiveTrackerUser(currentUser) || currentUser.uid !== sample.uid) return;
+  if(!sample.active || Number(sample.ageMs || 0) > 90 * 1000) return;
+  const runtime = tripStatsRuntime(sample.uid);
+  const now = Number(sample.lastUpdated || Date.now());
+  const mph = Number(sample.speed) * 2.23694;
+  const day = Number(sample.computedDay || sample.activeDay || 1);
+  const point = {lat:Number(sample.lat), lng:Number(sample.lng)};
+  const progress = sample.progress || null;
+
+  if(Number.isFinite(Number(sample.accuracy)) && Number(sample.accuracy) > 0 && Number(sample.accuracy) <= 100 && Number(sample.accuracy) < runtime.wroteBestGps){
+    runtime.wroteBestGps = Number(sample.accuracy);
+    const bestGps = {score:-Number(sample.accuracy), accuracyMeters:Number(sample.accuracy), timestamp:now, activeDay:day, uid:sample.uid, lat:point.lat, lng:point.lng};
+    pushTripStatIfBetter(sample.uid, 'bestGpsLock', bestGps);
+    pushTripSummaryIfBetter('bestGpsLock', bestGps);
+  }
+
+  if(isCleanMovingSample(sample, mph)){
+    runtime.speedSamples.push({ts:now, mph});
+    runtime.speedSamples = runtime.speedSamples.filter(x => (now - x.ts) <= 20000).slice(-5);
+    if(runtime.speedSamples.length >= 3){
+      const validated = median(runtime.speedSamples.map(x => x.mph));
+      const jump = Number(runtime.lastValidatedSpeed || 0);
+      if(validated !== null && (runtime.speedSamples.length >= 4 || !jump || Math.abs(validated - jump) <= 30)){
+        runtime.lastValidatedSpeed = validated;
+        if(validated > runtime.wroteTopSpeed + 0.99){
+          runtime.wroteTopSpeed = validated;
+          const topSpeed = {score:validated, mph:Math.round(validated), timestamp:now, activeDay:day, uid:sample.uid, lat:point.lat, lng:point.lng};
+          pushTripTopSpeed(sample.uid, topSpeed);
+          upsertDailyRecapMetric(day, 'topSpeedMph', Math.round(validated), 'max');
+        }
+      }
+    }
+  }
+
+  const movedMeters = runtime.prevPoint && window.google && google.maps && google.maps.geometry
+    ? google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(runtime.prevPoint.lat, runtime.prevPoint.lng), new google.maps.LatLng(point.lat, point.lng))
+    : 0;
+  runtime.prevPoint = point;
+  const movingNow = (Number.isFinite(mph) && mph > 3) || movedMeters > 60;
+
+  if(movingNow && !runtime.drivingStart){
+    runtime.drivingStart = now;
+    const earliest = {score:-now, timestamp:now, activeDay:day, uid:sample.uid};
+    pushTripStatIfBetter(sample.uid, `earliestDeparture/${day}`, earliest);
+    pushTripSummaryIfBetter('earliestDeparture', earliest);
+  }
+
+  const lowMotion = (Number.isFinite(mph) && mph < 3) || movedMeters < 25;
+  if(lowMotion){
+    if(!runtime.lowMotionStart){ runtime.lowMotionStart = now; runtime.lowMotionPoint = point; }
+    runtime.lowMotionLast = now;
+  } else if(runtime.lowMotionStart){
+    const stopDuration = runtime.lowMotionLast - runtime.lowMotionStart;
+    if(stopDuration >= 10 * 60 * 1000){
+      const longestStop = {score:stopDuration, durationMs:stopDuration, startTime:runtime.lowMotionStart, endTime:runtime.lowMotionLast, activeDay:day, uid:sample.uid, lat:runtime.lowMotionPoint.lat, lng:runtime.lowMotionPoint.lng};
+      pushTripStatIfBetter(sample.uid, 'longestStop', longestStop);
+      pushTripSummaryIfBetter('longestStop', longestStop);
+      if(runtime.drivingStart){
+        const stretch = runtime.lowMotionStart - runtime.drivingStart;
+        if(stretch > 0){
+          const longestStretch = {score:stretch, durationMs:stretch, startTime:runtime.drivingStart, endTime:runtime.lowMotionStart, activeDay:day, uid:sample.uid};
+          pushTripStatIfBetter(sample.uid, 'longestDrivingStretch', longestStretch);
+          pushTripSummaryIfBetter('longestDrivingStretch', longestStretch);
+          upsertDailyRecapMetric(day, 'longestDrivingStretchMs', stretch, 'max');
+        }
+      }
+      const latestArrival = {score:runtime.lowMotionLast, timestamp:runtime.lowMotionLast, activeDay:day, uid:sample.uid, lat:runtime.lowMotionPoint.lat, lng:runtime.lowMotionPoint.lng};
+      pushTripStatIfBetter(sample.uid, `latestArrival/${day}`, latestArrival);
+      pushTripSummaryIfBetter('latestArrival', latestArrival);
+      upsertDailyRecapMetric(day, 'longestStopMs', stopDuration, 'max');
+      upsertDailyRecapMetric(day, 'latestArrivalTs', runtime.lowMotionLast, 'max');
+      const stopKey = 'detected-' + String(runtime.lowMotionStart);
+      if(!runtime.detectedStops[stopKey]){
+        runtime.detectedStops[stopKey] = true;
+        upsertDetectedStopTag(day, stopKey, {tag:'Unknown', note:'Detected stop (10+ min)', displayName:formatClock(runtime.lowMotionStart) + ' stop', timestamp:runtime.lowMotionStart, durationMs:stopDuration, lat:runtime.lowMotionPoint.lat, lng:runtime.lowMotionPoint.lng, source:'detected'});
+      }
+      runtime.drivingStart = 0;
+    }
+    runtime.lowMotionStart = 0;
+    runtime.lowMotionLast = 0;
+    runtime.lowMotionPoint = null;
+  }
+
+  if(progress && Number.isFinite(Number(progress.tripCompletedMeters)) && Number.isFinite(Number(progress.dayCompletedMeters))){
+    const milesDay = metersToMiles(Number(progress.dayCompletedMeters));
+    const daily = {score:milesDay, miles:milesDay, meters:Number(progress.dayCompletedMeters), activeDay:day, uid:sample.uid, timestamp:now};
+    pushTripStatIfBetter(sample.uid, `dailyMiles/${day}`, daily);
+    pushTripStatIfBetter(sample.uid, 'mostMilesInOneDay', daily);
+    pushTripSummaryIfBetter('mostMilesInOneDay', daily);
+    upsertDailyRecapMetric(day, 'milesCoveredMi', milesDay, 'max');
+
+    if(progress.offRoute && Number.isFinite(Number(progress.distanceFromRouteMeters)) && Number(progress.distanceFromRouteMeters) > runtime.wroteOffRoute){
+      runtime.wroteOffRoute = Number(progress.distanceFromRouteMeters);
+      const offRoute = {score:Number(progress.distanceFromRouteMeters), distanceMeters:Number(progress.distanceFromRouteMeters), activeDay:day, timestamp:now, uid:sample.uid, lat:point.lat, lng:point.lng};
+      pushTripStatIfBetter(sample.uid, 'biggestOffRoute', offRoute);
+      pushTripSummaryIfBetter('biggestOffRoute', offRoute);
+      upsertDailyRecapMetric(day, 'offRouteMetersMax', Number(progress.distanceFromRouteMeters), 'max');
+    }
+
+    if(runtime.prevProgress && Number.isFinite(Number(runtime.prevProgress.tripCompletedMeters))){
+      const delta = Number(progress.tripCompletedMeters) - Number(runtime.prevProgress.tripCompletedMeters);
+      const dt = now - Number(runtime.prevProgress.timestamp || now);
+      if(delta > 0 && dt > 0 && (delta / dt) < 45){
+        const jumpMiles = metersToMiles(delta);
+        const jump = {score:jumpMiles, miles:jumpMiles, meters:delta, timestamp:now, activeDay:day, uid:sample.uid};
+        pushTripStatIfBetter(sample.uid, 'biggestProgressJump', jump);
+        pushTripSummaryIfBetter('biggestProgressJump', jump);
+      }
+    }
+    runtime.prevProgress = {tripCompletedMeters:Number(progress.tripCompletedMeters), timestamp:now};
+  }
+
+  const crawlEligible = Number.isFinite(mph) && mph >= 3 && mph <= 15 && movedMeters > 20;
+  if(crawlEligible){
+    if(!runtime.crawlStart){
+      runtime.crawlStart = now;
+      runtime.crawlStartMeters = progress && Number.isFinite(Number(progress.tripCompletedMeters)) ? Number(progress.tripCompletedMeters) : null;
+    }
+    runtime.crawlLast = now;
+    runtime.crawlLastMeters = progress && Number.isFinite(Number(progress.tripCompletedMeters)) ? Number(progress.tripCompletedMeters) : runtime.crawlLastMeters;
+  } else if(runtime.crawlStart){
+    const crawlDuration = runtime.crawlLast - runtime.crawlStart;
+    const movedProgress = Number(runtime.crawlLastMeters || 0) - Number(runtime.crawlStartMeters || 0);
+    if(crawlDuration > 0 && movedProgress > 0){
+      const crawl = {score:crawlDuration, durationMs:crawlDuration, underMph:15, activeDay:day, uid:sample.uid, startTime:runtime.crawlStart, endTime:runtime.crawlLast};
+      pushTripStatIfBetter(sample.uid, 'slowestCrawl', crawl);
+      pushTripSummaryIfBetter('slowestCrawl', crawl);
+      upsertDailyRecapMetric(day, 'slowestCrawlMs', crawlDuration, 'max');
+    }
+    runtime.crawlStart = 0;
+    runtime.crawlLast = 0;
+    runtime.crawlStartMeters = null;
+    runtime.crawlLastMeters = null;
+  }
 }
 function formatAge(ageMs){ if(!Number.isFinite(ageMs)||ageMs<0)return'just now'; const s=Math.round(ageMs/1000); if(s<10)return'just now'; if(s<60)return s+' sec ago'; const m=Math.round(s/60); if(m<60)return m+' min ago'; const h=Math.round(m/60); return h+' hr ago'; }
 function metersToMiles(m){ return Number(m||0)/1609.344; }
@@ -3155,14 +4213,18 @@ function projectPointOnPath(point, path){
 }
 function updateProgressBanner(progress, data){
   const tripTitle=document.getElementById('tripProgressTitle'), tripPct=document.getElementById('tripProgressPct'), tripFill=document.getElementById('tripProgressFill'), dayTitle=document.getElementById('dayProgressTitle'), dayPct=document.getElementById('dayProgressPct'), dayFill=document.getElementById('dayProgressFill'), tripMiles=document.getElementById('tripMileageText'), dayMiles=document.getElementById('dayMileageText'), mini=document.getElementById('progressMini');
-  if(!routeTotalsReady){ if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles'; if(mini)mini.textContent='Calculating route miles…'; return; }
-  if(!progress || !progress.totalTripMeters){ if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location'; if(dayTitle)dayTitle.textContent='Today: waiting for live location'; if(mini)mini.textContent='Waiting for live location'; return; }
+  if(!routeTotalsReady){ if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles'; if(mini)mini.textContent='Calculating route miles…'; renderAreWeThere(null); updateMissionAndToday(null, data || null); return; }
+  if(!progress || !progress.totalTripMeters){ if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location'; if(dayTitle)dayTitle.textContent='Today: waiting for live location'; if(mini)mini.textContent='Waiting for live location'; renderAreWeThere(null); updateMissionAndToday(null, data || null); return; }
+  if(Number(progress.activeDay) && Number(progress.activeDay) !== Number(window.__activeDay || 1)) window.__activeDay = Number(progress.activeDay);
   const tripP=pct(progress.tripCompletedMeters, progress.totalTripMeters), dayP=pct(progress.dayCompletedMeters, progress.dayTotalMeters); const prefix=progress.offRoute?'Off route • Last known progress: ':'';
   if(tripTitle)tripTitle.textContent=prefix+'Trip progress'; if(tripPct)tripPct.textContent=Math.round(tripP)+'%'; if(tripFill)tripFill.style.width=tripP+'%';
   if(dayTitle)dayTitle.textContent='Today: Day '+progress.activeDay; if(dayPct)dayPct.textContent=Math.round(dayP)+'%'; if(dayFill)dayFill.style.width=dayP+'%';
   if(tripMiles)tripMiles.textContent=`${fmtMi(progress.tripCompletedMeters)} / ${fmtMi(progress.totalTripMeters)} mi • ${fmtMi(progress.totalTripMeters-progress.tripCompletedMeters)} mi left`;
   if(dayMiles)dayMiles.textContent=`${fmtMi(progress.dayCompletedMeters)} / ${fmtMi(progress.dayTotalMeters)} mi • ${fmtMi(progress.dayTotalMeters-progress.dayCompletedMeters)} mi left`;
   if(mini){ mini.classList.toggle('show', isAdmin||isApproved); mini.textContent = `${progress.offRoute?'Off route • ':''}Trip ${Math.round(tripP)}% • Day ${progress.activeDay} ${Math.round(dayP)}%`; }
+  renderAreWeThere(progress);
+  updateDayCardStates();
+  updateMissionAndToday(progress, data || null);
 }
 function createProgressMini(){ if(document.getElementById('progressMini')) return; const el=document.createElement('div'); el.id='progressMini'; el.className='progress-mini'; el.textContent='Waiting for live location'; document.body.appendChild(el); }
 function createWatcherStrip(){ const shell=document.querySelector('.overview-map'); if(shell && !document.getElementById('watcherStrip')){ const el=document.createElement('div'); el.id='watcherStrip'; el.className='watcher-strip'; shell.appendChild(el); } }
