@@ -16,12 +16,15 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:rgba(22,102,216,.15)}
 html{scroll-behavior:smooth;background:var(--bg)}
-body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35;overflow-x:hidden}
 body.hub-open{overflow:hidden}
 a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{max-width:1180px;margin:0 auto;padding:calc(14px + var(--safe-top)) 14px calc(88px + var(--safe-bottom));display:flex;flex-direction:column}
 #dayRail{order:1}
 #days{order:2}
 #overview{order:3}
+.wrap,.day,.tracker-panel,.hub-section,.map-shell,.go-stack,.section-btn-row,.day-disclosure,.trip-metrics-shell{max-width:100%;min-width:0}
+.map,.btn,.route-item,.tracker-card,.mission-chip,.today-row span,.today-next,.today-after{max-width:100%}
+.tracker-panel,.hub-drawer,.trip-metrics-shell,.hub-section{overflow-x:hidden}
 .hero{position:relative;overflow:hidden;border-radius:30px;padding:22px;background:radial-gradient(circle at 0 0,rgba(22,102,216,.22),transparent 34%),linear-gradient(135deg,#fff,#eaf3ff);border:1px solid rgba(15,23,42,.08);box-shadow:var(--shadow)}
 .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid #bfdbfe;background:#eff6ff;color:#174ea6;border-radius:999px;padding:7px 11px;font-weight:800;font-size:12px;letter-spacing:.02em}
 h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spacing:-.04em}.lead{font-size:16px;color:#475569;max-width:720px;margin:0 0 18px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;padding:11px 14px;border:1px solid transparent;font-weight:900;font-size:14px;box-shadow:0 3px 10px rgba(15,23,42,.05);cursor:pointer}
@@ -33,6 +36,12 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .quick-nav a.done{background:#f1f5f9;color:#334155;border-color:#dbe4f0}
 .quick-nav a.future{background:#fff;color:#64748b;border-color:#e2e8f0;opacity:.86}
 .quick-nav a.pulse{outline:2px solid rgba(22,163,74,.35)}
+.rail-progress{order:1;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:-8px 0 12px;padding:10px 12px;border:1px solid #dbe4f0;border-radius:14px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.06)}
+.rail-progress-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px}
+.rail-progress-label{font-size:11px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.06em}
+.rail-progress-track{height:7px;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.rail-progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#16a34a,#1666d8);transition:width .35s ease}
+.rail-progress-value{font-size:12px;font-weight:900;color:#0f172a;min-width:44px;text-align:right}
 
 .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-title h2{font-size:26px;margin:0;letter-spacing:-.02em}.section-title p{margin:4px 0 0;color:var(--muted);font-weight:700}
 .day{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;margin:22px 0;box-shadow:var(--shadow);scroll-margin-top:88px}.day-head{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:6px 6px 14px;border-bottom:1px solid var(--line)}.day-kicker{display:flex;gap:clamp(.4rem,1.8vw,.55rem);flex-wrap:wrap;align-items:center;margin-bottom:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;font-size:clamp(.85rem,2.7vw,1.05rem);font-weight:800;line-height:1.1;padding:.35rem .65rem}.day h2{font-size:clamp(24px,5vw,36px);line-height:1.02;margin:0;letter-spacing:-.035em}.day-sub{color:var(--muted);font-weight:750;margin:7px 0 0}.go-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.day .go-main{font-size:22px;min-width:112px;min-height:58px;border-radius:18px}
@@ -63,6 +72,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
   .overview-map{height:350px;min-height:300px;}
   .map-shell.expanded .map{height:72vh;min-height:480px;}
   .bottom-bar{display:grid;}
+  .rail-progress{margin-top:-10px}
 }
 @media(max-width:430px){
   .map{height:270px;min-height:240px;}
@@ -71,6 +81,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
   .bottom-bar{gap:7px;padding-left:8px;padding-right:8px;}
   .bottom-bar .btn{min-height:44px;font-size:13px;border-radius:14px;}
   .bottom-day{min-width:54px;font-size:12px;}
+  .hub-full-map-body .overview-map{height:250px;min-height:220px}
 }
 
 
@@ -247,7 +258,15 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .hub-drawer.open{transform:translateY(0)}
 .hub-drawer-backdrop{position:fixed;inset:0;z-index:119;background:rgba(2,6,23,.45);display:none}
 .hub-drawer-backdrop.show{display:block}
-.hub-close{min-height:34px;border-radius:999px;padding:6px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-weight:900;font-size:12px;cursor:pointer}
+.hub-close{position:sticky;top:8px;right:0;min-width:44px;min-height:44px;border-radius:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:rgba(15,23,42,.94);color:#fff;font-weight:900;font-size:13px;cursor:pointer;z-index:8}
+.hub-full-map-card{margin-top:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;overflow:hidden}
+.hub-full-map-card summary{cursor:pointer;list-style:none;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;color:#e2e8f0;font-weight:950;font-size:13px}
+.hub-full-map-card summary::-webkit-details-marker{display:none}
+.hub-full-map-card summary::after{content:'+';font-size:16px;color:#cbd5e1}
+.hub-full-map-card[open] summary::after{content:'-'}
+.hub-full-map-body{padding:0 10px 10px;display:grid;gap:8px}
+.hub-full-map-copy{margin:0;color:#cbd5e1;font-size:12px;font-weight:800}
+.hub-full-map-body .overview-map{margin-top:0;height:min(42vh,360px);min-height:240px}
 .progress-mini{display:none!important}
 .day.active-day .map{height:240px;min-height:220px}
 .day:not(.active-day) .map{height:220px;min-height:200px}
@@ -445,11 +464,15 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 <div class="hub-drawer-backdrop" id="hubDrawerBackdrop" onclick="closeHubDrawer()"></div>
 <div class="wrap">
   <nav class="quick-nav" id="dayRail"></nav>
+  <section class="rail-progress" id="railProgressBanner" aria-label="Trip progress summary">
+    <div class="rail-progress-row"><span class="rail-progress-label" id="railTripLabel">Trip</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railTripFill"></div></div><span class="rail-progress-value" id="railTripPct">--%</span></div>
+    <div class="rail-progress-row"><span class="rail-progress-label" id="railDayLabel">Today</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railDayFill"></div></div><span class="rail-progress-value" id="railDayPct">--%</span></div>
+  </section>
   <section class="tracker-panel top-hub hub-drawer" id="liveTracker" aria-label="Live trip tracker">
       <div class="tracker-top">
         <div><h2>Trip Hub</h2><p>Open only when you need tracker, messages, notifications, or admin tools.</p></div>
         <div class="auth-row">
-          <button class="hub-close" type="button" id="hubCloseBtn" onclick="closeHubDrawer()">Close</button>
+          <button class="hub-close" type="button" id="hubCloseBtn" onclick="closeHubDrawer()">Close Hub ✕</button>
           <span class="admin-badge" id="adminBadge">0 waiting</span>
           <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in to continue</span></span>
           <button class="btn btn-go hidden" type="button" id="showMikeLaurenBtn" onclick="showMikeAndLauren()">Show me Mike and Lauren</button>
@@ -474,6 +497,15 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <button class="btn btn-go" type="button" id="requestAccessBtn">Request Access</button>
       </div>
       <div class="protected-hub hidden" id="protectedHub">
+        <details class="hub-full-map-card" id="overviewDisclosure">
+          <summary>Full Trip Map</summary>
+          <div class="hub-full-map-body">
+            <p class="hub-full-map-copy">View the whole route and live locations.</p>
+            <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
+            <div class="legend map-legend" id="overviewLegend"><span><span class="legend-icon">🚗</span><i style="background:#0f172a"></i>Start</span><span><span class="legend-icon">⛽</span><i style="background:#64748b"></i>Fuel / utility</span><span><span class="legend-icon">🌄</span><i style="background:#16a34a"></i>Scenic / activity</span><span><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i>Pet stop</span><span><span class="legend-icon">🏌️</span><i style="background:#15803d"></i>Golf</span><span><span class="legend-icon">💆</span><i style="background:#db2777"></i>Spa</span><span><span class="legend-icon">🏨</span><i style="background:#1666d8"></i>Hotel / overnight</span><span><span class="legend-icon">🍽️</span><i style="background:#f97316"></i>Food</span><span><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i>Final finish / home</span></div>
+            <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Expand map</button>
+          </div>
+        </details>
         <div class="hub-tabs" id="hubTabs" role="tablist" aria-label="Secure hub sections">
           <button class="hub-tab active" type="button" id="hubTabProgress" data-hub-tab="progress" role="tab" aria-selected="true">Progress</button>
           <button class="hub-tab" type="button" id="hubTabLive" data-hub-tab="live" role="tab" aria-selected="false">Live</button>
@@ -554,7 +586,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
                 <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('live')">Tracker Details</button>
                 <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('progress')">Settings</button>
                 <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('messages')">Messages</button>
-                <a class="btn btn-ghost btn-small" href="#overview">Open full trip map</a>
+                <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Open full trip map</button>
                 <button class="btn btn-dark btn-small" type="button" onclick="setHubTab('admin')" id="moreAdminBtn">Admin Tools</button>
               </div>
             </div>
@@ -699,22 +731,8 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         </div>
       </div>
     </section>
-
-
-  <section class="hero" id="overview">
-    <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • PUSH KEY READY v5.27</span>
-    <h1>Beaufort, SC → Seal Beach, CA</h1>
-    <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
-    <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#dayRail">Day Rail</a></div>
-    <div class="stats"><div class="stat"><b>9</b><span>Drive/activity days</span></div><div class="stat"><b>10</b><span>Interactive maps</span></div><div class="stat"><b>27</b><span>Dinner cards</span></div><div class="stat"><b>Mobile</b><span>iPhone + Android first</span></div></div>
-    <details class="overview-disclosure" id="overviewDisclosure" open>
-      <summary>Open full trip map</summary>
-      <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
-      <div class="legend map-legend" id="overviewLegend"><span><span class="legend-icon">🚗</span><i style="background:#0f172a"></i>Start</span><span><span class="legend-icon">⛽</span><i style="background:#64748b"></i>Fuel / utility</span><span><span class="legend-icon">🌄</span><i style="background:#16a34a"></i>Scenic / activity</span><span><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i>Pet stop</span><span><span class="legend-icon">🏌️</span><i style="background:#15803d"></i>Golf</span><span><span class="legend-icon">💆</span><i style="background:#db2777"></i>Spa</span><span><span class="legend-icon">🏨</span><i style="background:#1666d8"></i>Hotel / overnight</span><span><span class="legend-icon">🍽️</span><i style="background:#f97316"></i>Food</span><span><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i>Final finish / home</span></div>
-    </details>
-  </section>
   <main id="days"></main>
-  <div class="footer">Built as a single self-contained HTML file. Internet is required for Google Maps, Google Places photos, and map tiles.</div>
+  <div class="footer">TripGuide</div>
 </div>
 <div class="bottom-bar" id="bottomBar">
   <span class="bottom-day" id="bottomDay">Day 1</span>
@@ -828,6 +846,7 @@ const geocodeCache = new Map();
 const markerIconCache = new Map();
 let foodPhotoObserver = null;
 let overviewMapRef = null;
+let overviewDisclosureInitialized = false;
 let trackableMaps = new Map();
 let liveDriverMarkers = new Map();
 let liveAccuracyCircles = new Map();
@@ -3448,8 +3467,10 @@ function updateDayCardStates(){
 function syncOverviewDisclosure(){
   const panel = document.getElementById('overviewDisclosure');
   if(!panel) return;
-  const shouldCollapse = Number(currentActiveDayNumber()) > 1 || !!latestLiveLocation;
-  if(shouldCollapse) panel.open = false;
+  if(!overviewDisclosureInitialized){
+    panel.open = false;
+    overviewDisclosureInitialized = true;
+  }
 }
 function initializeDayCards(){
   if(dayCollapseInitialized) return;
@@ -3516,6 +3537,7 @@ function openHubDrawer(){
   document.getElementById('liveTracker')?.classList.add('open');
   document.getElementById('hubDrawerBackdrop')?.classList.add('show');
   document.body.classList.add('hub-open');
+  setTimeout(()=>refreshOverviewMapLayout(), 260);
 }
 function closeHubDrawer(){
   document.getElementById('liveTracker')?.classList.remove('open');
@@ -3527,9 +3549,25 @@ function toggleHubDrawer(){
   if(drawer && drawer.classList.contains('open')) closeHubDrawer();
   else openHubDrawer();
 }
+function refreshOverviewMapLayout(){
+  if(!overviewMapRef || !window.google || !google.maps || !google.maps.event) return;
+  try{ google.maps.event.trigger(overviewMapRef, 'resize'); }catch(_){ return; }
+  const markers = displayedLiveTrackers && displayedLiveTrackers.length ? displayedLiveTrackers : (latestLiveLocation ? [latestLiveLocation] : []);
+  if(markers.length){
+    fitTrackersOnMap(overviewMapRef, markers);
+  }
+}
+function openHubFullMap(){
+  openHubDrawer();
+  setHubTab('progress');
+  const panel = document.getElementById('overviewDisclosure');
+  if(panel) panel.open = true;
+  setTimeout(()=>refreshOverviewMapLayout(), 280);
+}
 window.openHubDrawer = openHubDrawer;
 window.closeHubDrawer = closeHubDrawer;
 window.toggleHubDrawer = toggleHubDrawer;
+window.openHubFullMap = openHubFullMap;
 window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeHubDrawer(); });
 function updateBottomNavActive(){
   const hub = document.getElementById('bottomHubBtn');
@@ -4385,12 +4423,44 @@ function projectPointOnPath(point, path){
 }
 function updateProgressBanner(progress, data){
   const tripTitle=document.getElementById('tripProgressTitle'), tripPct=document.getElementById('tripProgressPct'), tripFill=document.getElementById('tripProgressFill'), dayTitle=document.getElementById('dayProgressTitle'), dayPct=document.getElementById('dayProgressPct'), dayFill=document.getElementById('dayProgressFill'), tripMiles=document.getElementById('tripMileageText'), dayMiles=document.getElementById('dayMileageText'), mini=document.getElementById('progressMini');
-  if(!routeTotalsReady){ if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles'; if(mini)mini.textContent='Calculating route miles…'; renderAreWeThere(null); updateMissionAndToday(null, data || null); return; }
-  if(!progress || !progress.totalTripMeters){ if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location'; if(dayTitle)dayTitle.textContent='Today: waiting for live location'; if(mini)mini.textContent='Waiting for live location'; renderAreWeThere(null); updateMissionAndToday(null, data || null); return; }
+  const railTripLabel=document.getElementById('railTripLabel'), railTripPct=document.getElementById('railTripPct'), railTripFill=document.getElementById('railTripFill'), railDayLabel=document.getElementById('railDayLabel'), railDayPct=document.getElementById('railDayPct'), railDayFill=document.getElementById('railDayFill');
+  if(!routeTotalsReady){
+    if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles';
+    if(mini)mini.textContent='Calculating route miles…';
+    if(railTripLabel) railTripLabel.textContent = 'Trip';
+    if(railTripPct) railTripPct.textContent = '--%';
+    if(railTripFill) railTripFill.style.width = '0%';
+    if(railDayLabel) railDayLabel.textContent = 'Today';
+    if(railDayPct) railDayPct.textContent = '--%';
+    if(railDayFill) railDayFill.style.width = '0%';
+    renderAreWeThere(null);
+    updateMissionAndToday(null, data || null);
+    return;
+  }
+  if(!progress || !progress.totalTripMeters){
+    if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location';
+    if(dayTitle)dayTitle.textContent='Today: waiting for live location';
+    if(mini)mini.textContent='Waiting for live location';
+    if(railTripLabel) railTripLabel.textContent = 'Trip';
+    if(railTripPct) railTripPct.textContent = '--%';
+    if(railTripFill) railTripFill.style.width = '0%';
+    if(railDayLabel) railDayLabel.textContent = 'Today';
+    if(railDayPct) railDayPct.textContent = '--%';
+    if(railDayFill) railDayFill.style.width = '0%';
+    renderAreWeThere(null);
+    updateMissionAndToday(null, data || null);
+    return;
+  }
   if(Number(progress.activeDay) && Number(progress.activeDay) !== Number(window.__activeDay || 1)) window.__activeDay = Number(progress.activeDay);
   const tripP=pct(progress.tripCompletedMeters, progress.totalTripMeters), dayP=pct(progress.dayCompletedMeters, progress.dayTotalMeters); const prefix=progress.offRoute?'Off route • Last known progress: ':'';
   if(tripTitle)tripTitle.textContent=prefix+'Trip progress'; if(tripPct)tripPct.textContent=Math.round(tripP)+'%'; if(tripFill)tripFill.style.width=tripP+'%';
   if(dayTitle)dayTitle.textContent='Today: Day '+progress.activeDay; if(dayPct)dayPct.textContent=Math.round(dayP)+'%'; if(dayFill)dayFill.style.width=dayP+'%';
+  if(railTripLabel) railTripLabel.textContent = 'Trip';
+  if(railTripPct) railTripPct.textContent = `${Math.round(tripP)}%`;
+  if(railTripFill) railTripFill.style.width = `${tripP}%`;
+  if(railDayLabel) railDayLabel.textContent = `Day ${progress.activeDay}`;
+  if(railDayPct) railDayPct.textContent = `${Math.round(dayP)}%`;
+  if(railDayFill) railDayFill.style.width = `${dayP}%`;
   if(tripMiles)tripMiles.textContent=`${fmtMi(progress.tripCompletedMeters)} / ${fmtMi(progress.totalTripMeters)} mi • ${fmtMi(progress.totalTripMeters-progress.tripCompletedMeters)} mi left`;
   if(dayMiles)dayMiles.textContent=`${fmtMi(progress.dayCompletedMeters)} / ${fmtMi(progress.dayTotalMeters)} mi • ${fmtMi(progress.dayTotalMeters-progress.dayCompletedMeters)} mi left`;
   if(mini){ mini.classList.toggle('show', isAdmin||isApproved); mini.textContent = `${progress.offRoute?'Off route • ':''}Trip ${Math.round(tripP)}% • Day ${progress.activeDay} ${Math.round(dayP)}%`; }
