@@ -244,16 +244,23 @@ async function main() {
     console.error(err.message || err);
     process.exitCode = 1;
   } finally {
+    const exitCode = process.exitCode || 0;
+    const hardExitTimer = setTimeout(() => {
+      process.exit(exitCode);
+    }, 400);
+
     try {
       if (admin.apps && admin.apps.length) {
-        await Promise.all(admin.apps.map((app) => app.delete()));
+        await Promise.race([
+          Promise.all(admin.apps.map((app) => app.delete())),
+          new Promise((resolve) => setTimeout(resolve, 150))
+        ]);
       }
-    } catch (cleanupErr) {
-      console.warn('Cleanup warning:', cleanupErr.message || cleanupErr);
+    } catch (_) {
+      // Best-effort cleanup only; hard exit handles any lingering handles.
     }
 
-    setTimeout(() => {
-      process.exit(process.exitCode || 0);
-    }, 250).unref();
+    clearTimeout(hardExitTimer);
+    process.exit(exitCode);
   }
 })();
