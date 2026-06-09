@@ -14,7 +14,21 @@ on:
       url:
         description: Click URL
         required: false
-        default: https://mdnadon112-sketch.github.io/TripGuide/
+        default: /TripGuide/
+        type: string
+      targetType:
+        description: Send target
+        required: true
+        default: allActive
+        type: choice
+        options:
+          - allActive
+          - adminsOnly
+          - approvedViewers
+          - singleUser
+      uid:
+        description: Required when targetType is singleUser
+        required: false
         type: string
 
 jobs:
@@ -30,6 +44,8 @@ jobs:
       INPUT_TITLE: ${{ inputs.title }}
       INPUT_BODY: ${{ inputs.body }}
       INPUT_URL: ${{ inputs.url }}
+      INPUT_TARGET_TYPE: ${{ inputs.targetType }}
+      INPUT_UID: ${{ inputs.uid }}
 
     steps:
       - name: Checkout repository

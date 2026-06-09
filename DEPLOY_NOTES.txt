@@ -1,62 +1,105 @@
-TripGuide v5.27 PUSH KEY READY
+TripGuide deployment notes (GitHub Actions-first push notifications)
 
-Deploy these files to the same GitHub Pages folder:
+Deploy these public files to GitHub Pages:
 - index.html
 - firebase-messaging-sw.js
 
-This build inserts the Firebase Web Push public VAPID key into index.html.
+Required model:
+- Browser app only stores public Firebase config + public web VAPID key.
+- Required push sending runs from GitHub Actions with firebase-admin.
+- Cloud Functions sender in the UI is optional/legacy only.
 
-After deployment:
-1. Open the GitHub Pages TripGuide URL.
-2. Sign in with an approved/admin account.
-3. Click Enable Notifications.
-4. Allow notifications.
-5. Confirm a new entry appears in Firebase Realtime Database at:
+Required GitHub Actions secrets:
+1) FIREBASE_SERVICE_ACCOUNT_JSON (required)
+   - Firebase Console -> Project Settings -> Service Accounts -> Generate private key
+   - Store entire JSON in this Actions secret.
+2) FIREBASE_DATABASE_URL (optional)
+   - Only needed if your RTDB URL differs from the default project_id pattern.
+
+Manual sender workflow:
+- Workflow: .github/workflows/send-tripguide-notification.yml
+- Script: .github/scripts/send-tripguide-notification.js
+- workflow_dispatch inputs:
+  - title (required)
+  - body (required)
+  - url (optional, default /TripGuide/)
+  - targetType (required): allActive | adminsOnly | approvedViewers | singleUser
+  - uid (optional; required when targetType=singleUser)
+
+Manual sender behavior:
+- Reads tripGuide/pushTokens
+- Sends only enabled === true tokens
+- Skips stale tokens older than 90 days by lastSeen/createdAt
+- Targeting:
+  - allActive: all active tokens
+  - adminsOnly: built-in Mike/Lauren admin emails + tripGuide/admins/{uid}.admin === true (+ approvedUsers admin fallback)
+  - approvedViewers: tripGuide/approvedUsers/{uid}.approved === true
+  - singleUser: only provided uid
+- Uses firebase-admin messaging from Actions only
+- Sends data payload: { title, body, url }
+- Disables invalid/unregistered tokens in RTDB (enabled=false + cleanup metadata)
+- Logs attempted/success/failure/cleaned counts
+
+Auto notifications:
+- Workflow: .github/workflows/tripguide-auto-notifications.yml
+- Script: .github/scripts/tripguide-auto-notifications.js
+- Runs in GitHub Actions only with firebase-admin
+- Uses notificationState de-dupe logic and only sends on state changes
+- Covers:
+  - day started
+  - day complete
+  - trip complete
+  - live stale / live restored
+  - access request
+  - blocked user
+  - trip reset
+  - new message
+- No Firebase Blaze plan requirement for this GitHub Actions path.
+
+Realtime Database rules and indexes:
+- Rules file: database.rules.json
+- firebase.json includes:
+  - "database": { "rules": "database.rules.json" }
+- push token permissions and validation are defined for:
+  - tripGuide/pushTokens/{uid}/{tokenId}
+- messages index is defined:
+  - tripGuide/messages -> .indexOn ["createdAt"]
+
+Enable notifications in browser:
+1) Sign in first (required).
+2) Click Enable Notifications.
+3) Allow browser notifications.
+4) Confirm token record appears at:
    tripGuide/pushTokens/{uid}/{tokenId}
 
-Do not put private Firebase service account credentials in this public web app. Actual push sending must be handled by a trusted backend such as Firebase Cloud Functions.
+Platform notes:
+- Android/Desktop: can enable directly in the browser.
+- iPhone/iPad: must Add to Home Screen, open from Home Screen, then enable notifications.
 
-For iPhone/iPad testing, add the web app to the Home Screen first, then open it from the Home Screen and enable notifications there.
+How to test manual sender targets:
+1) In GitHub -> Actions -> Send TripGuide Notification -> Run workflow.
+2) Test allActive:
+   - targetType=allActive
+   - leave uid empty
+   - verify enabled active devices receive message.
+3) Test adminsOnly:
+   - targetType=adminsOnly
+   - verify only admin devices receive message.
+4) Test approvedViewers:
+   - targetType=approvedViewers
+   - verify approved viewer devices receive message.
+5) Test singleUser:
+   - targetType=singleUser
+   - set uid to a valid Firebase Auth uid
+   - verify only that user’s device receives message.
 
-Firebase Cloud Functions sender setup (new):
-- Files added: firebase.json, functions/package.json, functions/index.js
-- Deploy Functions backend:
-  1. npm --prefix functions install
-  2. firebase login
-  3. firebase use <your-project-id>
-  4. firebase deploy --only functions:sendTripGuideNotification
-- Required Firebase products/APIs:
-  - Firebase Authentication
-  - Realtime Database
-  - Cloud Functions for Firebase
-  - Firebase Cloud Messaging (FCM)
+How to verify invalid-token cleanup:
+1) Use a known stale/invalid token (or a token from an uninstalled profile).
+2) Run manual sender.
+3) Check workflow logs for cleaned count > 0.
+4) Confirm token record in tripGuide/pushTokens now has enabled=false and cleanup fields.
 
-GitHub Actions manual sender setup (Blaze not required):
-- Files added:
-  - .github/workflows/send-tripguide-notification.yml
-  - .github/scripts/send-tripguide-notification.js
-- This manual sender does not require deploying Cloud Functions.
-- Trigger method: GitHub Actions workflow_dispatch (Run workflow button)
-- Notification behavior:
-  - Reads tokens from tripGuide/pushTokens
-  - Only sends to records where enabled=true and lastSeen (or createdAt) is within 90 days
-  - Supports targets: allActive, adminsOnly, approvedViewers, singleUser
-  - Automatically disables invalid or unregistered tokens
-  - Prints attempted/success/failure/cleaned counts in the Actions logs
-
-Required secure secret setup:
-1. Firebase Console -> Project Settings -> Service Accounts
-2. Generate new private key
-3. GitHub repo -> Settings -> Secrets and variables -> Actions
-4. Add secret FIREBASE_SERVICE_ACCOUNT_JSON
-5. Paste entire JSON as the secret value
-6. Run workflow manually from GitHub Actions tab
-
-Security rules:
-- Never commit Firebase service account JSON to this repo.
-- Never expose private credentials in browser code or public files.
-- Never expose server keys in index.html.
-- Use only GitHub Actions secrets for FIREBASE_SERVICE_ACCOUNT_JSON.
-
-Optional troubleshooting:
-- If your Realtime Database is not reachable on the default URL pattern, add FIREBASE_DATABASE_URL as an additional GitHub Actions secret.
+Security reminders:
+- Never commit service account JSON.
+- Never expose server keys or private credentials in index.html or service worker.
+- Keep server-side send logic in GitHub Actions scripts only.
