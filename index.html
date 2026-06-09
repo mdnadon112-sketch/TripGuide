@@ -7,6 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
 <title>Final Trip — Mobile Google Maps Guide v5.27 Push Key Ready</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
@@ -157,6 +158,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 @media(max-width:700px){.auth-email-row{grid-template-columns:1fr}.auth-email-row .btn{width:100%}}
 .login-debug{margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:16px;padding:10px 12px;font-size:13px;font-weight:850;line-height:1.4;word-break:break-word}
 .login-note{margin-top:10px;color:#64748b;font-size:12px;font-weight:750;line-height:1.35}
+.google-identity-shell{margin-top:10px;display:grid;gap:8px}
+.google-identity-label{font-size:12px;font-weight:950;color:#475569;text-transform:uppercase;letter-spacing:.06em}
+.google-identity-button{min-height:48px}
+.google-identity-button iframe{max-width:100%}
+.google-identity-note{color:#64748b;font-size:11px;font-weight:750;line-height:1.35}
 .mobile-help-inline{margin-top:10px;color:#334155;font-size:12px;font-weight:750;line-height:1.35}
 .mobile-help-details{margin-top:8px;border:1px solid #dbe4f0;border-radius:12px;background:#f8fafc}
 .mobile-help-details summary{cursor:pointer;list-style:none;padding:8px 10px;font-size:12px;font-weight:900;color:#334155}
@@ -173,6 +179,8 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .email-login{margin-top:9px;padding-top:9px;gap:7px}
   .login-debug{margin-top:8px;padding:8px 9px;font-size:12px;border-radius:12px}
   .login-note{margin-top:7px;font-size:11px}
+  .google-identity-shell{margin-top:8px;gap:6px}
+  .google-identity-note{font-size:10px}
   .mobile-help-inline{font-size:11px;margin-top:7px}
   .mobile-help-details summary{font-size:11px;padding:7px 9px}
   .mobile-help-details .mobile-help-body{font-size:11px;padding:0 9px 9px}
@@ -230,7 +238,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <h2 id="loginGateTitle">Sign in to continue</h2>
     <p>The trip guide will load after sign-in. Admin accounts get live controls. Other accounts can request access for the secure trip hub.</p>
     <div class="login-actions">
-      <button class="btn btn-google" type="button" id="gateSignInBtn">Sign in with Google</button>
+      <button class="btn btn-google" type="button" id="gateSignInBtn">Try Firebase Google popup</button>
     </div>
     <div class="email-login" aria-label="Email sign-in fallback">
       <div class="email-login-label">Admin fallback login</div>
@@ -242,6 +250,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
     </div>
     <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
+    <div class="google-identity-shell">
+      <div class="google-identity-label">Google sign-in</div>
+      <div id="googleIdentityButton" class="google-identity-button"></div>
+      <div class="google-identity-note" id="googleIdentityStatus">Loading Google sign-in…</div>
+    </div>
     <div class="login-actions login-recovery-actions hidden" id="signInRecoveryActions" aria-live="polite">
       <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in state</button>
       <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google again</button>
@@ -264,7 +277,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
       <div class="auth-panel" id="authPanel">
         <div class="auth-row">
-          <button class="btn btn-google" type="button" id="signInBtn" onclick="tripGuideSignInClick(event)">Sign in with Google</button>
+          <button class="btn btn-google" type="button" id="signInBtn" onclick="tripGuideSignInClick(event)">Try Firebase Google popup</button>
           <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
           <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
         </div>
@@ -989,6 +1002,7 @@ const TRACKER_CONFIG = {
   appId: "1:890615280609:web:4f77c8e37fa7ec622418a0",
   measurementId: "G-6STL3XZ7S4"
 };
+const GOOGLE_IDENTITY_CLIENT_ID = '890615280609-m0p317k8m3b4g0bh77f62vaonqho8c38.apps.googleusercontent.com';
 function canonicalEmail(email){
   return String(email || '').trim().toLowerCase().replace(/@googlemail\.com$/, '@gmail.com');
 }
@@ -1083,6 +1097,9 @@ let authObserverStarted = false;
 let redirectUserCache = null;
 let googleAuthProvider = null;
 let googleSignInPending = false;
+let googleIdentityInitPromise = null;
+let googleIdentityButtonReady = false;
+let googleIdentityScriptChecked = false;
 let lastAuthSignInMethod = 'none';
 let selectedPersistenceMode = 'default';
 let authBootState = 'initializing';
@@ -1396,10 +1413,166 @@ function setMobileTroubleshootingPanel(show, reasonText){
   panel.classList.remove('hidden');
 }
 
+function getGoogleIdentityClientId(){
+  return String(GOOGLE_IDENTITY_CLIENT_ID || '').trim();
+}
+
+function setGoogleIdentityStatus(text){
+  const el = document.getElementById('googleIdentityStatus');
+  if(el) el.textContent = text || '';
+}
+
+function waitForGoogleIdentityServices(timeoutMs){
+  const timeout = Math.max(0, Number(timeoutMs) || 0);
+  const started = Date.now();
+  return new Promise(resolve => {
+    const tick = () => {
+      const ready = !!(window.google && google.accounts && google.accounts.id);
+      if(ready || (Date.now() - started) >= timeout){
+        resolve(ready);
+        return;
+      }
+      setTimeout(tick, 120);
+    };
+    tick();
+  });
+}
+
+function handleGoogleIdentityCredentialResponse(response){
+  const hasCredential = !!(response && response.credential);
+  authLog('Google Identity callback received', {hasCredential});
+  if(!hasCredential){
+    setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
+    return;
+  }
+  signInWithFirebaseGoogleIdToken(response.credential).catch(err => {
+    authLog('Firebase signInWithCredential failed', err && (err.code || err.message || String(err)));
+    rememberAuthError(firebaseIdentityErrorMessage(err));
+  });
+}
+
+function renderGoogleIdentityButton(){
+  const container = document.getElementById('googleIdentityButton');
+  if(!container) return false;
+  const statusEl = document.getElementById('googleIdentityStatus');
+  container.innerHTML = '';
+  const clientId = getGoogleIdentityClientId();
+  if(!clientId){
+    googleIdentityButtonReady = false;
+    if(statusEl) statusEl.textContent = 'Add a Google OAuth web client ID to enable the Google button.';
+    authLog('Google Identity Services missing client ID');
+    return false;
+  }
+  if(!(window.google && google.accounts && google.accounts.id)){
+    googleIdentityButtonReady = false;
+    if(statusEl) statusEl.textContent = 'Google sign-in is loading…';
+    authLog('Google Identity Services script missing');
+    return false;
+  }
+  try{
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleIdentityCredentialResponse,
+      auto_select: false,
+      itp_support: true,
+      use_fedcm_for_prompt: true
+    });
+    const width = Math.max(240, Math.min(360, Math.floor(container.getBoundingClientRect().width || 320)));
+    google.accounts.id.renderButton(container, {
+      theme: 'outline',
+      size: 'large',
+      text: 'signin_with',
+      shape: 'pill',
+      logo_alignment: 'left',
+      width
+    });
+    googleIdentityButtonReady = true;
+    if(statusEl) statusEl.textContent = 'Tap the Google button to sign in with your Google account.';
+    authLog('Google Identity Services button rendered', {width});
+    return true;
+  }catch(err){
+    googleIdentityButtonReady = false;
+    if(statusEl) statusEl.textContent = 'Google sign-in could not be rendered. Use popup or email/password fallback.';
+    authLog('Google Identity Services render failed', err && (err.code || err.message || String(err)));
+    return false;
+  }
+}
+
+async function initGoogleIdentityServices(){
+  if(googleIdentityInitPromise) return googleIdentityInitPromise;
+  googleIdentityInitPromise = (async () => {
+    const clientId = getGoogleIdentityClientId();
+    if(!clientId){
+      setGoogleIdentityStatus('Set the Google OAuth web client ID to enable Google sign-in.');
+      authLog('Google Identity Services unavailable: missing client ID');
+      return false;
+    }
+    const ready = await waitForGoogleIdentityServices(4000);
+    if(!ready){
+      googleIdentityScriptChecked = true;
+      setGoogleIdentityStatus('Google sign-in is unavailable. Use popup or email/password fallback.');
+      authLog('Google Identity Services missing or timed out');
+      return false;
+    }
+    googleIdentityScriptChecked = true;
+    authLog('Google Identity Services loaded');
+    return renderGoogleIdentityButton();
+  })();
+  return googleIdentityInitPromise;
+}
+
+async function signInWithFirebaseGoogleIdToken(idToken){
+  if(!trackerAuth){
+    try{ initFirebaseTracker(); }catch(_){ }
+  }
+  if(!trackerAuth){
+    setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+    return null;
+  }
+  const token = String(idToken || '').trim();
+  if(!token){
+    authLog('Google Identity credential missing');
+    setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
+    return null;
+  }
+  const provider = firebase.auth.GoogleAuthProvider.credential(token);
+  authLog('Signing into Firebase with Google ID token', {hasCredential: true});
+  try{
+    const result = await trackerAuth.signInWithCredential(provider);
+    const user = result && result.user ? result.user : trackerAuth.currentUser;
+    authLog('Firebase signInWithCredential success', {hasUser: !!user, email: user ? authEmail(user) : ''});
+    if(user){
+      currentUser = user;
+      clearAuthError();
+      clearRedirectTrackingFlags();
+      setIOSPopupFallbackEnabled(false);
+      await upsertSignedInUserProfile(user);
+      setGoogleIdentityStatus('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
+      setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
+    }
+    return user || null;
+  }catch(err){
+    authLog('Firebase signInWithCredential failure', err && (err.code || err.message || String(err)));
+    throw err;
+  }
+}
+
+function firebaseIdentityErrorMessage(err){
+  const code = (err && err.code) ? err.code : '';
+  if(code === 'auth/unauthorized-domain') return 'Firebase rejected this origin. Add https://mdnadon112-sketch.github.io to authorized domains. (' + code + ')';
+  if(code === 'auth/operation-not-allowed') return 'Google sign-in is disabled in Firebase. Enable Google as a sign-in provider. (' + code + ')';
+  if(code === 'auth/account-exists-with-different-credential') return 'That email already exists with a different sign-in method. Use the matching method. (' + code + ')';
+  if(code === 'auth/network-request-failed') return 'Network error while signing in. Check your connection and try again. (' + code + ')';
+  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Turn off Private Browsing or use a full browser. (' + code + ')';
+  return authErrorMessage(err);
+}
+
 function retryGoogleAfterFailure(){
   clearRedirectTrackingFlags();
   setTrackerMessage('Retrying Google sign-in…');
-  signInWithGoogleSafeMethod('auto');
+  startGoogleIdentitySignIn();
 }
 
 function setupAuthProvider(){
@@ -1441,87 +1614,25 @@ async function setAuthPersistenceSafely(){
 
 async function processRedirectResultSafely(){
   setAuthBootState('checkingRedirect');
-  if(!trackerAuth || !trackerAuth.getRedirectResult){
-    redirectHandled = true;
-    return null;
-  }
-  const redirectStarted = (() => {
-    try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; }
-  })();
-  const platform = getAuthPlatformSignals();
-  const hasRedirectParams = hasGoogleRedirectParamsInUrl();
-  const hasRedirectReferrer = hasGoogleAuthReferrer();
-  const hasRedirectHint = (() => {
-    try{ return !!localStorage.getItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ return false; }
-  })();
-  const redirectPending = (() => {
-    try{ return sessionStorage.getItem(PENDING_REDIRECT_KEY) === '1'; }catch(_){ return false; }
-  })();
-  const lastMethod = (() => {
-    try{ return String(sessionStorage.getItem(SIGNIN_LAST_METHOD_KEY) || ''); }catch(_){ return ''; }
-  })();
-  const lastMethodWasRedirect = /^redirect/.test(lastMethod);
-  const redirectStartedAt = getRedirectStartedAt();
-  const redirectAgeMs = redirectStartedAt ? (Date.now() - redirectStartedAt) : 0;
-  authLog('Redirect pre-check', {redirectStarted, hasRedirectParams, hasRedirectReferrer, hasRedirectHint, redirectPending, lastMethod, redirectStartedAt, redirectAgeMs, redirectAttemptCount: getRedirectAttemptCount()});
   try{
-    const result = await trackerAuth.getRedirectResult();
-    authLog('getRedirectResult completed', {result: result && result.user ? 'user' : 'null'});
-    if(result && result.user){
-      clearRedirectTrackingFlags();
-      redirectUserCache = result.user;
-      lastAuthSignInMethod = 'redirect';
-      authLog('Redirect result processed: redirect user found', {email: authEmail(result.user), uid: result.user.uid});
-      setTrackerMessage('Redirect sign-in complete.');
-      await upsertSignedInUserProfile(result.user);
-      return result.user;
-    }
-    const current = trackerAuth.currentUser || firebase.auth().currentUser;
-    if(current){
-      clearRedirectTrackingFlags();
-      redirectUserCache = current;
-      authLog('Redirect result processed: currentUser found', {email: authEmail(current), uid: current.uid});
-      await upsertSignedInUserProfile(current);
-      return current;
-    }
-    const shouldAttemptRecovery = redirectStarted || hasRedirectParams || hasRedirectHint || redirectPending || lastMethodWasRedirect || hasRedirectReferrer;
-    if(shouldAttemptRecovery){
-      setTrackerMessage('Finishing sign-in…');
-      const recovered = await waitForRecoveredUser(REDIRECT_GRACE_MS);
-      authLog('Redirect grace recovery check', {recovered: !!recovered, currentUserPresent: !!(trackerAuth && trackerAuth.currentUser), authStateObserved, shouldAttemptRecovery, redirectStarted, hasRedirectParams, hasRedirectReferrer, hasRedirectHint, redirectPending, lastMethod});
-      if(recovered){
+    if(trackerAuth && trackerAuth.getRedirectResult){
+      const result = await trackerAuth.getRedirectResult();
+      authLog('getRedirectResult completed', {result: result && result.user ? 'user' : 'null'});
+      if(result && result.user){
         clearRedirectTrackingFlags();
-        redirectUserCache = recovered;
-        await upsertSignedInUserProfile(recovered);
-        return recovered;
-      }
-      const attempts = getRedirectAttemptCount();
-      const tooOld = redirectAgeMs > REDIRECT_MAX_AGE_MS;
-      const recoveryCode = tooOld ? 'redirect-state-expired' : 'redirect-session-missing';
-      const isIOSRecovery = !!(platform && platform.isIOS);
-      const msg = recoveryCode === 'redirect-session-missing'
-        ? (isIOSRecovery
-          ? 'Google sign-in returned to TripGuide, but iPhone Safari did not restore the session. Use one of the options below. (redirect-session-missing)'
-          : 'Finishing sign-in took longer than expected. You can reset sign-in state and try again, or open the direct TripGuide link if this keeps failing. (redirect-session-missing)')
-        : redirectRecoveryFailureMessage(recoveryCode);
-      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, recoveryCode, isIOSRecovery});
-      rememberAuthError(msg);
-      restoreSignInUiAfterRedirectFailure(msg, recoveryCode, {enableIOSPopupFallback:isIOSRecovery});
-      if(platform && platform.isLikelyInAppLaunch){
-        setMobileTroubleshootingPanel(true, 'If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
+        redirectUserCache = result.user;
+        authLog('Redirect compatibility result user found', {email: authEmail(result.user), uid: result.user.uid});
+        await upsertSignedInUserProfile(result.user);
+        return result.user;
       }
     }
-    authLog('Redirect result processed: no redirect user and no currentUser.');
+    clearRedirectTrackingFlags();
+    authLog('Redirect compatibility path: no user, cleared stale flags, continuing without blocking');
     return null;
   }catch(err){
     clearRedirectTrackingFlags();
     setRedirectStartedFlag(false);
-    authLog('Redirect result processed with error', err && (err.code || err.message || String(err)));
-    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
-    if(platform && platform.isIOS){
-      setIOSPopupFallbackEnabled(true);
-      showSignInRecoveryActions(true, {showPopupFallback:true, reason:'redirect-error'});
-    }
+    authLog('Redirect compatibility error ignored for default flow', err && (err.code || err.message || String(err)));
     return null;
   }finally{
     redirectHandled = true;
@@ -1652,21 +1763,15 @@ async function initFirebaseTracker(){
     await setAuthPersistenceSafely();
     handleAuthResetQueryOnLoad();
     clearStaleRedirectFlagsOnLoad();
+    await initGoogleIdentityServices();
     startAuthObserver();
-    const redirectUser = await processRedirectResultSafely();
-    authLog('Redirect result processed', {hasUser: !!redirectUser});
-
-    if(redirectUser){
-      authReady = true;
-      renderAuthState(redirectUser, 'Redirect sign-in complete.');
-    } else if(!authStateObserved){
-      authReady = true;
-      renderAuthState(redirectUser || trackerAuth.currentUser || null);
-    }
+    await processRedirectResultSafely();
+    authReady = true;
+    renderAuthState(trackerAuth.currentUser || redirectUserCache || null);
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  bindClick('signInBtn', signInWithGooglePopupFallback); bindClick('gateSignInBtn', signInWithGooglePopupFallback); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   bindClick('resetSignInStateBtn', resetTripGuideSignInState);
   bindClick('retryGoogleSignInBtn', retryGoogleAfterFailure);
   bindClick('retryGooglePopupBtn', signInWithGooglePopupFallback);
@@ -1695,8 +1800,8 @@ function setLoginGate(show, message, reason){
   if(show){ setTimeout(()=>{ try{ document.getElementById('gateSignInBtn')?.focus(); }catch(_){} }, 80); }
 }
 function resetSignInButton(){
-  const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Sign in with Google'; btn.disabled=false; }
-  const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Sign in with Google'; gateBtn.disabled=false; }
+  const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Try Firebase Google popup'; btn.disabled=false; }
+  const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Try Firebase Google popup'; gateBtn.disabled=false; }
   const buttonLabels={
     gateEmailSignInBtn:'Sign in with email',
     authEmailSignInBtn:'Email sign-in',
@@ -1705,128 +1810,114 @@ function resetSignInButton(){
   };
   Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
 }
-async function signInWithGoogleSafe(){
-  return signInWithGoogleSafeMethod('auto');
-}
-
-async function signInWithGooglePopupFallback(){
-  return signInWithGoogleSafeMethod('popup');
-}
-
-async function signInWithGoogleSafeMethod(requestedMethod){
+async function startGoogleIdentitySignIn(){
   if(googleSignInPending) return;
   googleSignInPending = true;
   clearAuthError();
-  const btn = document.getElementById('signInBtn');
-  const gateBtn = document.getElementById('gateSignInBtn');
-  const platform = getAuthPlatformSignals();
   try{
     if(!trackerAuth){
-      try{ initFirebaseTracker(); }catch(_){}
+      try{ initFirebaseTracker(); }catch(_){ }
     }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
-    const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
-    const popupFallbackEnabled = getIOSPopupFallbackEnabled();
-    const forcePopup = requestedMethod === 'popup';
-    const useRedirectFirst = !!(platform.isIOS && !forcePopup && !popupFallbackEnabled);
-    const staleRedirectLimitOnPopupPath = !useRedirectFirst && getRedirectAttemptCount() > REDIRECT_ATTEMPT_LIMIT;
-    const selectedMethod = useRedirectFirst ? 'redirect' : 'popup';
-    authLog('Sign-in started', {
-      signInMethod: 'google',
-      requestedMethod,
+    if(!trackerAuth){
+      setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+      return;
+    }
+    const platform = getAuthPlatformSignals();
+    authLog('Google Identity sign-in requested', {
       isIOS: platform.isIOS,
       isAndroid: platform.isAndroid,
       isDesktop: platform.isDesktop,
-      isSafari: platform.isSafari,
       isStandalonePWA: platform.isStandalonePWA,
-      isInAppBrowser: platform.isInAppBrowser,
       isLikelyInAppLaunch: platform.isLikelyInAppLaunch,
       cameFromWhatsApp: platform.cameFromWhatsApp,
-      redirectStarted: (() => { try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; } })(),
       redirectAttemptCount: getRedirectAttemptCount(),
-      popupFallbackEnabled,
-      useRedirectFirst,
-      selectedSignInMethod: selectedMethod
+      selectedSignInMethod: 'google-identity'
     });
-
-    if(staleRedirectLimitOnPopupPath){
-      authLog('Clearing stale redirect retry limit on popup-first platform');
-      clearRedirectTrackingFlags();
-    }
-
-    if(platform.isLikelyInAppLaunch){
-      setMobileTroubleshootingPanel(true, 'In-app browser detected. If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
-    }
-
     if(platform.isIOS && platform.isStandalonePWA){
       setMobileTroubleshootingPanel(true, 'iOS Home Screen/PWA mode detected');
       rememberAuthError('For iPhone Home Screen mode, open TripGuide in Safari first to complete sign-in, then return to the Home Screen app.');
       return;
     }
-
-    if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
-    if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
     setLoginGate(true, 'Opening Google Sign-In…');
     setTrackerMessage('Opening Google Sign-In…');
     if(!platform.isLikelyInAppLaunch) setMobileTroubleshootingPanel(false);
-
-    await setAuthPersistenceSafely();
-
-    if(useRedirectFirst){
-      authLog('iOS platform detected; using redirect sign-in.');
-      setSelectedSignInMethod('redirect');
-      const attempts = incrementRedirectAttemptCount();
-      if(attempts > REDIRECT_ATTEMPT_LIMIT){
-        setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-        rememberAuthError('Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari. (redirect-attempt-limit)');
-        return;
-      }
-      try{ sessionStorage.setItem(REDIRECT_METHOD_KEY, 'redirect'); }catch(_){ }
-      setRedirectStartedFlag(true);
-      setIOSPopupFallbackEnabled(false);
-      setLoginGate(true, 'Redirecting to Google Sign-In…');
-      authLog('Starting redirect sign-in', {redirectAttemptCount: attempts});
-      await trackerAuth.signInWithRedirect(provider);
+    const initialized = await initGoogleIdentityServices();
+    if(!initialized){
+      setGoogleIdentityStatus('Google sign-in is unavailable. Use popup or email/password fallback.');
+      rememberAuthError('Google sign-in is unavailable. Use popup or email/password fallback.');
       return;
     }
-
-    try{
-      setSelectedSignInMethod('popup');
-      const result = await trackerAuth.signInWithPopup(provider);
-      if(result && result.user){
-        clearAuthError();
-        clearRedirectTrackingFlags();
-        setIOSPopupFallbackEnabled(false);
-        await upsertSignedInUserProfile(result.user);
-        setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
-      }
-    }catch(err){
-      const code = (err && err.code) ? err.code : '';
-      if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
-        authLog('Popup sign-in failed', err && (err.code || err.message || String(err)));
-        if(platform.isIOS){
-          setIOSPopupFallbackEnabled(true);
-          rememberAuthError('Google popup did not complete on iPhone. Try Google again, reset sign-in state, or use the direct Safari link.');
-          showSignInRecoveryActions(true, {showPopupFallback:true, reason:'ios-popup-failed'});
-          setMobileTroubleshootingPanel(true, 'If popup keeps failing, copy the link and open TripGuide directly in Safari before signing in.');
-          return;
-        }
-        setMobileTroubleshootingPanel(true, 'Popup sign-in was blocked or closed. Try again, or use Email sign-in if enabled in Firebase.');
-        rememberAuthError(code === 'auth/operation-not-supported-in-this-environment'
-          ? 'Popup sign-in is not supported in this browser. Use Email sign-in or open TripGuide in a full browser.'
-          : authErrorMessage(err));
-        return;
-      }
-      throw err;
+    setGoogleIdentityStatus('Tap the Google button to sign in.');
+    const rendered = renderGoogleIdentityButton();
+    authLog('Google Identity sign-in ready', {rendered, googleIdentityButtonReady});
+    if(!rendered){
+      rememberAuthError('Google sign-in could not be rendered. Use popup or email/password fallback.');
     }
   }catch(e){
+    authLog('Google Identity sign-in initialization failed', e && (e.code || e.message || String(e)));
     rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
   }finally{
     googleSignInPending = false;
     if(!currentUser) resetSignInButton();
   }
 }
-async function signInWithGoogle(){ return signInWithGoogleSafe(); }
+
+async function signInWithGooglePopupFallback(){
+  if(googleSignInPending) return;
+  googleSignInPending = true;
+  clearAuthError();
+  const btn = document.getElementById('signInBtn');
+  const gateBtn = document.getElementById('gateSignInBtn');
+  try{
+    if(!trackerAuth){
+      try{ initFirebaseTracker(); }catch(_){ }
+    }
+    if(!trackerAuth){
+      setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+      return;
+    }
+    const platform = getAuthPlatformSignals();
+    const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
+    authLog('Firebase Google popup requested', {
+      isIOS: platform.isIOS,
+      isAndroid: platform.isAndroid,
+      isDesktop: platform.isDesktop,
+      isStandalonePWA: platform.isStandalonePWA,
+      redirectAttemptCount: getRedirectAttemptCount(),
+      selectedSignInMethod: 'firebase-popup'
+    });
+    if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
+    if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
+    setLoginGate(true, 'Opening Google Sign-In…');
+    setTrackerMessage('Opening Google Sign-In…');
+    setMobileTroubleshootingPanel(false);
+    setSelectedSignInMethod('popup');
+    const result = await trackerAuth.signInWithPopup(provider);
+    if(result && result.user){
+      clearAuthError();
+      clearRedirectTrackingFlags();
+      setIOSPopupFallbackEnabled(false);
+      await upsertSignedInUserProfile(result.user);
+      setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
+    }
+  }catch(err){
+    const code = (err && err.code) ? err.code : '';
+    authLog('Firebase Google popup failed', err && (err.code || err.message || String(err)));
+    if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
+      setMobileTroubleshootingPanel(true, 'Popup sign-in was blocked or closed. Try again, or use Email sign-in if enabled in Firebase.');
+      rememberAuthError(code === 'auth/operation-not-supported-in-this-environment'
+        ? 'Popup sign-in is not supported in this browser. Use Email sign-in or open TripGuide in a full browser.'
+        : authErrorMessage(err));
+      return;
+    }
+    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+  }finally{
+    googleSignInPending = false;
+    if(!currentUser) resetSignInButton();
+  }
+}
+
+async function signInWithGoogle(){ return startGoogleIdentitySignIn(); }
 async function signInWithEmailPassword(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
@@ -1911,8 +2002,8 @@ async function registerWithEmailPassword(){
 }
 function tripGuideSignInClick(event){
   if(event){ event.preventDefault(); event.stopPropagation(); }
-  setTrackerMessage('Sign-in button clicked. Opening Google…');
-  signInWithGoogleSafe();
+  setTrackerMessage('Opening Firebase Google popup fallback…');
+  signInWithGooglePopupFallback();
 }
 window.tripGuideSignInClick = tripGuideSignInClick;
 // Capture-phase backup in case another element steals or blocks the button handler.
