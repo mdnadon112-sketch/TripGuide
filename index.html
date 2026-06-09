@@ -17,7 +17,11 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:rgba(22,102,216,.15)}
 html{scroll-behavior:smooth;background:var(--bg)}
 body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35}
-a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{max-width:1180px;margin:0 auto;padding:calc(14px + var(--safe-top)) 14px calc(88px + var(--safe-bottom))}
+body.hub-open{overflow:hidden}
+a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{max-width:1180px;margin:0 auto;padding:calc(14px + var(--safe-top)) 14px calc(88px + var(--safe-bottom));display:flex;flex-direction:column}
+#dayRail{order:1}
+#days{order:2}
+#overview{order:3}
 .hero{position:relative;overflow:hidden;border-radius:30px;padding:22px;background:radial-gradient(circle at 0 0,rgba(22,102,216,.22),transparent 34%),linear-gradient(135deg,#fff,#eaf3ff);border:1px solid rgba(15,23,42,.08);box-shadow:var(--shadow)}
 .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid #bfdbfe;background:#eff6ff;color:#174ea6;border-radius:999px;padding:7px 11px;font-weight:800;font-size:12px;letter-spacing:.02em}
 h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spacing:-.04em}.lead{font-size:16px;color:#475569;max-width:720px;margin:0 0 18px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;padding:11px 14px;border:1px solid transparent;font-weight:900;font-size:14px;box-shadow:0 3px 10px rgba(15,23,42,.05);cursor:pointer}
@@ -26,6 +30,9 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .map-shell{position:relative;overflow:hidden;border-radius:24px;border:1px solid var(--line);background:#dfe8f2;box-shadow:0 10px 30px rgba(15,23,42,.08)}.map{height:min(66vh,620px);min-height:390px;width:100%}.overview-map{height:min(68vh,660px);min-height:420px;margin-top:18px}.map-loading{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#e5edf6,#f8fafc);color:#334155;font-weight:900;text-align:center;padding:24px;z-index:1}.map-loaded .map-loading{display:none}.map-chip{position:absolute;left:12px;top:12px;z-index:2;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(15,23,42,.08);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;box-shadow:0 8px 24px rgba(15,23,42,.10)}
 .quick-nav{position:sticky;top:0;z-index:20;margin:14px -14px 18px;padding:10px 14px;background:rgba(244,247,251,.86);backdrop-filter:blur(16px);border-bottom:1px solid rgba(15,23,42,.07);overflow-x:auto;display:flex;gap:8px;scrollbar-width:none}.quick-nav::-webkit-scrollbar{display:none}.quick-nav a{flex:0 0 auto;background:white;border:1px solid var(--line);border-radius:999px;padding:9px 12px;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
 .quick-nav a.active{background:#0f172a;color:white;border-color:#0f172a;box-shadow:0 8px 20px rgba(15,23,42,.18)}
+.quick-nav a.done{background:#f1f5f9;color:#334155;border-color:#dbe4f0}
+.quick-nav a.future{background:#fff;color:#64748b;border-color:#e2e8f0;opacity:.86}
+.quick-nav a.pulse{outline:2px solid rgba(22,163,74,.35)}
 
 .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-title h2{font-size:26px;margin:0;letter-spacing:-.02em}.section-title p{margin:4px 0 0;color:var(--muted);font-weight:700}
 .day{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;margin:22px 0;box-shadow:var(--shadow);scroll-margin-top:88px}.day-head{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:6px 6px 14px;border-bottom:1px solid var(--line)}.day-kicker{display:flex;gap:clamp(.4rem,1.8vw,.55rem);flex-wrap:wrap;align-items:center;margin-bottom:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;font-size:clamp(.85rem,2.7vw,1.05rem);font-weight:800;line-height:1.1;padding:.35rem .65rem}.day h2{font-size:clamp(24px,5vw,36px);line-height:1.02;margin:0;letter-spacing:-.035em}.day-sub{color:var(--muted);font-weight:750;margin:7px 0 0}.go-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.day .go-main{font-size:22px;min-width:112px;min-height:58px;border-radius:18px}
@@ -55,7 +62,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
   .map{height:300px;min-height:260px;}
   .overview-map{height:350px;min-height:300px;}
   .map-shell.expanded .map{height:72vh;min-height:480px;}
-  .bottom-bar{display:flex;}
+  .bottom-bar{display:grid;}
 }
 @media(max-width:430px){
   .map{height:270px;min-height:240px;}
@@ -236,6 +243,19 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .top-hub .tracker-top h2{font-size:clamp(28px,5vw,44px);line-height:1;margin:0;letter-spacing:-.035em;}
 .top-hub .tracker-top p{font-size:14px;}
 .top-hub #showMikeLaurenBtn{min-height:44px;border-radius:999px;box-shadow:0 10px 22px rgba(22,163,74,.22);}
+.hub-drawer{position:fixed;left:0;right:0;bottom:0;z-index:120;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform .28s ease;box-shadow:0 -20px 60px rgba(2,6,23,.35)}
+.hub-drawer.open{transform:translateY(0)}
+.hub-drawer-backdrop{position:fixed;inset:0;z-index:119;background:rgba(2,6,23,.45);display:none}
+.hub-drawer-backdrop.show{display:block}
+.hub-close{min-height:34px;border-radius:999px;padding:6px 10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-weight:900;font-size:12px;cursor:pointer}
+.progress-mini{display:none!important}
+.day.active-day .map{height:240px;min-height:220px}
+.day:not(.active-day) .map{height:220px;min-height:200px}
+.section-btn-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.section-btn-row .btn{min-height:34px;border-radius:10px;padding:6px 8px;font-size:11px;box-shadow:none}
+.bottom-bar{grid-template-columns:1fr}
+.bottom-day{display:none}
+.bottom-hub-btn{display:inline-flex;justify-content:center;align-items:center;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#16a34a;color:#fff;text-decoration:none;font-size:13px;font-weight:900;min-height:42px;padding:0 10px}
 @media(max-width:700px){.top-hub .auth-row{width:100%;}.top-hub #showMikeLaurenBtn{width:100%;}}
 
 
@@ -422,11 +442,14 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     </details>
   </div>
 </div>
+<div class="hub-drawer-backdrop" id="hubDrawerBackdrop" onclick="closeHubDrawer()"></div>
 <div class="wrap">
-  <section class="tracker-panel top-hub" id="liveTracker" aria-label="Live trip tracker">
+  <nav class="quick-nav" id="dayRail"></nav>
+  <section class="tracker-panel top-hub hub-drawer" id="liveTracker" aria-label="Live trip tracker">
       <div class="tracker-top">
-        <div><h2>Trip Mission</h2><p>Compact live status first. Open details only when needed.</p></div>
+        <div><h2>Trip Hub</h2><p>Open only when you need tracker, messages, notifications, or admin tools.</p></div>
         <div class="auth-row">
+          <button class="hub-close" type="button" id="hubCloseBtn" onclick="closeHubDrawer()">Close</button>
           <span class="admin-badge" id="adminBadge">0 waiting</span>
           <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in to continue</span></span>
           <button class="btn btn-go hidden" type="button" id="showMikeLaurenBtn" onclick="showMikeAndLauren()">Show me Mike and Lauren</button>
@@ -483,7 +506,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             <div class="gps-compact-row" id="gpsCompactPrimary"><b>GPS Strength:</b> --</div>
           </div>
           <div class="ayt-card" id="areWeThereCard">
-            <div class="ayt-head"><b>Are We There Yet?</b><span id="aytPct">--% done</span></div>
+            <div class="ayt-head"><b>Progress details</b><span id="aytPct">--% done</span></div>
             <div class="ayt-bar"><div class="ayt-fill" id="aytFill"></div></div>
             <div class="ayt-status" id="aytMiles">-- / -- mi today</div>
             <div class="ayt-status" id="aytStatus">Status: Data says ask again later.</div>
@@ -501,7 +524,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             </div>
           </div>
           <details class="trip-superlatives" id="tripSuperlativesPanel">
-            <summary>Trip Superlatives</summary>
+            <summary>Fun Information</summary>
             <div class="trip-superlatives-body">
               <div class="right-counter-row">
                 <button class="btn btn-go btn-small" type="button" id="mikeRightBtn">Mike was right</button>
@@ -528,12 +551,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             <summary>More</summary>
             <div class="more-menu-body">
               <div class="more-menu-links">
-                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('progress')">Progress Details</button>
-                <a class="btn btn-ghost btn-small" href="#overview">Map</a>
-                <a class="btn btn-ghost btn-small" href="#days">Journal</a>
+                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('live')">Tracker Details</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('progress')">Settings</button>
                 <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('messages')">Messages</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('live')">Live</button>
-                <button class="btn btn-dark btn-small" type="button" onclick="setHubTab('admin')" id="moreAdminBtn">Admin</button>
+                <a class="btn btn-ghost btn-small" href="#overview">Open full trip map</a>
+                <button class="btn btn-dark btn-small" type="button" onclick="setHubTab('admin')" id="moreAdminBtn">Admin Tools</button>
               </div>
             </div>
           </details>
@@ -683,7 +705,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <span class="badge">FINAL TRIP • SECURE LIVE TRIP HUB • PUSH KEY READY v5.27</span>
     <h1>Beaufort, SC → Seal Beach, CA</h1>
     <p class="lead">Interactive Google maps for the full trip and every day. Daily GO buttons preserve the working Google full-route links. Food cards load clickable Google/Waze links and Google Places photos when available.</p>
-    <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#quick">Daily Launch Buttons</a></div>
+    <div class="hero-actions"><a class="btn btn-go" href="#day-1">Start Day 1</a><a class="btn btn-dark" href="#dayRail">Day Rail</a></div>
     <div class="stats"><div class="stat"><b>9</b><span>Drive/activity days</span></div><div class="stat"><b>10</b><span>Interactive maps</span></div><div class="stat"><b>27</b><span>Dinner cards</span></div><div class="stat"><b>Mobile</b><span>iPhone + Android first</span></div></div>
     <details class="overview-disclosure" id="overviewDisclosure" open>
       <summary>Open full trip map</summary>
@@ -691,17 +713,12 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       <div class="legend map-legend" id="overviewLegend"><span><span class="legend-icon">🚗</span><i style="background:#0f172a"></i>Start</span><span><span class="legend-icon">⛽</span><i style="background:#64748b"></i>Fuel / utility</span><span><span class="legend-icon">🌄</span><i style="background:#16a34a"></i>Scenic / activity</span><span><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i>Pet stop</span><span><span class="legend-icon">🏌️</span><i style="background:#15803d"></i>Golf</span><span><span class="legend-icon">💆</span><i style="background:#db2777"></i>Spa</span><span><span class="legend-icon">🏨</span><i style="background:#1666d8"></i>Hotel / overnight</span><span><span class="legend-icon">🍽️</span><i style="background:#f97316"></i>Food</span><span><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i>Final finish / home</span></div>
     </details>
   </section>
-  <nav class="quick-nav" id="quick"></nav>
   <main id="days"></main>
   <div class="footer">Built as a single self-contained HTML file. Internet is required for Google Maps, Google Places photos, and map tiles.</div>
 </div>
 <div class="bottom-bar" id="bottomBar">
   <span class="bottom-day" id="bottomDay">Day 1</span>
-  <a class="bottom-nav-btn active" id="bottomNavToday" href="#liveTracker">Today</a>
-  <a class="bottom-nav-btn" id="bottomNavMap" href="#overview">Map</a>
-  <a class="bottom-nav-btn" id="bottomNavJournal" href="#days">Journal</a>
-  <a class="bottom-nav-btn" id="bottomNavFood" href="#day-1">Food</a>
-  <button class="bottom-nav-btn" id="bottomNavMore" type="button" onclick="toggleMoreMenuFromBottom()">More</button>
+  <button class="bottom-hub-btn" id="bottomHubBtn" type="button" onclick="toggleHubDrawer()">Hub</button>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -871,16 +888,13 @@ function makeMarkerIcon(label, color){
 function mapsLink(query){return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);}
 function wazeLink(query){return 'https://www.waze.com/ul?q=' + encodeURIComponent(query) + '&navigate=yes';}
 function renderStatic(){
-  const quick = document.getElementById('quick');
-  quick.innerHTML = '<a href="#overview">Overview</a>' + TRIP.days.map(d=>`<a href="#day-${d.day}">Day ${d.day}</a>`).join('');
+  const quick = document.getElementById('dayRail');
+  if(quick) quick.innerHTML = TRIP.days.map(d=>`<a href="#day-${d.day}" data-rail-day="${d.day}">D${d.day}</a>`).join('');
   const root = document.getElementById('days');
   root.innerHTML = TRIP.days.map(renderDay).join('');
   document.querySelectorAll('[data-food-card]').forEach(card=>hydrateFoodCard(card));
   observeDayForBottomBar();
   initializeDayCards();
-  document.getElementById('bottomNavFood')?.setAttribute('href', '#day-1');
-  document.getElementById('bottomNavFood')?.addEventListener('click', e => { e.preventDefault(); openActiveDayDisclosure('foodDisclosure'); });
-  document.getElementById('bottomNavJournal')?.addEventListener('click', e => { e.preventDefault(); openActiveDayDisclosure('journalDisclosure'); });
   window.addEventListener('scroll', updateBottomNavActive, {passive:true});
   window.addEventListener('resize', updateBottomNavActive, {passive:true});
 }
@@ -892,6 +906,14 @@ function openActiveDayDisclosure(prefix){
   if(panel) panel.open = true;
   document.getElementById(`day-${day}`)?.scrollIntoView({behavior:'smooth', block:'start'});
 }
+function openDaySection(day, prefix){
+  const card = document.getElementById(`day-${day}`);
+  if(card && card.classList.contains('collapsed')) toggleDayCard(day);
+  const panel = document.getElementById(`${prefix}-${day}`);
+  if(panel) panel.open = true;
+  document.getElementById(`day-${day}`)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.openDaySection = openDaySection;
 function renderDay(d){
   const routeStops = (d.stops || []);
   const nextStop = routeStops.find(s => s && s.kind !== 'start') || routeStops[0] || null;
@@ -904,6 +926,7 @@ function renderDay(d){
         <div class="day-kicker"><span class="pill">Day ${d.day}</span><span class="pill">${esc(d.date)}</span><span class="pill">${esc(d.drive)}</span></div>
         <h2>${esc(d.title)}</h2><p class="day-sub">${esc(d.subtitle)}</p>
         <div class="active-compact-row"><span class="active-compact-chip" id="dayCompactProgress-${d.day}">Progress --</span><span class="active-compact-chip" id="dayCompactGps-${d.day}">GPS --</span><span class="active-compact-chip" id="dayCompactNext-${d.day}">Next: ${esc(nextStopName)}</span></div>
+        <div class="section-btn-row"><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'stopsDisclosure')">Stops</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'foodDisclosure')">Food</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'journalDisclosure')">Journal</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'metricsDisclosure')">Fun Information</button></div>
         <div class="day-status-strip"><span class="day-status-chip" id="dayStatus-${d.day}">Status: --</span><button class="day-collapse-btn" type="button" onclick="toggleDayCard(${d.day})" id="dayToggleBtn-${d.day}">Collapse</button></div>
       </div>
       <div class="go-stack"><a class="btn btn-go go-main" href="${esc(nextStopGoogle)}" target="_blank" rel="noopener">GO TO NEXT STOP</a><a class="btn btn-google" href="${esc(d.google_full)}" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-ghost" href="${esc(d.google_full)}" target="_blank" rel="noopener">Full Route</a></div>
@@ -926,7 +949,7 @@ function renderDay(d){
     </details>
 
     <details class="day-disclosure" id="journalDisclosure-${d.day}">
-      <summary>Day ${d.day} Recap <span id="journalSummary-${d.day}">No recap yet. • Open recap</span></summary>
+      <summary>Journal <span id="journalSummary-${d.day}">No recap yet. Add comment • Tag stop • Open recap</span></summary>
       <div class="day-disclosure-body"><section class="recap-section" id="recapDay-${d.day}" style="margin-top:0;">
       <div class="recap-head"><h3>Day ${d.day} Recap</h3><span class="pill">Road trip receipts</span></div>
       <div class="recap-grid">
@@ -971,7 +994,7 @@ function renderDay(d){
     </details>
 
     <details class="day-disclosure" id="metricsDisclosure-${d.day}">
-      <summary>Metrics <span id="metricsSummary-${d.day}">Fastest we allegedly moved: --</span></summary>
+      <summary>Fun Information <span id="metricsSummary-${d.day}">Top speed: -- • Open Fun Information</span></summary>
       <div class="day-disclosure-body"><div class="recap-grid"><div class="recap-item"><b>Fastest we allegedly moved</b><span id="metricInlineSpeed-${d.day}">--</span></div><div class="recap-item"><b>Road Pain</b><span id="metricInlinePain-${d.day}">--</span></div><div class="recap-item"><b>Arrival</b><span id="metricInlineArrival-${d.day}">--</span></div><div class="recap-item"><b>Longest stop</b><span id="metricInlineStop-${d.day}">--</span></div></div></div>
     </details>
 
@@ -1234,8 +1257,7 @@ function observeDayForBottomBar(){
     window.__activeDay = d.day;
     const activeDaySelect = document.getElementById('driverActiveDay'); if(activeDaySelect && !activeDaySelect.matches(':focus')) activeDaySelect.value = String(d.day);
     bottomDay.textContent = 'Day ' + d.day;
-    document.getElementById('bottomNavFood')?.setAttribute('href', '#day-' + d.day);
-    document.querySelectorAll('#quick a').forEach(a=>{
+    document.querySelectorAll('#dayRail a').forEach(a=>{
       const match = a.getAttribute('href') === '#day-' + d.day;
       a.classList.toggle('active', match);
       if(match){ a.setAttribute('aria-current','true'); } else { a.removeAttribute('aria-current'); }
@@ -1293,11 +1315,15 @@ function observeDayForBottomBar(){
     requestAnimationFrame(()=>{ computeActiveDay(); ticking = false; });
   }
 
-  document.querySelectorAll('#quick a[href^="#day-"]').forEach(a=>{
+  document.querySelectorAll('#dayRail a[href^="#day-"]').forEach(a=>{
     const clickHandler = () => {
       const dayNum = Number(a.getAttribute('href').replace('#day-',''));
       forceUntil = Date.now() + 1200;
+      dayCollapsePrefs[String(dayNum)] = false;
+      saveDayCollapsePrefs();
       setDayByNumber(dayNum);
+      a.classList.add('pulse');
+      setTimeout(()=>a.classList.remove('pulse'), 650);
       setTimeout(computeActiveDay, 80);
       setTimeout(computeActiveDay, 450);
       setTimeout(computeActiveDay, 1000);
@@ -2899,6 +2925,8 @@ function showProtectedHub(show){
   document.getElementById('authPanel')?.classList.toggle('hidden', !!show);
   if(show){
     document.querySelectorAll('[data-hub-section]').forEach(section => section.classList.add('hidden'));
+  } else {
+    closeHubDrawer();
   }
 }
 function renderOwnRequest(req){
@@ -3389,10 +3417,13 @@ function updateDayCardStates(){
     const stops = nextStopsForDay(day);
     if(nextChip) nextChip.textContent = `Next: ${stops.next}`;
     const active = state === 'active';
+    const tripPct = lastValidProgress && Number.isFinite(Number(lastValidProgress.tripCompletedMeters)) && Number.isFinite(Number(lastValidProgress.totalTripMeters)) && Number(lastValidProgress.totalTripMeters) > 0
+      ? Math.round((Number(lastValidProgress.tripCompletedMeters) / Number(lastValidProgress.totalTripMeters)) * 100)
+      : null;
     const activePct = lastValidProgress && Number(lastValidProgress.activeDay) === day && Number.isFinite(Number(lastValidProgress.dayCompletedMeters)) && Number.isFinite(Number(lastValidProgress.dayTotalMeters)) && Number(lastValidProgress.dayTotalMeters) > 0
       ? Math.round((Number(lastValidProgress.dayCompletedMeters) / Number(lastValidProgress.dayTotalMeters)) * 100)
       : null;
-    if(progressChip) progressChip.textContent = activePct === null ? 'Progress --' : `${activePct}% done`;
+    if(progressChip) progressChip.textContent = `Trip ${tripPct === null ? '--' : tripPct + '%'} • Today ${activePct === null ? '--' : activePct + '%'}`;
     const gpsStrength = latestLiveLocation && Number(latestLiveLocation.computedDay || latestLiveLocation.activeDay || day) === day && Number.isFinite(Number(latestLiveLocation.accuracy))
       ? Math.round(gpsStrengthPercent(latestLiveLocation.accuracy) || 0)
       : null;
@@ -3403,6 +3434,13 @@ function updateDayCardStates(){
       if(active) panel.open = !!panel.open;
       else panel.open = false;
     });
+    const railLink = document.querySelector(`#dayRail a[data-rail-day="${day}"]`);
+    if(railLink){
+      railLink.classList.remove('done','future');
+      if(state === 'completed') railLink.classList.add('done');
+      if(state === 'future') railLink.classList.add('future');
+      railLink.classList.toggle('active', state === 'active');
+    }
   });
   syncOverviewDisclosure();
   updateBottomNavActive();
@@ -3474,18 +3512,28 @@ function toggleMoreMenuFromBottom(){
   if(details && details.open) details.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 window.toggleMoreMenuFromBottom = toggleMoreMenuFromBottom;
+function openHubDrawer(){
+  document.getElementById('liveTracker')?.classList.add('open');
+  document.getElementById('hubDrawerBackdrop')?.classList.add('show');
+  document.body.classList.add('hub-open');
+}
+function closeHubDrawer(){
+  document.getElementById('liveTracker')?.classList.remove('open');
+  document.getElementById('hubDrawerBackdrop')?.classList.remove('show');
+  document.body.classList.remove('hub-open');
+}
+function toggleHubDrawer(){
+  const drawer = document.getElementById('liveTracker');
+  if(drawer && drawer.classList.contains('open')) closeHubDrawer();
+  else openHubDrawer();
+}
+window.openHubDrawer = openHubDrawer;
+window.closeHubDrawer = closeHubDrawer;
+window.toggleHubDrawer = toggleHubDrawer;
+window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeHubDrawer(); });
 function updateBottomNavActive(){
-  const activeDay = currentActiveDayNumber();
-  const ids = ['bottomNavToday','bottomNavMap','bottomNavJournal','bottomNavFood'];
-  ids.forEach(id => document.getElementById(id)?.classList.remove('active'));
-  const y = window.scrollY + 120;
-  const daySec = document.getElementById(`day-${activeDay}`);
-  const journalTop = document.getElementById('days')?.offsetTop || 0;
-  const mapTop = document.getElementById('overview')?.offsetTop || 0;
-  if(y >= journalTop && daySec && y <= daySec.offsetTop + Math.max(300, daySec.offsetHeight)) document.getElementById('bottomNavFood')?.classList.add('active');
-  else if(y >= journalTop) document.getElementById('bottomNavJournal')?.classList.add('active');
-  else if(y >= mapTop) document.getElementById('bottomNavMap')?.classList.add('active');
-  else document.getElementById('bottomNavToday')?.classList.add('active');
+  const hub = document.getElementById('bottomHubBtn');
+  if(hub) hub.classList.toggle('active', !!document.getElementById('liveTracker')?.classList.contains('open'));
 }
 function authErrorMessage(e){
   const code = (e && e.code) ? e.code : '';
@@ -3717,12 +3765,12 @@ function canEditOwnRoadEntry(uid){
 }
 function areWeThereStatus(pct){
   if(!Number.isFinite(pct)) return 'Data says ask again later.';
-  if(pct <= 10) return 'We literally just started.';
-  if(pct <= 35) return 'Unfortunately, no.';
-  if(pct <= 65) return 'We are in the thick of it.';
-  if(pct <= 85) return 'Actually getting there.';
-  if(pct < 100) return 'Almost. Do not jinx it.';
-  return 'Yes. Finally.';
+  if(pct <= 10) return 'Trip just started.';
+  if(pct <= 35) return 'Not there yet.';
+  if(pct <= 65) return 'Mid-route.';
+  if(pct <= 85) return 'Getting closer.';
+  if(pct < 100) return 'Almost there.';
+  return 'Arrived.';
 }
 function renderAreWeThere(progress){
   const pctEl = document.getElementById('aytPct');
@@ -3960,7 +4008,7 @@ function renderDailyRecaps(){
     const commentsCount = comments.length;
     const journalSummary = document.getElementById(`journalSummary-${day}`);
     if(journalSummary){
-      const msg = commentsCount ? `${commentsCount} comment${commentsCount===1?'':'s'} • ${manualDiag || roadPainDiagnosis(score)}` : 'No recap yet. • Open recap';
+      const msg = commentsCount ? `${commentsCount} comment${commentsCount===1?'':'s'} • ${manualDiag || roadPainDiagnosis(score)}` : 'No recap yet. Add comment • Tag stop • Open recap';
       journalSummary.textContent = msg;
     }
     setMetricText(`metricInlineSpeed-${day}`, Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--');
@@ -3968,7 +4016,7 @@ function renderDailyRecaps(){
     setMetricText(`metricInlineArrival-${day}`, Number.isFinite(Number(metrics.latestArrivalTs)) ? formatClock(Number(metrics.latestArrivalTs)) : '--');
     setMetricText(`metricInlineStop-${day}`, Number.isFinite(Number(metrics.longestStopMs)) ? formatDurationMs(Number(metrics.longestStopMs)) : '--');
     const metricsSummary = document.getElementById(`metricsSummary-${day}`);
-    if(metricsSummary) metricsSummary.textContent = `Fastest we allegedly moved: ${Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--'}`;
+    if(metricsSummary) metricsSummary.textContent = `Top speed: ${Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--'} • Open Fun Information`;
     const stops = nextStopsForDay(day);
     const stopsSummary = document.getElementById(`stopsSummary-${day}`);
     if(stopsSummary) stopsSummary.textContent = `Next: ${stops.next} • Open stops`;
