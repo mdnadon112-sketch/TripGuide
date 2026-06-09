@@ -163,6 +163,8 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 .google-identity-button{min-height:48px}
 .google-identity-button iframe{max-width:100%}
 .google-identity-note{color:#64748b;font-size:11px;font-weight:750;line-height:1.35}
+.auth-debug-mini{margin-top:6px;padding:8px 9px;border:1px solid #dbe4f0;border-radius:10px;background:#f8fafc;color:#334155;font-size:11px;line-height:1.35;font-weight:800}
+.auth-debug-mini b{display:inline-block;min-width:138px;color:#0f172a}
 .mobile-help-inline{margin-top:10px;color:#334155;font-size:12px;font-weight:750;line-height:1.35}
 .mobile-help-details{margin-top:8px;border:1px solid #dbe4f0;border-radius:12px;background:#f8fafc}
 .mobile-help-details summary{cursor:pointer;list-style:none;padding:8px 10px;font-size:12px;font-weight:900;color:#334155}
@@ -181,6 +183,8 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .login-note{margin-top:7px;font-size:11px}
   .google-identity-shell{margin-top:8px;gap:6px}
   .google-identity-note{font-size:10px}
+  .auth-debug-mini{font-size:10px;padding:7px 8px}
+  .auth-debug-mini b{min-width:120px}
   .mobile-help-inline{font-size:11px;margin-top:7px}
   .mobile-help-details summary{font-size:11px;padding:7px 9px}
   .mobile-help-details .mobile-help-body{font-size:11px;padding:0 9px 9px}
@@ -254,6 +258,14 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       <div class="google-identity-label">Google sign-in</div>
       <div id="googleIdentityButton" class="google-identity-button"></div>
       <div class="google-identity-note" id="googleIdentityStatus">Loading Google sign-in…</div>
+      <div class="auth-debug-mini" id="authDebugMini" aria-live="polite">
+        <div><b>GIS loaded:</b> no</div>
+        <div><b>GIS button rendered:</b> no</div>
+        <div><b>Credential received:</b> no</div>
+        <div><b>Firebase sign-in:</b> idle</div>
+        <div><b>Final email:</b> —</div>
+        <div><b>Final access state:</b> unknown</div>
+      </div>
     </div>
     <div class="login-actions login-recovery-actions hidden" id="signInRecoveryActions" aria-live="polite">
       <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in state</button>
@@ -1100,6 +1112,14 @@ let googleSignInPending = false;
 let googleIdentityInitPromise = null;
 let googleIdentityButtonReady = false;
 let googleIdentityScriptChecked = false;
+let authDebugStatus = {
+  gisLoaded: 'no',
+  gisButtonRendered: 'no',
+  credentialReceived: 'no',
+  firebaseSignIn: 'idle',
+  finalEmail: '—',
+  finalAccessState: 'unknown'
+};
 let lastAuthSignInMethod = 'none';
 let selectedPersistenceMode = 'default';
 let authBootState = 'initializing';
@@ -1146,6 +1166,23 @@ function authLog(message, detail){
 function setAuthBootState(nextState, detail){
   authBootState = nextState;
   authLog('Boot state -> ' + nextState, detail || '');
+}
+
+function renderAuthDebugMini(){
+  const el = document.getElementById('authDebugMini');
+  if(!el) return;
+  el.innerHTML =
+    '<div><b>GIS loaded:</b> ' + esc(authDebugStatus.gisLoaded) + '</div>' +
+    '<div><b>GIS button rendered:</b> ' + esc(authDebugStatus.gisButtonRendered) + '</div>' +
+    '<div><b>Credential received:</b> ' + esc(authDebugStatus.credentialReceived) + '</div>' +
+    '<div><b>Firebase sign-in:</b> ' + esc(authDebugStatus.firebaseSignIn) + '</div>' +
+    '<div><b>Final email:</b> ' + esc(authDebugStatus.finalEmail) + '</div>' +
+    '<div><b>Final access state:</b> ' + esc(authDebugStatus.finalAccessState) + '</div>';
+}
+
+function setAuthDebugStatus(patch){
+  authDebugStatus = Object.assign({}, authDebugStatus, patch || {});
+  renderAuthDebugMini();
 }
 
 function getAuthPlatformSignals(){
@@ -1441,13 +1478,16 @@ function waitForGoogleIdentityServices(timeoutMs){
 function handleGoogleIdentityCredentialResponse(response){
   const hasCredential = !!(response && response.credential);
   authLog('Google Identity callback received', {hasCredential});
+  setAuthDebugStatus({credentialReceived: hasCredential ? 'yes' : 'no'});
   if(!hasCredential){
     setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    setAuthDebugStatus({firebaseSignIn: 'error:no-credential'});
     rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
     return;
   }
   signInWithFirebaseGoogleIdToken(response.credential).catch(err => {
     authLog('Firebase signInWithCredential failed', err && (err.code || err.message || String(err)));
+    setAuthDebugStatus({firebaseSignIn: 'error:' + String((err && err.code) || 'unknown')});
     rememberAuthError(firebaseIdentityErrorMessage(err));
   });
 }
@@ -1460,12 +1500,14 @@ function renderGoogleIdentityButton(){
   const clientId = getGoogleIdentityClientId();
   if(!clientId){
     googleIdentityButtonReady = false;
+    setAuthDebugStatus({gisButtonRendered:'no'});
     if(statusEl) statusEl.textContent = 'Add a Google OAuth web client ID to enable the Google button.';
     authLog('Google Identity Services missing client ID');
     return false;
   }
   if(!(window.google && google.accounts && google.accounts.id)){
     googleIdentityButtonReady = false;
+    setAuthDebugStatus({gisButtonRendered:'no'});
     if(statusEl) statusEl.textContent = 'Google sign-in is loading…';
     authLog('Google Identity Services script missing');
     return false;
@@ -1488,11 +1530,13 @@ function renderGoogleIdentityButton(){
       width
     });
     googleIdentityButtonReady = true;
+    setAuthDebugStatus({gisButtonRendered:'yes'});
     if(statusEl) statusEl.textContent = 'Tap the Google button to sign in with your Google account.';
     authLog('Google Identity Services button rendered', {width});
     return true;
   }catch(err){
     googleIdentityButtonReady = false;
+    setAuthDebugStatus({gisButtonRendered:'no'});
     if(statusEl) statusEl.textContent = 'Google sign-in could not be rendered. Use popup or email/password fallback.';
     authLog('Google Identity Services render failed', err && (err.code || err.message || String(err)));
     return false;
@@ -1505,6 +1549,7 @@ async function initGoogleIdentityServices(){
     const clientId = getGoogleIdentityClientId();
     if(!clientId){
       setGoogleIdentityStatus('Set the Google OAuth web client ID to enable Google sign-in.');
+      setAuthDebugStatus({gisLoaded:'no'});
       authLog('Google Identity Services unavailable: missing client ID');
       return false;
     }
@@ -1512,10 +1557,12 @@ async function initGoogleIdentityServices(){
     if(!ready){
       googleIdentityScriptChecked = true;
       setGoogleIdentityStatus('Google sign-in is unavailable. Use popup or email/password fallback.');
+      setAuthDebugStatus({gisLoaded:'no'});
       authLog('Google Identity Services missing or timed out');
       return false;
     }
     googleIdentityScriptChecked = true;
+    setAuthDebugStatus({gisLoaded:'yes'});
     authLog('Google Identity Services loaded');
     return renderGoogleIdentityButton();
   })();
@@ -1534,11 +1581,13 @@ async function signInWithFirebaseGoogleIdToken(idToken){
   if(!token){
     authLog('Google Identity credential missing');
     setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    setAuthDebugStatus({credentialReceived:'no', firebaseSignIn:'error:no-credential'});
     rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
     return null;
   }
   const provider = firebase.auth.GoogleAuthProvider.credential(token);
   authLog('Signing into Firebase with Google ID token', {hasCredential: true});
+  setAuthDebugStatus({credentialReceived:'yes', firebaseSignIn:'pending'});
   try{
     const result = await trackerAuth.signInWithCredential(provider);
     const user = result && result.user ? result.user : trackerAuth.currentUser;
@@ -1550,11 +1599,13 @@ async function signInWithFirebaseGoogleIdToken(idToken){
       setIOSPopupFallbackEnabled(false);
       await upsertSignedInUserProfile(user);
       setGoogleIdentityStatus('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
+      setAuthDebugStatus({firebaseSignIn:'success', finalEmail: authEmail(user) || user.email || '—'});
       setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
     }
     return user || null;
   }catch(err){
     authLog('Firebase signInWithCredential failure', err && (err.code || err.message || String(err)));
+    setAuthDebugStatus({firebaseSignIn:'error:' + String((err && err.code) || 'unknown')});
     throw err;
   }
 }
@@ -1699,6 +1750,7 @@ function startAuthObserver(){
 async function initFirebaseTracker(){
   if(trackerInitialized) return;
   trackerInitialized = true;
+  setAuthDebugStatus({gisLoaded:'no', gisButtonRendered:'no', credentialReceived:'no', firebaseSignIn:'idle', finalEmail:'—', finalAccessState:'initializing'});
   setAuthBootState('initializing');
   try{
     if(!window.firebase){
@@ -1886,6 +1938,7 @@ async function signInWithGooglePopupFallback(){
       redirectAttemptCount: getRedirectAttemptCount(),
       selectedSignInMethod: 'firebase-popup'
     });
+    setAuthDebugStatus({firebaseSignIn:'pending'});
     if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
     if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
     setLoginGate(true, 'Opening Google Sign-In…');
@@ -1898,18 +1951,21 @@ async function signInWithGooglePopupFallback(){
       clearRedirectTrackingFlags();
       setIOSPopupFallbackEnabled(false);
       await upsertSignedInUserProfile(result.user);
+      setAuthDebugStatus({firebaseSignIn:'success', finalEmail: authEmail(result.user) || result.user.email || '—'});
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
     }
   }catch(err){
     const code = (err && err.code) ? err.code : '';
     authLog('Firebase Google popup failed', err && (err.code || err.message || String(err)));
     if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
+      setAuthDebugStatus({firebaseSignIn:'error:' + String(code || 'popup')});
       setMobileTroubleshootingPanel(true, 'Popup sign-in was blocked or closed. Try again, or use Email sign-in if enabled in Firebase.');
       rememberAuthError(code === 'auth/operation-not-supported-in-this-environment'
         ? 'Popup sign-in is not supported in this browser. Use Email sign-in or open TripGuide in a full browser.'
         : authErrorMessage(err));
       return;
     }
+    setAuthDebugStatus({firebaseSignIn:'error:' + String(code || 'unknown')});
     rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
   }finally{
     googleSignInPending = false;
@@ -2024,6 +2080,7 @@ function handleAuthState(user){
   latestOwnRequest = null;
   updateAuthUI(); resetSignInButton();
   if(!user){
+    setAuthDebugStatus({finalEmail:'—', finalAccessState:'signedOut'});
     authLog('final access state', {state:'signedOut'});
     setAuthBootState('signedOut');
     const err = recentAuthError();
@@ -2038,6 +2095,7 @@ function handleAuthState(user){
     }
     showAccessPanel(false); showProtectedHub(false); return;
   }
+  setAuthDebugStatus({finalEmail: authEmail(user) || user.email || '—', finalAccessState:'signedIn'});
   clearAuthError();
   setMobileTroubleshootingPanel(false);
   setAuthBootState('signedIn');
@@ -2065,6 +2123,7 @@ function handleAuthState(user){
 }
 function enterAdminSession(reason){
   if(!currentUser) return;
+  setAuthDebugStatus({finalEmail: authEmail(currentUser) || currentUser.email || '—', finalAccessState:'admin'});
   authLog('final access state', {state:'admin', uid:currentUser.uid, canonicalEmail:authEmail(currentUser), reason});
   setAuthBootState('authorized', 'admin');
   isAdmin = true; isApproved = true; viewerAccessInitialized = false;
@@ -2102,6 +2161,7 @@ function enterViewerAccessFlow(){
     }
 
     if(currentUserBlocked){
+      setAuthDebugStatus({finalEmail: authEmail(user) || user.email || '—', finalAccessState:'blocked'});
       authLog('final access state', {state:'blocked', uid:user.uid, canonicalEmail:authEmail(user)});
       setAuthBootState('blocked');
       isApproved = false;
@@ -2110,6 +2170,7 @@ function enterViewerAccessFlow(){
     }
 
     if(isApproved){
+      setAuthDebugStatus({finalEmail: authEmail(user) || user.email || '—', finalAccessState:'approved'});
       authLog('final access state', {state:'approved', uid:user.uid, canonicalEmail:authEmail(user)});
       setAuthBootState('authorized', 'approved viewer');
       setTrackerStatus('Approved viewer','live');
@@ -2118,6 +2179,7 @@ function enterViewerAccessFlow(){
       return;
     }
 
+    setAuthDebugStatus({finalEmail: authEmail(user) || user.email || '—', finalAccessState:'unauthorized'});
     authLog('final access state', {state:'unauthorized', uid:user.uid, canonicalEmail:authEmail(user), requestStatus:latestOwnRequest && latestOwnRequest.status});
     setAuthBootState('unauthorized');
     applyViewerNoAccessState();
