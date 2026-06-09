@@ -226,6 +226,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <div class="login-actions hidden" id="signInRecoveryActions" aria-live="polite">
       <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in and try again</button>
       <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google sign-in again</button>
+      <button class="btn btn-google hidden" type="button" id="retryGooglePopupBtn">Try Google popup instead</button>
       <button class="btn btn-dark" type="button" id="openDirectTripGuideBtn">Open direct TripGuide link</button>
     </div>
   </div>
@@ -526,10 +527,12 @@ const REDIRECT_ATTEMPTS_KEY = 'tripGuideRedirectAttemptCount';
 const REDIRECT_METHOD_KEY = 'tripGuideRedirectMethod';
 const PENDING_REDIRECT_KEY = 'tripGuidePendingRedirect';
 const REDIRECT_RETURN_HINT_KEY = 'tripGuideRedirectReturnHint';
+const IOS_POPUP_FALLBACK_KEY = 'tripGuideIOSPopupFallback';
 const SIGNIN_RETRY_LOCK_KEY = 'tripGuideSignInRetryLock';
 const SIGNIN_LAST_METHOD_KEY = 'tripGuideLastSignInMethod';
+const LAST_AUTH_ERROR_KEY = 'tripGuideLastAuthError';
 const REDIRECT_ATTEMPT_LIMIT = 2;
-const REDIRECT_GRACE_MS = 4000;
+const REDIRECT_GRACE_MS = 5000;
 const REDIRECT_MAX_AGE_MS = 2 * 60 * 1000;
 const DIRECT_TRIPGUIDE_AUTHRESET_URL = 'https://mdnadon112-sketch.github.io/TripGuide/?authReset=1';
 window.__activeDay = 1;
@@ -1076,10 +1079,14 @@ let lastAuthErrorText = '', lastAuthErrorAt = 0;
 function rememberAuthError(text){
   lastAuthErrorText = text || '';
   lastAuthErrorAt = Date.now();
+  try{ sessionStorage.setItem(LAST_AUTH_ERROR_KEY, lastAuthErrorText); }catch(_){ }
   setAuthBootState('error', lastAuthErrorText);
   const p = getAuthPlatformSignals();
   const isMobileRisk = p.isIOS || p.isInAppBrowser || p.isStandalonePWA || p.isPrivateishStorage;
-  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|Sign-in got stuck/i.test(lastAuthErrorText));
+  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|Sign-in got stuck/i.test(lastAuthErrorText), {
+    showPopupFallback: p.isIOS || getIOSPopupFallbackEnabled(),
+    reason: lastAuthErrorText
+  });
   setMobileTroubleshootingPanel(isMobileRisk, lastAuthErrorText);
   setTrackerMessage(lastAuthErrorText);
 }
@@ -1089,7 +1096,8 @@ function recentAuthError(){
 function clearAuthError(){
   lastAuthErrorText = '';
   lastAuthErrorAt = 0;
-  showSignInRecoveryActions(false);
+  try{ sessionStorage.removeItem(LAST_AUTH_ERROR_KEY); }catch(_){ }
+  showSignInRecoveryActions(false, {reason:'clearAuthError'});
 }
 
 function authLog(message, detail){
@@ -1112,9 +1120,12 @@ function getAuthPlatformSignals(){
   const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   const isWhatsAppInApp = /(WhatsApp|WAWebView)/i.test(ua);
   const isInAppBrowser = /(FBAN|FBAV|Instagram|Line|Messenger|GSA|wv\)|WebView)/i.test(ua) || isWhatsAppInApp;
+  const referrer = String(document.referrer || '');
+  const cameFromWhatsApp = /whatsapp\.com|whatsapp:/i.test(referrer) || isWhatsAppInApp;
+  const isLikelyInAppLaunch = isInAppBrowser || cameFromWhatsApp;
   const isWebKit = /AppleWebKit/i.test(ua);
   const isPrivateishStorage = !storageAvailable('localStorage') || !storageAvailable('sessionStorage');
-  return { ua, isIOS, isAndroid, isDesktop, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWhatsAppInApp, isWebKit, isPrivateishStorage };
+  return { ua, referrer, isIOS, isAndroid, isDesktop, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWhatsAppInApp, cameFromWhatsApp, isLikelyInAppLaunch, isWebKit, isPrivateishStorage };
 }
 
 function isAppleWebKitBrowser(){
@@ -1164,8 +1175,10 @@ function clearRedirectTrackingFlags(){
   try{ sessionStorage.removeItem(PENDING_REDIRECT_KEY); }catch(_){ }
   try{ sessionStorage.removeItem(SIGNIN_RETRY_LOCK_KEY); }catch(_){}
   try{ sessionStorage.removeItem(SIGNIN_LAST_METHOD_KEY); }catch(_){}
+  try{ sessionStorage.removeItem(LAST_AUTH_ERROR_KEY); }catch(_){ }
   try{ sessionStorage.removeItem('tripGuideAuthRetryCount'); }catch(_){ }
   try{ sessionStorage.removeItem('tripGuideAuthRetryLock'); }catch(_){ }
+  try{ localStorage.removeItem(IOS_POPUP_FALLBACK_KEY); }catch(_){ }
   try{ localStorage.removeItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ }
   clearRedirectAttemptCount();
 }
@@ -1184,6 +1197,17 @@ function setRedirectStartedFlag(value){
       try{ localStorage.removeItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ }
     }
   }catch(_){ }
+}
+
+function setIOSPopupFallbackEnabled(enabled){
+  try{
+    if(enabled) localStorage.setItem(IOS_POPUP_FALLBACK_KEY, '1');
+    else localStorage.removeItem(IOS_POPUP_FALLBACK_KEY);
+  }catch(_){ }
+}
+
+function getIOSPopupFallbackEnabled(){
+  try{ return localStorage.getItem(IOS_POPUP_FALLBACK_KEY) === '1'; }catch(_){ return false; }
 }
 
 function hasGoogleRedirectParamsInUrl(){
@@ -1205,18 +1229,34 @@ function hasGoogleAuthReferrer(){
   }
 }
 
-function showSignInRecoveryActions(show){
+function showSignInRecoveryActions(show, options){
+  options = options || {};
   const wrap = document.getElementById('signInRecoveryActions');
   if(!wrap) return;
+  const popupBtn = document.getElementById('retryGooglePopupBtn');
+  if(popupBtn){
+    const allowPopupFallback = !!options.showPopupFallback;
+    popupBtn.classList.toggle('hidden', !allowPopupFallback);
+  }
   wrap.classList.toggle('hidden', !show);
+  authLog('Recovery actions shown/hidden', {
+    show: !!show,
+    showPopupFallback: !!(options && options.showPopupFallback),
+    reason: options && options.reason ? String(options.reason).slice(0, 140) : ''
+  });
 }
 
 function resetTripGuideSignInState(){
   clearRedirectTrackingFlags();
   redirectUserCache = null;
+  authReady = true;
+  redirectHandled = true;
+  authStateObserved = true;
   clearAuthError();
-  showSignInRecoveryActions(false);
+  showSignInRecoveryActions(false, {reason:'manual-reset'});
   setMobileTroubleshootingPanel(false);
+  resetSignInButton();
+  handleAuthState(null);
   setLoginGate(true, 'Sign-in state reset. Tap Google sign-in again.', 'manual sign-in state reset');
   setTrackerMessage('Sign-in state reset. Tap Google sign-in again.');
 }
@@ -1271,6 +1311,23 @@ function clearStaleRedirectFlagsOnLoad(){
 function redirectRecoveryFailureMessage(code){
   const base = 'Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari.';
   return code ? (base + ' (' + code + ')') : base;
+}
+
+function restoreSignInUiAfterRedirectFailure(message, reasonCode, options){
+  options = options || {};
+  clearRedirectTrackingFlags();
+  setRedirectStartedFlag(false);
+  if(options.enableIOSPopupFallback){
+    setIOSPopupFallbackEnabled(true);
+  }
+  resetSignInButton();
+  setAuthBootState('signedOut', reasonCode || 'redirect-recovery-failed');
+  setLoginGate(true, message || 'Sign-in did not complete. Try again.', reasonCode || 'redirect recovery failed');
+  showSignInRecoveryActions(true, {
+    showPopupFallback: !!options.enableIOSPopupFallback,
+    reason: reasonCode || 'redirect-recovery-failed'
+  });
+  setTrackerMessage(message || 'Sign-in did not complete. Try again.');
 }
 
 function setSelectedSignInMethod(method){
@@ -1405,24 +1462,31 @@ async function processRedirectResultSafely(){
       }
       const attempts = getRedirectAttemptCount();
       const tooOld = redirectAgeMs > REDIRECT_MAX_AGE_MS;
-      const retryBlocked = attempts > REDIRECT_ATTEMPT_LIMIT;
-      const recoveryCode = retryBlocked ? 'redirect-attempt-limit' : (tooOld ? 'redirect-state-expired' : 'redirect-session-missing');
+      const recoveryCode = tooOld ? 'redirect-state-expired' : 'redirect-session-missing';
+      const isIOSRecovery = !!(platform && platform.isIOS);
       const msg = recoveryCode === 'redirect-session-missing'
-        ? 'Finishing sign-in took longer than expected. You can reset sign-in state and try again, or open the direct TripGuide link if this keeps failing. (redirect-session-missing)'
+        ? (isIOSRecovery
+          ? 'Google redirect did not restore your iPhone session. You can try Google popup instead, try Google again, reset sign-in state, or open the direct Safari link. (redirect-session-missing)'
+          : 'Finishing sign-in took longer than expected. You can reset sign-in state and try again, or open the direct TripGuide link if this keeps failing. (redirect-session-missing)')
         : redirectRecoveryFailureMessage(recoveryCode);
-      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, retryBlocked, recoveryCode});
+      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, recoveryCode, isIOSRecovery});
       rememberAuthError(msg);
-      setRedirectStartedFlag(false);
-      if(platform && platform.isInAppBrowser){
+      restoreSignInUiAfterRedirectFailure(msg, recoveryCode, {enableIOSPopupFallback:isIOSRecovery});
+      if(platform && platform.isLikelyInAppLaunch){
         setMobileTroubleshootingPanel(true, 'If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
       }
     }
     authLog('Redirect result processed: no redirect user and no currentUser.');
     return null;
   }catch(err){
+    clearRedirectTrackingFlags();
     setRedirectStartedFlag(false);
     authLog('Redirect result processed with error', err && (err.code || err.message || String(err)));
     rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+    if(platform && platform.isIOS){
+      setIOSPopupFallbackEnabled(true);
+      showSignInRecoveryActions(true, {showPopupFallback:true, reason:'redirect-error'});
+    }
     return null;
   }finally{
     redirectHandled = true;
@@ -1570,6 +1634,7 @@ function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   bindClick('resetSignInStateBtn', resetTripGuideSignInState);
   bindClick('retryGoogleSignInBtn', signInWithGoogle);
+  bindClick('retryGooglePopupBtn', signInWithGooglePopupFallback);
   bindClick('openDirectTripGuideBtn', openDirectTripGuideLink);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
@@ -1606,6 +1671,14 @@ function resetSignInButton(){
   Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
 }
 async function signInWithGoogleSafe(){
+  return signInWithGoogleSafeMethod('auto');
+}
+
+async function signInWithGooglePopupFallback(){
+  return signInWithGoogleSafeMethod('popup');
+}
+
+async function signInWithGoogleSafeMethod(requestedMethod){
   if(googleSignInPending) return;
   googleSignInPending = true;
   clearAuthError();
@@ -1618,19 +1691,25 @@ async function signInWithGoogleSafe(){
     }
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
-    const useRedirectFirst = !!platform.isIOS;
+    const popupFallbackEnabled = getIOSPopupFallbackEnabled();
+    const forcePopup = requestedMethod === 'popup';
+    const useRedirectFirst = !!(platform.isIOS && !forcePopup && !popupFallbackEnabled);
     const staleRedirectLimitOnPopupPath = !useRedirectFirst && getRedirectAttemptCount() > REDIRECT_ATTEMPT_LIMIT;
     const selectedMethod = useRedirectFirst ? 'redirect' : 'popup';
     authLog('Sign-in started', {
       signInMethod: 'google',
+      requestedMethod,
       isIOS: platform.isIOS,
       isAndroid: platform.isAndroid,
       isDesktop: platform.isDesktop,
       isSafari: platform.isSafari,
       isStandalonePWA: platform.isStandalonePWA,
       isInAppBrowser: platform.isInAppBrowser,
+      isLikelyInAppLaunch: platform.isLikelyInAppLaunch,
+      cameFromWhatsApp: platform.cameFromWhatsApp,
       redirectStarted: (() => { try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; } })(),
       redirectAttemptCount: getRedirectAttemptCount(),
+      popupFallbackEnabled,
       useRedirectFirst,
       selectedSignInMethod: selectedMethod
     });
@@ -1640,7 +1719,7 @@ async function signInWithGoogleSafe(){
       clearRedirectTrackingFlags();
     }
 
-    if(platform.isInAppBrowser){
+    if(platform.isLikelyInAppLaunch){
       setMobileTroubleshootingPanel(true, 'In-app browser detected. If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
     }
 
@@ -1654,7 +1733,7 @@ async function signInWithGoogleSafe(){
     if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
     setLoginGate(true, 'Opening Google Sign-In…');
     setTrackerMessage('Opening Google Sign-In…');
-    setMobileTroubleshootingPanel(false);
+    if(!platform.isLikelyInAppLaunch) setMobileTroubleshootingPanel(false);
 
     await setAuthPersistenceSafely();
 
@@ -1669,6 +1748,7 @@ async function signInWithGoogleSafe(){
       }
       try{ sessionStorage.setItem(REDIRECT_METHOD_KEY, 'redirect'); }catch(_){ }
       setRedirectStartedFlag(true);
+      setIOSPopupFallbackEnabled(false);
       setLoginGate(true, 'Redirecting to Google Sign-In…');
       authLog('Starting redirect sign-in', {redirectAttemptCount: attempts});
       await trackerAuth.signInWithRedirect(provider);
@@ -1681,26 +1761,25 @@ async function signInWithGoogleSafe(){
       if(result && result.user){
         clearAuthError();
         clearRedirectTrackingFlags();
+        setIOSPopupFallbackEnabled(false);
         await upsertSignedInUserProfile(result.user);
         setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
       }
     }catch(err){
       const code = (err && err.code) ? err.code : '';
       if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
-        authLog('Popup sign-in failed; falling back to redirect.', err && (err.code || err.message || String(err)));
-        const attempts = incrementRedirectAttemptCount();
-        if(attempts > REDIRECT_ATTEMPT_LIMIT){
-          setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-          rememberAuthError('Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari. (redirect-attempt-limit)');
+        authLog('Popup sign-in failed', err && (err.code || err.message || String(err)));
+        if(platform.isIOS){
+          setIOSPopupFallbackEnabled(true);
+          rememberAuthError('Google popup did not complete on iPhone. Try Google again, reset sign-in state, or use the direct Safari link.');
+          showSignInRecoveryActions(true, {showPopupFallback:true, reason:'ios-popup-failed'});
+          setMobileTroubleshootingPanel(true, 'If popup keeps failing, copy the link and open TripGuide directly in Safari before signing in.');
           return;
         }
-        setSelectedSignInMethod('redirect-fallback');
-        try{ sessionStorage.setItem(REDIRECT_METHOD_KEY, 'redirect-fallback'); }catch(_){ }
-        setRedirectStartedFlag(true);
-        if(btn){ btn.textContent = 'Redirecting to Google…'; }
-        if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
-        setLoginGate(true, code === 'auth/popup-blocked' ? 'Popup was blocked. Retrying with redirect…' : (code === 'auth/popup-closed-by-user' ? 'Sign-in popup was closed. Retrying with redirect…' : 'Redirecting to Google Sign-In…'));
-        await trackerAuth.signInWithRedirect(provider);
+        setMobileTroubleshootingPanel(true, 'Popup sign-in was blocked or closed. Try again, or use Email sign-in if enabled in Firebase.');
+        rememberAuthError(code === 'auth/operation-not-supported-in-this-environment'
+          ? 'Popup sign-in is not supported in this browser. Use Email sign-in or open TripGuide in a full browser.'
+          : authErrorMessage(err));
         return;
       }
       throw err;
@@ -1745,7 +1824,11 @@ async function signInWithEmailPassword(){
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
   }catch(e){
+    if(e && e.code === 'auth/operation-not-allowed'){
+      rememberAuthError('Email/password provider is not enabled in Firebase. Enable Email/Password in Firebase Authentication -> Sign-in method.');
+    } else {
     rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    }
   }finally{
     if(!currentUser) resetSignInButton();
   }
@@ -1782,7 +1865,11 @@ async function registerWithEmailPassword(){
       setTrackerMessage('Account created and signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
   }catch(e){
+    if(e && e.code === 'auth/operation-not-allowed'){
+      rememberAuthError('Email/password provider is not enabled in Firebase. Enable Email/Password in Firebase Authentication -> Sign-in method.');
+    } else {
     rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    }
   }finally{
     if(!currentUser) resetSignInButton();
   }
