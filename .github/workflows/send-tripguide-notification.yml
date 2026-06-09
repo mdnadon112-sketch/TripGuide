@@ -34,7 +34,7 @@ on:
 jobs:
   send-notification:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 2
     permissions:
       contents: read
 
@@ -44,6 +44,7 @@ jobs:
       INPUT_TITLE: ${{ inputs.title }}
       INPUT_BODY: ${{ inputs.body }}
       INPUT_URL: ${{ inputs.url }}
+      INPUT_TARGETTYPE: ${{ inputs.targetType }}
       INPUT_TARGET_TYPE: ${{ inputs.targetType }}
       INPUT_UID: ${{ inputs.uid }}
 
@@ -59,22 +60,38 @@ jobs:
       - name: Install dependency
         run: npm install firebase-admin@12 --no-audit --no-fund --no-package-lock
 
-      - name: Send notification
+      - name: Send notification and force close
         timeout-minutes: 1
+        shell: bash
         run: |
           set +e
-          timeout 20s node .github/scripts/send-tripguide-notification.js 2>&1 | tee /tmp/tripguide-send.log
-          status=${PIPESTATUS[0]}
-          set -e
 
-          if [ "$status" -eq 0 ]; then
-            exit 0
-          fi
+          LOG_FILE="/tmp/tripguide-send.log"
 
-          if [ "$status" -eq 124 ] && grep -Eq "attempted=[0-9]+ success=[0-9]+ failure=[0-9]+ cleaned=[0-9]+" /tmp/tripguide-send.log; then
-            echo "Notification sent. Closing workflow."
-            exit 0
-          fi
+          node .github/scripts/send-tripguide-notification.js > "$LOG_FILE" 2>&1 &
+          NODE_PID=$!
 
-          echo "Notification workflow failed before completion."
-          exit "$status"
+          for i in {1..30}; do
+            if grep -Eq "attempted=[0-9]+ success=[0-9]+ failure=[0-9]+ cleaned=[0-9]+" "$LOG_FILE"; then
+              cat "$LOG_FILE"
+              echo "Notification summary detected. Force closing sender."
+              kill -9 "$NODE_PID" 2>/dev/null || true
+              pkill -9 -P $$ node 2>/dev/null || true
+              exit 0
+            fi
+
+            if ! kill -0 "$NODE_PID" 2>/dev/null; then
+              wait "$NODE_PID"
+              STATUS=$?
+              cat "$LOG_FILE"
+              exit "$STATUS"
+            fi
+
+            sleep 1
+          done
+
+          cat "$LOG_FILE"
+          echo "Notification sender timed out before summary."
+          kill -9 "$NODE_PID" 2>/dev/null || true
+          pkill -9 -P $$ node 2>/dev/null || true
+          exit 1
