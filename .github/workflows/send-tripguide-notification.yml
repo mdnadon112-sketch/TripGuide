@@ -60,4 +60,21 @@ jobs:
         run: npm install firebase-admin@12 --no-audit --no-fund --no-package-lock
 
       - name: Send notification
-        run: node .github/scripts/send-tripguide-notification.js
+        timeout-minutes: 1
+        run: |
+          set +e
+          timeout 20s node .github/scripts/send-tripguide-notification.js 2>&1 | tee /tmp/tripguide-send.log
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            exit 0
+          fi
+
+          if [ "$status" -eq 124 ] && grep -Eq "attempted=[0-9]+ success=[0-9]+ failure=[0-9]+ cleaned=[0-9]+" /tmp/tripguide-send.log; then
+            echo "Notification sent. Closing workflow."
+            exit 0
+          fi
+
+          echo "Notification workflow failed before completion."
+          exit "$status"
