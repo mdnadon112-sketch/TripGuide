@@ -223,6 +223,10 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
     <div class="login-note">Use Google sign-in. Admins can approve viewers, remove access, or promote any signed-in account to admin without that person requesting admin privileges.</div>
     <div class="login-debug hidden" id="mobileAuthHelpPanel" aria-live="polite"></div>
+    <div class="login-actions hidden" id="signInRecoveryActions" aria-live="polite">
+      <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in and try again</button>
+      <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google sign-in again</button>
+    </div>
   </div>
 </div>
 <div class="wrap">
@@ -518,6 +522,8 @@ const TRIPGUIDE_BUILD = 'v5.28-authfix-2026-06-09T00:00:00Z';
 const REDIRECT_STARTED_KEY = 'tripGuideRedirectStarted';
 const REDIRECT_STARTED_AT_KEY = 'tripGuideRedirectStartedAt';
 const REDIRECT_ATTEMPTS_KEY = 'tripGuideRedirectAttemptCount';
+const SIGNIN_RETRY_LOCK_KEY = 'tripGuideSignInRetryLock';
+const SIGNIN_LAST_METHOD_KEY = 'tripGuideLastSignInMethod';
 const REDIRECT_ATTEMPT_LIMIT = 2;
 const REDIRECT_GRACE_MS = 3000;
 const REDIRECT_MAX_AGE_MS = 2 * 60 * 1000;
@@ -1068,6 +1074,7 @@ function rememberAuthError(text){
   setAuthBootState('error', lastAuthErrorText);
   const p = getAuthPlatformSignals();
   const isMobileRisk = p.isIOS || p.isInAppBrowser || p.isStandalonePWA || p.isPrivateishStorage;
+  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|Sign-in got stuck/i.test(lastAuthErrorText));
   setMobileTroubleshootingPanel(isMobileRisk, lastAuthErrorText);
   setTrackerMessage(lastAuthErrorText);
 }
@@ -1077,6 +1084,7 @@ function recentAuthError(){
 function clearAuthError(){
   lastAuthErrorText = '';
   lastAuthErrorAt = 0;
+  showSignInRecoveryActions(false);
 }
 
 function authLog(message, detail){
@@ -1092,13 +1100,15 @@ function setAuthBootState(nextState, detail){
 function getAuthPlatformSignals(){
   const ua = navigator.userAgent || '';
   const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
   const isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua) && !/CriOS\//.test(ua) && !/FxiOS\//.test(ua) && !/EdgiOS\//.test(ua);
   const isCriOS = /CriOS\//.test(ua);
+  const isDesktop = !isIOS && !isAndroid;
   const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   const isInAppBrowser = /(FBAN|FBAV|Instagram|Line|Messenger|GSA|wv\)|WebView)/i.test(ua);
   const isWebKit = /AppleWebKit/i.test(ua);
   const isPrivateishStorage = !storageAvailable('localStorage') || !storageAvailable('sessionStorage');
-  return { ua, isIOS, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWebKit, isPrivateishStorage };
+  return { ua, isIOS, isAndroid, isDesktop, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWebKit, isPrivateishStorage };
 }
 
 function isAppleWebKitBrowser(){
@@ -1144,6 +1154,8 @@ function getRedirectStartedAt(){
 function clearRedirectTrackingFlags(){
   try{ sessionStorage.removeItem(REDIRECT_STARTED_KEY); }catch(_){}
   try{ sessionStorage.removeItem(REDIRECT_STARTED_AT_KEY); }catch(_){}
+  try{ sessionStorage.removeItem(SIGNIN_RETRY_LOCK_KEY); }catch(_){}
+  try{ sessionStorage.removeItem(SIGNIN_LAST_METHOD_KEY); }catch(_){}
   clearRedirectAttemptCount();
 }
 
@@ -1159,9 +1171,54 @@ function setRedirectStartedFlag(value){
   }catch(_){ }
 }
 
+function hasGoogleRedirectParamsInUrl(){
+  try{
+    const params = new URLSearchParams(window.location.search || '');
+    return ['code','state','oauth_token','oauth_verifier'].some(k => params.has(k));
+  }catch(_){
+    return false;
+  }
+}
+
+function showSignInRecoveryActions(show){
+  const wrap = document.getElementById('signInRecoveryActions');
+  if(!wrap) return;
+  wrap.classList.toggle('hidden', !show);
+}
+
+function resetTripGuideSignInState(){
+  clearRedirectTrackingFlags();
+  redirectUserCache = null;
+  clearAuthError();
+  showSignInRecoveryActions(false);
+  setMobileTroubleshootingPanel(false);
+  setLoginGate(true, 'Sign-in state reset. Tap Google sign-in again.', 'manual sign-in state reset');
+  setTrackerMessage('Sign-in state reset. Tap Google sign-in again.');
+}
+
+function clearStaleRedirectFlagsOnLoad(){
+  const redirectStarted = (() => { try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; } })();
+  const startedAt = getRedirectStartedAt();
+  const age = startedAt ? (Date.now() - startedAt) : 0;
+  const hasParams = hasGoogleRedirectParamsInUrl();
+  const hasCurrent = !!(trackerAuth && trackerAuth.currentUser);
+  const canClear = (!redirectStarted) && (!hasParams) && (!hasCurrent) && (!!startedAt) && age > REDIRECT_MAX_AGE_MS;
+  authLog('Stale redirect cleanup check', {redirectStarted, hasParams, hasCurrent, startedAt, age, canClear});
+  if(canClear){
+    clearRedirectTrackingFlags();
+    authLog('Cleared stale redirect flags on load');
+  }
+}
+
 function redirectRecoveryFailureMessage(code){
-  const base = 'Google sign-in returned to TripGuide, but Firebase did not restore the session. Open this page directly in Safari/Chrome, disable Private Browsing, and try again.';
+  const base = 'Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari.';
   return code ? (base + ' (' + code + ')') : base;
+}
+
+function setSelectedSignInMethod(method){
+  lastAuthSignInMethod = String(method || 'none');
+  try{ sessionStorage.setItem(SIGNIN_LAST_METHOD_KEY, lastAuthSignInMethod); }catch(_){ }
+  authLog('Selected sign-in method', lastAuthSignInMethod);
 }
 
 async function waitForRecoveredUser(timeoutMs){
@@ -1416,6 +1473,7 @@ async function initFirebaseTracker(){
 
     setupAuthProvider();
     await setAuthPersistenceSafely();
+    clearStaleRedirectFlagsOnLoad();
     startAuthObserver();
     const redirectUser = await processRedirectResultSafely();
     authLog('Redirect result processed', {hasUser: !!redirectUser});
@@ -1431,6 +1489,8 @@ async function initFirebaseTracker(){
 }
 function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  bindClick('resetSignInStateBtn', resetTripGuideSignInState);
+  bindClick('retryGoogleSignInBtn', signInWithGoogle);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
@@ -1468,6 +1528,7 @@ function resetSignInButton(){
 async function signInWithGoogleSafe(){
   if(googleSignInPending) return;
   googleSignInPending = true;
+  clearAuthError();
   const btn = document.getElementById('signInBtn');
   const gateBtn = document.getElementById('gateSignInBtn');
   const platform = getAuthPlatformSignals();
@@ -1478,16 +1539,26 @@ async function signInWithGoogleSafe(){
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
     const useRedirectFirst = !!platform.isIOS;
+    const staleRedirectLimitOnPopupPath = !useRedirectFirst && getRedirectAttemptCount() > REDIRECT_ATTEMPT_LIMIT;
+    const selectedMethod = useRedirectFirst ? 'redirect' : 'popup';
     authLog('Sign-in started', {
       signInMethod: 'google',
       isIOS: platform.isIOS,
+      isAndroid: platform.isAndroid,
+      isDesktop: platform.isDesktop,
       isSafari: platform.isSafari,
       isStandalonePWA: platform.isStandalonePWA,
       isInAppBrowser: platform.isInAppBrowser,
       redirectStarted: (() => { try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; } })(),
       redirectAttemptCount: getRedirectAttemptCount(),
-      useRedirectFirst
+      useRedirectFirst,
+      selectedSignInMethod: selectedMethod
     });
+
+    if(staleRedirectLimitOnPopupPath){
+      authLog('Clearing stale redirect retry limit on popup-first platform');
+      clearRedirectTrackingFlags();
+    }
 
     if(platform.isInAppBrowser){
       setMobileTroubleshootingPanel(true, 'In-app browser detected');
@@ -1511,13 +1582,13 @@ async function signInWithGoogleSafe(){
 
     if(useRedirectFirst){
       authLog('iOS platform detected; using redirect sign-in.');
+      setSelectedSignInMethod('redirect');
       const attempts = incrementRedirectAttemptCount();
       if(attempts > REDIRECT_ATTEMPT_LIMIT){
         setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-        rememberAuthError(redirectRecoveryFailureMessage('redirect-attempt-limit'));
+        rememberAuthError('Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari. (redirect-attempt-limit)');
         return;
       }
-      lastAuthSignInMethod = 'redirect';
       setRedirectStartedFlag(true);
       setLoginGate(true, 'Redirecting to Google Sign-In…');
       authLog('Starting redirect sign-in', {redirectAttemptCount: attempts});
@@ -1526,7 +1597,7 @@ async function signInWithGoogleSafe(){
     }
 
     try{
-      lastAuthSignInMethod = 'popup';
+      setSelectedSignInMethod('popup');
       const result = await trackerAuth.signInWithPopup(provider);
       if(result && result.user){
         clearAuthError();
@@ -1541,10 +1612,10 @@ async function signInWithGoogleSafe(){
         const attempts = incrementRedirectAttemptCount();
         if(attempts > REDIRECT_ATTEMPT_LIMIT){
           setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-          rememberAuthError(redirectRecoveryFailureMessage('redirect-attempt-limit'));
+          rememberAuthError('Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari. (redirect-attempt-limit)');
           return;
         }
-        lastAuthSignInMethod = 'redirect-fallback';
+        setSelectedSignInMethod('redirect-fallback');
         setRedirectStartedFlag(true);
         if(btn){ btn.textContent = 'Redirecting to Google…'; }
         if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
