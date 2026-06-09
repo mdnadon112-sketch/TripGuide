@@ -516,8 +516,11 @@ let overviewMarkerGroups = null;
 let trackerInitialized = false;
 const TRIPGUIDE_BUILD = 'v5.28-authfix-2026-06-09T00:00:00Z';
 const REDIRECT_STARTED_KEY = 'tripGuideRedirectStarted';
+const REDIRECT_STARTED_AT_KEY = 'tripGuideRedirectStartedAt';
 const REDIRECT_ATTEMPTS_KEY = 'tripGuideRedirectAttemptCount';
 const REDIRECT_ATTEMPT_LIMIT = 2;
+const REDIRECT_GRACE_MS = 3000;
+const REDIRECT_MAX_AGE_MS = 2 * 60 * 1000;
 window.__activeDay = 1;
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function svgEsc(s){return String(s ?? '').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
@@ -1045,6 +1048,7 @@ let authObserverStarted = false;
 let redirectUserCache = null;
 let googleAuthProvider = null;
 let googleSignInPending = false;
+let lastAuthSignInMethod = 'none';
 let selectedPersistenceMode = 'default';
 let authBootState = 'initializing';
 let viewerAccessStateResolved = false;
@@ -1133,11 +1137,42 @@ function clearRedirectAttemptCount(){
   setRedirectAttemptCount(0);
 }
 
+function getRedirectStartedAt(){
+  try{ return Number(sessionStorage.getItem(REDIRECT_STARTED_AT_KEY) || '0') || 0; }catch(_){ return 0; }
+}
+
+function clearRedirectTrackingFlags(){
+  try{ sessionStorage.removeItem(REDIRECT_STARTED_KEY); }catch(_){}
+  try{ sessionStorage.removeItem(REDIRECT_STARTED_AT_KEY); }catch(_){}
+  clearRedirectAttemptCount();
+}
+
 function setRedirectStartedFlag(value){
   try{
-    if(value) sessionStorage.setItem(REDIRECT_STARTED_KEY, '1');
-    else sessionStorage.removeItem(REDIRECT_STARTED_KEY);
+    if(value){
+      sessionStorage.setItem(REDIRECT_STARTED_KEY, '1');
+      sessionStorage.setItem(REDIRECT_STARTED_AT_KEY, String(Date.now()));
+    } else {
+      sessionStorage.removeItem(REDIRECT_STARTED_KEY);
+      sessionStorage.removeItem(REDIRECT_STARTED_AT_KEY);
+    }
   }catch(_){ }
+}
+
+function redirectRecoveryFailureMessage(code){
+  const base = 'Google sign-in returned to TripGuide, but Firebase did not restore the session. Open this page directly in Safari/Chrome, disable Private Browsing, and try again.';
+  return code ? (base + ' (' + code + ')') : base;
+}
+
+async function waitForRecoveredUser(timeoutMs){
+  const timeout = Math.max(0, Number(timeoutMs) || 0);
+  const started = Date.now();
+  while(Date.now() - started < timeout){
+    const current = (trackerAuth && trackerAuth.currentUser) || (window.firebase && firebase.auth && firebase.auth().currentUser) || redirectUserCache || null;
+    if(current) return current;
+    await new Promise(resolve => setTimeout(resolve, 120));
+  }
+  return (trackerAuth && trackerAuth.currentUser) || (window.firebase && firebase.auth && firebase.auth().currentUser) || redirectUserCache || null;
 }
 
 function setMobileTroubleshootingPanel(show, reasonText){
@@ -1206,13 +1241,16 @@ async function processRedirectResultSafely(){
   const redirectStarted = (() => {
     try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; }
   })();
-  authLog('Redirect pre-check', {redirectStarted, redirectAttemptCount: getRedirectAttemptCount()});
+  const redirectStartedAt = getRedirectStartedAt();
+  const redirectAgeMs = redirectStartedAt ? (Date.now() - redirectStartedAt) : 0;
+  authLog('Redirect pre-check', {redirectStarted, redirectStartedAt, redirectAgeMs, redirectAttemptCount: getRedirectAttemptCount()});
   try{
     const result = await trackerAuth.getRedirectResult();
-    setRedirectStartedFlag(false);
+    authLog('getRedirectResult completed', {result: result && result.user ? 'user' : 'null'});
     if(result && result.user){
-      clearRedirectAttemptCount();
+      clearRedirectTrackingFlags();
       redirectUserCache = result.user;
+      lastAuthSignInMethod = 'redirect';
       authLog('Redirect result processed: redirect user found', {email: authEmail(result.user), uid: result.user.uid});
       setTrackerMessage('Redirect sign-in complete.');
       await upsertSignedInUserProfile(result.user);
@@ -1220,19 +1258,29 @@ async function processRedirectResultSafely(){
     }
     const current = trackerAuth.currentUser || firebase.auth().currentUser;
     if(current){
-      clearRedirectAttemptCount();
+      clearRedirectTrackingFlags();
       redirectUserCache = current;
       authLog('Redirect result processed: currentUser found', {email: authEmail(current), uid: current.uid});
       await upsertSignedInUserProfile(current);
       return current;
     }
     if(redirectStarted){
-      const attempts = getRedirectAttemptCount();
-      if(attempts > REDIRECT_ATTEMPT_LIMIT){
-        rememberAuthError('Redirect sign-in did not return a user after ' + attempts + ' attempts. Open TripGuide directly in Safari/Chrome and try again.');
-      } else {
-        setTrackerMessage('Redirect completed but no signed-in user was returned. Please tap Sign in again.');
+      setTrackerMessage('Finishing sign-in…');
+      const recovered = await waitForRecoveredUser(REDIRECT_GRACE_MS);
+      authLog('Redirect grace recovery check', {recovered: !!recovered, currentUserPresent: !!(trackerAuth && trackerAuth.currentUser), authStateObserved});
+      if(recovered){
+        clearRedirectTrackingFlags();
+        redirectUserCache = recovered;
+        await upsertSignedInUserProfile(recovered);
+        return recovered;
       }
+      const attempts = getRedirectAttemptCount();
+      const tooOld = redirectAgeMs > REDIRECT_MAX_AGE_MS;
+      const retryBlocked = attempts > REDIRECT_ATTEMPT_LIMIT;
+      const msg = redirectRecoveryFailureMessage(retryBlocked ? 'redirect-attempt-limit' : (tooOld ? 'redirect-state-expired' : 'redirect-session-missing'));
+      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, retryBlocked});
+      rememberAuthError(msg);
+      setRedirectStartedFlag(false);
     }
     authLog('Redirect result processed: no redirect user and no currentUser.');
     return null;
@@ -1285,7 +1333,7 @@ function startAuthObserver(){
     const effectiveUser = user || trackerAuth.currentUser || redirectUserCache || null;
     authLog('onAuthStateChanged fired', {hasUser: !!effectiveUser});
     if(effectiveUser){
-      setRedirectStartedFlag(false);
+      clearRedirectTrackingFlags();
       authLog('user email/uid found', {email: authEmail(effectiveUser), uid: effectiveUser.uid});
       upsertSignedInUserProfile(effectiveUser);
       renderAuthState(effectiveUser);
@@ -1429,6 +1477,7 @@ async function signInWithGoogleSafe(){
     }
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
     const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
+    const useRedirectFirst = !!platform.isIOS;
     authLog('Sign-in started', {
       signInMethod: 'google',
       isIOS: platform.isIOS,
@@ -1436,7 +1485,8 @@ async function signInWithGoogleSafe(){
       isStandalonePWA: platform.isStandalonePWA,
       isInAppBrowser: platform.isInAppBrowser,
       redirectStarted: (() => { try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; } })(),
-      redirectAttemptCount: getRedirectAttemptCount()
+      redirectAttemptCount: getRedirectAttemptCount(),
+      useRedirectFirst
     });
 
     if(platform.isInAppBrowser){
@@ -1459,14 +1509,15 @@ async function signInWithGoogleSafe(){
 
     await setAuthPersistenceSafely();
 
-    if(isAppleWebKitBrowser()){
-      authLog('Apple WebKit detected; using redirect sign-in.');
+    if(useRedirectFirst){
+      authLog('iOS platform detected; using redirect sign-in.');
       const attempts = incrementRedirectAttemptCount();
       if(attempts > REDIRECT_ATTEMPT_LIMIT){
         setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-        rememberAuthError('Redirect retry limit reached. Open TripGuide directly in Safari/Chrome, then try sign-in again.');
+        rememberAuthError(redirectRecoveryFailureMessage('redirect-attempt-limit'));
         return;
       }
+      lastAuthSignInMethod = 'redirect';
       setRedirectStartedFlag(true);
       setLoginGate(true, 'Redirecting to Google Sign-In…');
       authLog('Starting redirect sign-in', {redirectAttemptCount: attempts});
@@ -1475,9 +1526,11 @@ async function signInWithGoogleSafe(){
     }
 
     try{
+      lastAuthSignInMethod = 'popup';
       const result = await trackerAuth.signInWithPopup(provider);
       if(result && result.user){
         clearAuthError();
+        clearRedirectTrackingFlags();
         await upsertSignedInUserProfile(result.user);
         setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
       }
@@ -1485,20 +1538,17 @@ async function signInWithGoogleSafe(){
       const code = (err && err.code) ? err.code : '';
       if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
         authLog('Popup sign-in failed; falling back to redirect.', err && (err.code || err.message || String(err)));
-        if(code === 'auth/popup-closed-by-user'){
-          rememberAuthError(authErrorMessage(err));
-          return;
-        }
         const attempts = incrementRedirectAttemptCount();
         if(attempts > REDIRECT_ATTEMPT_LIMIT){
           setMobileTroubleshootingPanel(true, 'Redirect retry limit reached');
-          rememberAuthError('Popup failed and redirect retry limit reached. Open in Safari/Chrome and try again.');
+          rememberAuthError(redirectRecoveryFailureMessage('redirect-attempt-limit'));
           return;
         }
+        lastAuthSignInMethod = 'redirect-fallback';
         setRedirectStartedFlag(true);
         if(btn){ btn.textContent = 'Redirecting to Google…'; }
         if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
-        setLoginGate(true, code === 'auth/popup-blocked' ? 'Popup was blocked. Retrying with redirect…' : 'Redirecting to Google Sign-In…');
+        setLoginGate(true, code === 'auth/popup-blocked' ? 'Popup was blocked. Retrying with redirect…' : (code === 'auth/popup-closed-by-user' ? 'Sign-in popup was closed. Retrying with redirect…' : 'Redirecting to Google Sign-In…'));
         await trackerAuth.signInWithRedirect(provider);
         return;
       }
