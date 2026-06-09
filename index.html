@@ -141,14 +141,15 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 body.login-required{overflow:hidden}
 body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 .login-card{width:min(500px,96vw);background:#ffffff;color:#0f172a;border:1px solid rgba(15,23,42,.10);border-radius:28px;padding:20px;box-shadow:0 30px 90px rgba(0,0,0,.34)}
-.login-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid #bfdbfe;background:#eff6ff;color:#174ea6;border-radius:999px;padding:7px 11px;font-weight:950;font-size:12px;letter-spacing:.02em}
-.login-card h2{font-size:30px;line-height:1.02;margin:14px 0 8px;letter-spacing:-.035em}
-.login-card p{margin:0 0 14px;color:#475569;font-weight:750;line-height:1.45}
+.login-card h2{font-size:30px;line-height:1.02;margin:0 0 8px;letter-spacing:-.035em}
+.login-card p{margin:0;color:#475569;font-weight:750;line-height:1.45}
 .login-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
 .login-actions .btn{width:100%;min-height:54px;font-size:16px;border-radius:18px}
 .login-recovery-actions{margin-top:8px;gap:8px}
 .login-recovery-actions .btn{min-height:52px;font-size:15px}
-.email-login{margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;display:grid;gap:9px}
+.login-divider{display:flex;align-items:center;gap:10px;margin:12px 0 10px;color:#64748b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.login-divider::before,.login-divider::after{content:'';height:1px;background:#e2e8f0;flex:1}
+.email-login{margin-top:8px;border-top:1px solid #e2e8f0;padding-top:10px;display:grid;gap:9px}
 .email-login-label{font-size:12px;font-weight:950;color:#475569;text-transform:uppercase;letter-spacing:.06em}
 .email-login-grid{display:grid;grid-template-columns:1fr;gap:8px}
 .login-input{width:100%;min-height:48px;border-radius:14px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:10px 12px;font-weight:850;font-size:15px;outline:none}
@@ -163,8 +164,6 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 .google-identity-button{min-height:48px}
 .google-identity-button iframe{max-width:100%}
 .google-identity-note{color:#64748b;font-size:11px;font-weight:750;line-height:1.35}
-.auth-debug-mini{margin-top:6px;padding:8px 9px;border:1px solid #dbe4f0;border-radius:10px;background:#f8fafc;color:#334155;font-size:11px;line-height:1.35;font-weight:800}
-.auth-debug-mini b{display:inline-block;min-width:138px;color:#0f172a}
 .mobile-help-inline{margin-top:10px;color:#334155;font-size:12px;font-weight:750;line-height:1.35}
 .mobile-help-details{margin-top:8px;border:1px solid #dbe4f0;border-radius:12px;background:#f8fafc}
 .mobile-help-details summary{cursor:pointer;list-style:none;padding:8px 10px;font-size:12px;font-weight:900;color:#334155}
@@ -174,17 +173,16 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .login-gate{align-items:flex-start;padding:8px 8px calc(10px + var(--safe-bottom));overflow:auto}
   .login-card{border-radius:20px;padding:12px;max-height:calc(100vh - 16px - var(--safe-bottom));overflow:auto;-webkit-overflow-scrolling:touch}
   .login-card h2{font-size:24px}
-  .login-card p{margin-bottom:10px;font-size:13px}
+  .login-card p{font-size:13px}
   .login-actions{margin-top:8px;gap:7px}
   .login-actions .btn{min-height:50px;font-size:15px;border-radius:15px}
   .login-recovery-actions .btn{min-height:50px}
+  .login-divider{margin:10px 0 8px;font-size:11px}
   .email-login{margin-top:9px;padding-top:9px;gap:7px}
   .login-debug{margin-top:8px;padding:8px 9px;font-size:12px;border-radius:12px}
   .login-note{margin-top:7px;font-size:11px}
   .google-identity-shell{margin-top:8px;gap:6px}
   .google-identity-note{font-size:10px}
-  .auth-debug-mini{font-size:10px;padding:7px 8px}
-  .auth-debug-mini b{min-width:120px}
   .mobile-help-inline{font-size:11px;margin-top:7px}
   .mobile-help-details summary{font-size:11px;padding:7px 9px}
   .mobile-help-details .mobile-help-body{font-size:11px;padding:0 9px 9px}
@@ -238,43 +236,29 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 <body>
 <div class="login-gate" id="loginGate" role="dialog" aria-modal="true" aria-labelledby="loginGateTitle">
   <div class="login-card">
-    <span class="login-badge">SECURE TRIP ACCESS</span>
-    <h2 id="loginGateTitle">Sign in to continue</h2>
-    <p>The trip guide will load after sign-in. Admin accounts get live controls. Other accounts can request access for the secure trip hub.</p>
-    <div class="login-actions">
-      <button class="btn btn-google" type="button" id="gateSignInBtn">Try Firebase Google popup</button>
+    <h2 id="loginGateTitle">Secure Live Trip Hub</h2>
+    <p>Sign in to view live location, trip updates, and messages.</p>
+    <div class="google-identity-shell">
+      <div class="google-identity-label">Google sign-in</div>
+      <div id="googleIdentityButton" class="google-identity-button"></div>
+      <div class="google-identity-note" id="googleIdentityStatus">Use Google sign-in for fastest access.</div>
     </div>
+    <div class="login-divider" aria-hidden="true">or</div>
     <div class="email-login" aria-label="Email sign-in fallback">
-      <div class="email-login-label">Admin fallback login</div>
+      <div class="email-login-label">Email fallback</div>
       <div class="email-login-grid">
         <input class="login-input" id="gateEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
         <input class="login-input" id="gatePasswordInput" type="password" autocomplete="current-password" placeholder="Password">
         <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Sign in with email</button>
         <button class="btn btn-ghost" type="button" id="gateEmailRegisterBtn">Register / Make an account</button>
+        <button class="btn btn-ghost" type="button" id="gatePasswordResetBtn">Reset password</button>
       </div>
     </div>
     <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
-    <div class="google-identity-shell">
-      <div class="google-identity-label">Google sign-in</div>
-      <div id="googleIdentityButton" class="google-identity-button"></div>
-      <div class="google-identity-note" id="googleIdentityStatus">Loading Google sign-in…</div>
-      <div class="auth-debug-mini" id="authDebugMini" aria-live="polite">
-        <div><b>GIS loaded:</b> no</div>
-        <div><b>GIS button rendered:</b> no</div>
-        <div><b>Credential received:</b> no</div>
-        <div><b>Firebase sign-in:</b> idle</div>
-        <div><b>Final email:</b> —</div>
-        <div><b>Final access state:</b> unknown</div>
-      </div>
-    </div>
-    <div class="login-actions login-recovery-actions hidden" id="signInRecoveryActions" aria-live="polite">
-      <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in state</button>
-      <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google again</button>
-      <button class="btn btn-google hidden" type="button" id="retryGooglePopupBtn">Try Google popup instead</button>
-      <button class="btn btn-dark" type="button" id="openDirectTripGuideBtn">Open direct Safari link</button>
-    </div>
-    <div class="login-note">Use Google sign-in. Admins can approve viewers, remove access, or promote any signed-in account to admin without that person requesting admin privileges.</div>
-    <div class="login-debug hidden" id="mobileAuthHelpPanel" aria-live="polite"></div>
+    <details class="mobile-help-details hidden" id="mobileAuthHelpPanel">
+      <summary>Mobile sign-in help</summary>
+      <div class="mobile-help-body" id="mobileAuthHelpBody"></div>
+    </details>
   </div>
 </div>
 <div class="wrap">
@@ -289,7 +273,6 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
       <div class="auth-panel" id="authPanel">
         <div class="auth-row">
-          <button class="btn btn-google" type="button" id="signInBtn" onclick="tripGuideSignInClick(event)">Try Firebase Google popup</button>
           <button class="btn btn-ghost hidden" type="button" id="signOutBtn">Sign out</button>
           <span class="auth-user hidden" id="authUser"><img id="authUserPhoto" alt=""><span id="authUserName">Signed in</span></span>
         </div>
@@ -1141,10 +1124,6 @@ function rememberAuthError(text){
   setAuthBootState('error', lastAuthErrorText);
   const p = getAuthPlatformSignals();
   const isMobileRisk = p.isIOS || p.isInAppBrowser || p.isStandalonePWA || p.isPrivateishStorage;
-  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|redirect-null|redirect-timeout|Sign-in got stuck|did not restore the session|Google sign-in returned to TripGuide/i.test(lastAuthErrorText), {
-    showPopupFallback: p.isIOS || getIOSPopupFallbackEnabled(),
-    reason: lastAuthErrorText
-  });
   setMobileTroubleshootingPanel(isMobileRisk, lastAuthErrorText);
   setTrackerMessage(lastAuthErrorText);
 }
@@ -1155,7 +1134,6 @@ function clearAuthError(){
   lastAuthErrorText = '';
   lastAuthErrorAt = 0;
   try{ sessionStorage.removeItem(LAST_AUTH_ERROR_KEY); }catch(_){ }
-  showSignInRecoveryActions(false, {reason:'clearAuthError'});
 }
 
 function authLog(message, detail){
@@ -1304,23 +1282,6 @@ function hasGoogleAuthReferrer(){
   }
 }
 
-function showSignInRecoveryActions(show, options){
-  options = options || {};
-  const wrap = document.getElementById('signInRecoveryActions');
-  if(!wrap) return;
-  const popupBtn = document.getElementById('retryGooglePopupBtn');
-  if(popupBtn){
-    const allowPopupFallback = !!options.showPopupFallback;
-    popupBtn.classList.toggle('hidden', !allowPopupFallback);
-  }
-  wrap.classList.toggle('hidden', !show);
-  authLog('Recovery actions shown/hidden', {
-    show: !!show,
-    showPopupFallback: !!(options && options.showPopupFallback),
-    reason: options && options.reason ? String(options.reason).slice(0, 140) : ''
-  });
-}
-
 function resetTripGuideSignInState(){
   clearRedirectTrackingFlags();
   redirectUserCache = null;
@@ -1328,7 +1289,6 @@ function resetTripGuideSignInState(){
   redirectHandled = true;
   authStateObserved = true;
   clearAuthError();
-  showSignInRecoveryActions(false, {reason:'manual-reset'});
   setMobileTroubleshootingPanel(false);
   resetSignInButton();
   handleAuthState(null);
@@ -1353,7 +1313,6 @@ function handleAuthResetQueryOnLoad(){
     clearRedirectTrackingFlags();
     redirectUserCache = null;
     clearAuthError();
-    showSignInRecoveryActions(false);
     setMobileTroubleshootingPanel(false);
     clearTripGuideAuthResetUrlParam();
     setAuthBootState('authReset');
@@ -1398,10 +1357,6 @@ function restoreSignInUiAfterRedirectFailure(message, reasonCode, options){
   resetSignInButton();
   setAuthBootState('signedOut', reasonCode || 'redirect-recovery-failed');
   setLoginGate(true, message || 'Sign-in did not complete. Try again.', reasonCode || 'redirect recovery failed');
-  showSignInRecoveryActions(true, {
-    showPopupFallback: !!options.enableIOSPopupFallback,
-    reason: reasonCode || 'redirect-recovery-failed'
-  });
   setTrackerMessage(message || 'Sign-in did not complete. Try again.');
 }
 
@@ -1424,10 +1379,12 @@ async function waitForRecoveredUser(timeoutMs){
 
 function setMobileTroubleshootingPanel(show, reasonText){
   const panel = document.getElementById('mobileAuthHelpPanel');
+  const body = document.getElementById('mobileAuthHelpBody');
   if(!panel) return;
   if(!show){
     panel.classList.add('hidden');
-    panel.innerHTML = '';
+    if(body) body.innerHTML = '';
+    panel.open = false;
     return;
   }
   const signals = getAuthPlatformSignals();
@@ -1435,18 +1392,15 @@ function setMobileTroubleshootingPanel(show, reasonText){
   const inAppLine = includeWhatsAppNote
     ? 'Avoid in-app browsers, especially WhatsApp. Copy the link and open Safari directly.'
     : 'Avoid in-app browsers such as Facebook, Gmail, Instagram, or Messenger.';
-  panel.innerHTML =
-    '<div class="mobile-help-inline">Google sign-in returned to TripGuide, but iPhone Safari did not restore the session. Use one of the options above.</div>' +
-    '<details class="mobile-help-details">' +
-      '<summary>Mobile sign-in troubleshooting</summary>' +
-      '<div class="mobile-help-body">' +
-        '1. Open TripGuide directly in Safari.<br>' +
-        '2. ' + esc(inAppLine) + '<br>' +
-        '3. Turn off Private Browsing.<br>' +
-        '4. Allow cookies/site data for Google and Firebase.<br>' +
-        '5. Try Email sign-in if Google keeps failing.' +
-      '</div>' +
-    '</details>';
+  if(body){
+    body.innerHTML =
+      '1. Open TripGuide directly in Safari.<br>' +
+      '2. ' + esc(inAppLine) + '<br>' +
+      '3. Turn off Private Browsing.<br>' +
+      '4. Allow cookies/site data for Google and Firebase.<br>' +
+      '5. Try Email sign-in if Google keeps failing.';
+  }
+  panel.open = false;
   panel.classList.remove('hidden');
 }
 
@@ -1823,11 +1777,7 @@ async function initFirebaseTracker(){
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('signInBtn', signInWithGooglePopupFallback); bindClick('gateSignInBtn', signInWithGooglePopupFallback); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
-  bindClick('resetSignInStateBtn', resetTripGuideSignInState);
-  bindClick('retryGoogleSignInBtn', retryGoogleAfterFailure);
-  bindClick('retryGooglePopupBtn', signInWithGooglePopupFallback);
-  bindClick('openDirectTripGuideBtn', openDirectTripGuideLink);
+  bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('gatePasswordResetBtn', sendPasswordResetFromGate); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
@@ -1842,6 +1792,20 @@ function bindHubControls(){
   });
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
+
+async function sendPasswordResetFromGate(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    const raw = document.getElementById('gateEmailInput')?.value || document.getElementById('authEmailInput')?.value || '';
+    const email = String(raw || '').trim().toLowerCase();
+    if(!email){ rememberAuthError('Enter your email address first, then tap Reset password.'); return; }
+    await trackerAuth.sendPasswordResetEmail(email);
+    setTrackerMessage('Password reset email sent. Check your inbox for ' + email + '.');
+  }catch(e){
+    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+  }
+}
 function setLoginGate(show, message, reason){
   const gate=document.getElementById('loginGate');
   const gateMsg=document.getElementById('gateAuthMessage');
@@ -1849,11 +1813,9 @@ function setLoginGate(show, message, reason){
   if(document.body) document.body.classList.toggle('login-required', !!show);
   if(gateMsg && message) gateMsg.textContent = message;
   if(reason){ authLog('gate shown/hidden reason: ' + (show ? 'show' : 'hide') + ' - ' + reason); }
-  if(show){ setTimeout(()=>{ try{ document.getElementById('gateSignInBtn')?.focus(); }catch(_){} }, 80); }
+  if(show){ setTimeout(()=>{ try{ document.getElementById('gateEmailInput')?.focus(); }catch(_){} }, 80); }
 }
 function resetSignInButton(){
-  const btn=document.getElementById('signInBtn'); if(btn){ btn.textContent='Try Firebase Google popup'; btn.disabled=false; }
-  const gateBtn=document.getElementById('gateSignInBtn'); if(gateBtn){ gateBtn.textContent='Try Firebase Google popup'; gateBtn.disabled=false; }
   const buttonLabels={
     gateEmailSignInBtn:'Sign in with email',
     authEmailSignInBtn:'Email sign-in',
@@ -1895,8 +1857,8 @@ async function startGoogleIdentitySignIn(){
     if(!platform.isLikelyInAppLaunch) setMobileTroubleshootingPanel(false);
     const initialized = await initGoogleIdentityServices();
     if(!initialized){
-      setGoogleIdentityStatus('Google sign-in is unavailable. Use popup or email/password fallback.');
-      rememberAuthError('Google sign-in is unavailable. Use popup or email/password fallback.');
+      setGoogleIdentityStatus('Google sign-in failed. Try again or use email/password.');
+      rememberAuthError('Google sign-in failed. Try again or use email/password.');
       return;
     }
     setGoogleIdentityStatus('Tap the Google button to sign in.');
@@ -1918,8 +1880,6 @@ async function signInWithGooglePopupFallback(){
   if(googleSignInPending) return;
   googleSignInPending = true;
   clearAuthError();
-  const btn = document.getElementById('signInBtn');
-  const gateBtn = document.getElementById('gateSignInBtn');
   try{
     if(!trackerAuth){
       try{ initFirebaseTracker(); }catch(_){ }
@@ -1939,8 +1899,6 @@ async function signInWithGooglePopupFallback(){
       selectedSignInMethod: 'firebase-popup'
     });
     setAuthDebugStatus({firebaseSignIn:'pending'});
-    if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
-    if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
     setLoginGate(true, 'Opening Google Sign-In…');
     setTrackerMessage('Opening Google Sign-In…');
     setMobileTroubleshootingPanel(false);
@@ -2056,17 +2014,6 @@ async function registerWithEmailPassword(){
     if(!currentUser) resetSignInButton();
   }
 }
-function tripGuideSignInClick(event){
-  if(event){ event.preventDefault(); event.stopPropagation(); }
-  setTrackerMessage('Opening Firebase Google popup fallback…');
-  signInWithGooglePopupFallback();
-}
-window.tripGuideSignInClick = tripGuideSignInClick;
-// Capture-phase backup in case another element steals or blocks the button handler.
-document.addEventListener('click', function(e){
-  const btn = e.target && e.target.closest ? e.target.closest('#signInBtn') : null;
-  if(btn){ tripGuideSignInClick(e); }
-}, true);
 function handleAuthState(user){
   cleanupSecureListeners();
   currentUser = user || null;
@@ -2809,7 +2756,7 @@ function authErrorMessage(e){
   if(code === 'auth/admin-restricted-operation') return 'Account creation is restricted. An admin may need to create or approve this account. (' + code + ')';
   if(code === 'auth/account-exists-with-different-credential') return 'This email already exists with a different sign-in method. (' + code + ')';
   if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Turn off Private Browsing or open in Safari/Chrome. (' + code + ')';
-  if(code === 'auth/popup-blocked') return 'Popup was blocked. Retrying with redirect. (' + code + ')';
+  if(code === 'auth/popup-blocked') return 'Popup was blocked. Try again or use email/password. (' + code + ')';
   if(code === 'auth/popup-closed-by-user') return 'Sign-in was closed before completion. (' + code + ')';
   if(code === 'auth/network-request-failed') return 'Network error. Check connection and retry. (' + code + ')';
   if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account in Firebase Authentication -> Users. (' + code + ')';
