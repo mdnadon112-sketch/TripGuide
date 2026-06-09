@@ -517,6 +517,22 @@ function getDayCompleteCopy(day) {
   };
 }
 
+function isCreatedAtIndexError(err) {
+  const text = String(err && (err.message || err.code || err) || '');
+  return /index not defined|\.indexOn|createdAt/i.test(text);
+}
+
+async function readRecentMessagesSnapshot(db) {
+  try {
+    return await db.ref(`${TRACKER_BASE}/messages`).orderByChild('createdAt').limitToLast(25).get();
+  } catch (err) {
+    if (isCreatedAtIndexError(err)) {
+      throw new Error("Firebase rules need .indexOn ['createdAt'] under /tripGuide/messages.");
+    }
+    throw err;
+  }
+}
+
 function inferDayCompletionFromLocation(live, liveTrackers, activeDay, options = {}) {
   if (!(activeDay >= 1 && activeDay <= 9)) return 0;
   const destinationMap = options.destinationMap || DAY_COMPLETION_DESTINATIONS;
@@ -739,16 +755,30 @@ function newestLiveTimestamp(live, liveTrackers) {
 }
 
 async function main() {
-  const serviceAccount = JSON.parse(required('FIREBASE_SERVICE_ACCOUNT_JSON'));
+  let serviceAccount;
+  try {
+    serviceAccount = JSON.parse(required('FIREBASE_SERVICE_ACCOUNT_JSON'));
+  } catch {
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.');
+  }
 
-  const app = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: resolveDatabaseUrl(serviceAccount)
-  });
+  let app;
 
   try {
-    const db = admin.database();
-    const messaging = admin.messaging();
+    app = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: resolveDatabaseUrl(serviceAccount)
+    });
+
+    const db = admin.database(app);
+    const messaging = admin.messaging(app);
+
+    const pushTokensSnap = await db.ref(`${TRACKER_BASE}/pushTokens`).get();
+    const pushTokens = pushTokensSnap.val() || {};
+    if (!Object.keys(pushTokens).length) {
+      console.log('No push tokens.');
+      return;
+    }
 
     const [
       liveSnap,
@@ -758,19 +788,17 @@ async function main() {
       adminsSnap,
       approvedSnap,
       blockedSnap,
-      pushTokensSnap,
       stateSnap,
       dayDestinationsSnap,
       tripConfigDayDestinationsSnap
     ] = await Promise.all([
       db.ref(`${TRACKER_BASE}/live`).get(),
       db.ref(`${TRACKER_BASE}/liveTrackers`).get(),
-      db.ref(`${TRACKER_BASE}/messages`).orderByChild('createdAt').limitToLast(25).get(),
+      readRecentMessagesSnapshot(db),
       db.ref(`${TRACKER_BASE}/accessRequests`).get(),
       db.ref(`${TRACKER_BASE}/admins`).get(),
       db.ref(`${TRACKER_BASE}/approvedUsers`).get(),
       db.ref(`${TRACKER_BASE}/blockedUsers`).get(),
-      db.ref(`${TRACKER_BASE}/pushTokens`).get(),
       db.ref(`${TRACKER_BASE}/notificationState`).get(),
       db.ref(`${TRACKER_BASE}/dayCompletionDestinations`).get(),
       db.ref(`${TRACKER_BASE}/tripConfig/dayCompletionDestinations`).get()
@@ -783,7 +811,6 @@ async function main() {
     const admins = adminsSnap.val() || {};
     const approvedUsers = approvedSnap.val() || {};
     const blockedUsers = blockedSnap.val() || {};
-    const pushTokens = pushTokensSnap.val() || {};
     const state = stateSnap.val() || {};
     const dayDestinationOverrides = normalizeDestinationMap(dayDestinationsSnap.val() || {});
     const tripConfigDestinationOverrides = normalizeDestinationMap(tripConfigDayDestinationsSnap.val() || {});
@@ -1055,13 +1082,17 @@ async function main() {
       throw new Error('Notification rules/copy missing.');
     }
   } finally {
-    await app.delete();
+    if (app) {
+      await app.delete();
+    }
   }
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((err) => {
+(async () => {
+  try {
+    await main();
+  } catch (err) {
     console.error(err);
-    process.exit(1);
-  });
+    process.exitCode = 1;
+  }
+})();

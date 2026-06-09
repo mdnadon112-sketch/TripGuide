@@ -147,14 +147,16 @@ async function main() {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.');
   }
 
-  const app = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: resolveDatabaseUrl(serviceAccount)
-  });
+  let app;
 
   try {
-    const db = admin.database();
-    const messaging = admin.messaging();
+    app = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: resolveDatabaseUrl(serviceAccount)
+    });
+
+    const db = admin.database(app);
+    const messaging = admin.messaging(app);
 
     const [pushTokensSnap, adminsSnap, approvedSnap] = await Promise.all([
       db.ref(`${TRACKER_BASE}/pushTokens`).get(),
@@ -236,13 +238,17 @@ async function main() {
 
     console.log(`targetType=${targetType} attempted=${tokenRecords.length} success=${success} failure=${failure} cleaned=${cleaned}`);
   } finally {
-    await app.delete();
+    if (app) {
+      await app.delete();
+    }
   }
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((err) => {
+(async () => {
+  try {
+    await main();
+  } catch (err) {
     console.error(err.message || err);
-    process.exit(1);
-  });
+    process.exitCode = 1;
+  }
+})();
