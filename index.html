@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#081426">
-<title>Final Trip — Mobile Google Maps Guide v5.27 Push Key Ready</title>
+<title>TripGuide</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
@@ -258,7 +258,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       <h2 id="loginGateTitle">Secure Live Trip Hub</h2>
       <p>Sign in to view live location, trip updates, and messages.</p>
       <div class="google-identity-shell">
-        <div class="google-identity-label">Google Sign-In</div>
+        <div class="google-identity-label">Google sign-in</div>
         <div id="googleIdentityButton" class="google-identity-button"></div>
         <div class="google-identity-note" id="googleIdentityStatus">Tap the Google button to sign in with your Google account.</div>
       </div>
@@ -267,11 +267,11 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       <div class="email-login-panel hidden" id="emailLoginPanel">
         <input class="login-input" id="gateEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
         <input class="login-input" id="gatePasswordInput" type="password" autocomplete="current-password" placeholder="Password">
-        <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Log in</button>
+        <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Sign in</button>
         <div class="auth-link-row">
           <button class="btn-link" type="button" id="goToRegisterBtn">Don&#39;t have an account? Create one</button>
           <button class="btn-link" type="button" id="goToResetBtn">Forgot password?</button>
-          <button class="btn-link" type="button" id="hideEmailLoginBtn">Hide email login</button>
+          <button class="btn-link" type="button" id="hideEmailLoginBtn">Hide email sign-in</button>
         </div>
       </div>
     </div>
@@ -279,7 +279,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <!-- ── REGISTER VIEW ──────────────────────────────────────── -->
     <div id="authViewRegister" class="hidden">
       <h2 class="auth-view-title">Create your account</h2>
-      <p class="auth-view-sub">Create an account, then request access to the trip hub.</p>
+      <p class="auth-view-sub">Create your account, then request access to the trip.</p>
       <div class="auth-form">
         <input class="login-input" id="regNameInput" type="text" autocomplete="name" placeholder="Full name">
         <input class="login-input" id="regEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
@@ -287,7 +287,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <input class="login-input" id="regConfirmInput" type="password" autocomplete="new-password" placeholder="Confirm password">
         <button class="btn btn-go" type="button" id="createAccountBtn">Create account</button>
         <div class="auth-link-row">
-          <button class="btn-link" type="button" id="backToLoginFromRegBtn">Already have an account? Log in</button>
+          <button class="btn-link" type="button" id="backToLoginFromRegBtn">Already have an account? Sign in</button>
         </div>
       </div>
     </div>
@@ -300,13 +300,13 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <input class="login-input" id="resetEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
         <button class="btn btn-dark" type="button" id="sendResetLinkBtn">Send reset link</button>
         <div class="auth-link-row">
-          <button class="btn-link" type="button" id="backToLoginFromResetBtn">Back to login</button>
+          <button class="btn-link" type="button" id="backToLoginFromResetBtn">Back to sign in</button>
         </div>
       </div>
     </div>
 
     <!-- ── STATUS / MOBILE HELP ───────────────────────────────── -->
-    <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
+    <div class="login-debug" id="gateAuthMessage">Checking your sign-in…</div>
     <details class="mobile-help-details hidden" id="mobileAuthHelpPanel">
       <summary>Mobile sign-in help</summary>
       <div class="mobile-help-body" id="mobileAuthHelpBody"></div>
@@ -316,10 +316,10 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 <div class="wrap">
   <section class="tracker-panel top-hub" id="liveTracker" aria-label="Live trip tracker">
       <div class="tracker-top">
-        <div><h2>Secure Live Trip Hub</h2><p>Live location, current watchers, access approvals, admin assignment, and trip messages.</p></div>
+        <div><h2>Secure Live Trip Hub</h2><p>Live location, trip updates, access requests, admin tools, and messages.</p></div>
         <div class="auth-row">
-          <span class="admin-badge" id="adminBadge">0 pending</span>
-          <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in required</span></span>
+          <span class="admin-badge" id="adminBadge">0 waiting</span>
+          <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in to continue</span></span>
           <button class="btn btn-go" type="button" id="showMikeLaurenBtn" onclick="showMikeAndLauren()">Show me Mike and Lauren</button>
         </div>
       </div>
@@ -332,7 +332,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <input class="login-input" id="authEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
           <input class="login-input" id="authPasswordInput" type="password" autocomplete="current-password" placeholder="Password">
           <button class="btn btn-dark btn-small" type="button" id="authEmailSignInBtn">Email sign-in</button>
-          <button class="btn btn-ghost btn-small" type="button" id="authEmailRegisterBtn">Register / Make an account</button>
+          <button class="btn btn-ghost btn-small" type="button" id="authEmailRegisterBtn">Create account</button>
         </div>
         <div class="tracker-alert auth-debug" id="authMessage">Not signed in.</div>
       </div>
@@ -368,25 +368,25 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <div class="tracker-card"><b>Active day</b><span id="trackerDay">—</span></div>
         </div>
         <div class="tracker-modes">
-          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center Live Marker</button>
-          <button class="btn btn-google" type="button" id="enablePushBtn">Enable Notifications</button>
+          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center live marker</button>
+          <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
         </div>
-        <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications not enabled.</div>
+        <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications are off.</div>
         </div>
         <div class="hub-section hidden" id="hubSectionAdmin" data-hub-section="admin">
         <div class="tracker-modes hidden" id="pushDiagnosticsToggleWrap">
-          <button class="btn btn-dark btn-small" type="button" id="togglePushDiagnosticsBtn">Advanced Push Diagnostics</button>
+          <button class="btn btn-dark btn-small" type="button" id="togglePushDiagnosticsBtn">Notification details</button>
         </div>
         <div class="push-diagnostics hidden" id="pushDiagnosticsPanel">
-          <div><h3>Push Diagnostics</h3><p>Checks browser readiness, service worker registration, and saved push tokens for this device.</p></div>
+          <div><h3>Notification details</h3><p>Shows whether this device is ready for trip notifications.</p></div>
           <div class="push-diagnostics-grid">
             <div class="push-diagnostics-card">
               <h4>Browser support</h4>
               <div class="push-diagnostics-list">
-                <div class="push-diag-row"><span class="push-diag-label">Service Worker supported</span><span class="push-diag-value" id="pushSupportServiceWorker">—</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">Notification API supported</span><span class="push-diag-value" id="pushSupportNotification">—</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">Firebase Messaging available</span><span class="push-diag-value" id="pushSupportMessaging">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Supports notifications</span><span class="push-diag-value" id="pushSupportServiceWorker">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Browser permission</span><span class="push-diag-value" id="pushSupportNotification">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Message service ready</span><span class="push-diag-value" id="pushSupportMessaging">—</span></div>
                 <div class="push-diag-row"><span class="push-diag-label">Permission</span><span class="push-diag-value" id="pushPermissionStatus">—</span></div>
                 <div class="push-diag-row"><span class="push-diag-label">Platform hint</span><span class="push-diag-value" id="pushPlatformHint">—</span></div>
               </div>
@@ -394,54 +394,54 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             <div class="push-diagnostics-card">
               <h4>Service worker</h4>
               <div class="push-diagnostics-list">
-                <div class="push-diag-row"><span class="push-diag-label">Registered successfully</span><span class="push-diag-value" id="pushSwRegistered">No</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">Scope</span><span class="push-diag-value" id="pushSwScope">Not attempted yet</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">Registration error</span><span class="push-diag-value" id="pushSwError">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Ready</span><span class="push-diag-value" id="pushSwRegistered">No</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Status</span><span class="push-diag-value" id="pushSwScope">Not checked yet</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Setup issue</span><span class="push-diag-value" id="pushSwError">—</span></div>
               </div>
             </div>
             <div class="push-diagnostics-card">
-              <h4>Current user token</h4>
+              <h4>Current device</h4>
               <div class="push-diagnostics-list">
-                <div class="push-diag-row"><span class="push-diag-label">Token saved</span><span class="push-diag-value" id="pushTokenSaved">No</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">createdAt</span><span class="push-diag-value" id="pushTokenCreatedAt">—</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">lastSeen</span><span class="push-diag-value" id="pushTokenLastSeen">—</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">enabled</span><span class="push-diag-value" id="pushTokenEnabled">—</span></div>
-                <div class="push-diag-row"><span class="push-diag-label">Masked token</span><span class="push-diag-value" id="pushTokenMasked">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Saved</span><span class="push-diag-value" id="pushTokenSaved">No</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Added</span><span class="push-diag-value" id="pushTokenCreatedAt">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Last used</span><span class="push-diag-value" id="pushTokenLastSeen">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Enabled</span><span class="push-diag-value" id="pushTokenEnabled">—</span></div>
+                <div class="push-diag-row"><span class="push-diag-label">Device ID</span><span class="push-diag-value" id="pushTokenMasked">—</span></div>
               </div>
-              <div class="tracker-modes"><button class="btn btn-food" type="button" id="disablePushBtn">Disable Notifications on This Device</button></div>
+              <div class="tracker-modes"><button class="btn btn-food" type="button" id="disablePushBtn">Turn off notifications on this device</button></div>
               <div class="push-diag-error" id="pushTokenError"></div>
             </div>
           </div>
           <div class="push-diagnostics-admin hidden" id="pushDiagnosticsAdmin">
-            <h4>Admin token overview</h4>
-            <p>Admins can confirm which devices have saved push tokens and whether they are still enabled.</p>
+            <h4>Notification overview</h4>
+            <p>Admins can check which devices are ready for notifications.</p>
             <div class="push-diagnostics-summary">
-              <div class="tracker-card"><b>Total users with tokens</b><span id="pushAdminUserCount">0</span></div>
-              <div class="tracker-card"><b>Total enabled tokens</b><span id="pushAdminEnabledCount">0</span></div>
+              <div class="tracker-card"><b>Devices ready</b><span id="pushAdminUserCount">0</span></div>
+              <div class="tracker-card"><b>Enabled devices</b><span id="pushAdminEnabledCount">0</span></div>
             </div>
             <div class="push-diagnostics-card" id="pushSendPanel">
-              <h4>Send Notification</h4>
-              <p>Optional Cloud Functions sender (legacy). Required TripGuide push notifications are sent from GitHub Actions workflows.</p>
+              <h4>Send update</h4>
+              <p>Optional Cloud Functions sender (legacy). Required TripGuide notifications are sent from GitHub Actions workflows.</p>
               <div class="admin-tool-grid">
-                <input class="login-input" id="pushSendTitleInput" maxlength="80" placeholder="Notification title (max 80)">
-                <input class="login-input" id="pushSendBodyInput" maxlength="240" placeholder="Message body (max 240)">
+                <input class="login-input" id="pushSendTitleInput" maxlength="80" placeholder="Update title (max 80)">
+                <input class="login-input" id="pushSendBodyInput" maxlength="240" placeholder="Update message (max 240)">
                 <select class="login-input" id="pushSendTargetSelect">
                   <option value="allActive">All active viewers</option>
                   <option value="adminsOnly">Admins only</option>
                   <option value="approvedViewers">Approved viewers</option>
-                  <option value="singleUser">Single user</option>
+                  <option value="singleUser">One person</option>
                 </select>
               </div>
               <div class="admin-tool-grid">
-                <input class="login-input" id="pushSendUidInput" placeholder="Single user UID (required for Single user)">
-                <input class="login-input" id="pushSendUrlInput" placeholder="Optional URL (default /TripGuide/)">
-                <button class="btn btn-go" type="button" id="sendPushNotificationBtn">Send Notification</button>
+                <input class="login-input" id="pushSendUidInput" placeholder="Person ID (required for One person)">
+                <input class="login-input" id="pushSendUrlInput" placeholder="Optional link (default /TripGuide/)">
+                <button class="btn btn-go" type="button" id="sendPushNotificationBtn">Send update</button>
               </div>
               <p class="admin-tool-note">This panel only works if the optional <code>sendTripGuideNotification</code> Cloud Function is deployed. Use GitHub Actions for required notifications.</p>
               <div class="tracker-alert" id="pushSendResult"></div>
             </div>
-            <div class="tracker-modes"><button class="btn btn-dark" type="button" id="cleanupPushTokensBtn">Clean Disabled/Stale Tokens</button></div>
-            <div class="push-token-list" id="pushAdminTokenList"><div class="push-token-empty">Admin token details load after an admin signs in.</div></div>
+            <div class="tracker-modes"><button class="btn btn-dark" type="button" id="cleanupPushTokensBtn">Clean old device records</button></div>
+            <div class="push-token-list" id="pushAdminTokenList"><div class="push-token-empty">Device details appear after an admin signs in.</div></div>
           </div>
         </div>
         <div class="driver-panel" id="driverPanel">
@@ -1395,7 +1395,7 @@ function clearStaleRedirectFlagsOnLoad(){
 }
 
 function redirectRecoveryFailureMessage(code){
-  const base = 'Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari.';
+  const base = 'Sign-in did not finish. Reset sign-in and try again. If you are on iPhone, open this page directly in Safari.';
   return code ? (base + ' (' + code + ')') : base;
 }
 
@@ -1449,8 +1449,8 @@ function setMobileTroubleshootingPanel(show, reasonText){
       '1. Open TripGuide directly in Safari.<br>' +
       '2. ' + esc(inAppLine) + '<br>' +
       '3. Turn off Private Browsing.<br>' +
-      '4. Allow cookies/site data for Google and Firebase.<br>' +
-      '5. Try Email sign-in if Google keeps failing.';
+      '4. Allow cookies and site data for TripGuide.<br>' +
+      '5. Try email sign-in if needed.';
   }
   panel.open = false;
   panel.classList.remove('hidden');
@@ -1486,9 +1486,9 @@ function handleGoogleIdentityCredentialResponse(response){
   authLog('Google Identity callback received', {hasCredential});
   setAuthDebugStatus({credentialReceived: hasCredential ? 'yes' : 'no'});
   if(!hasCredential){
-    setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    setGoogleIdentityStatus('We could not finish sign-in. Try again or use email sign-in.');
     setAuthDebugStatus({firebaseSignIn: 'error:no-credential'});
-    rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
+    rememberAuthError('We could not finish sign-in. Try again or use email sign-in.');
     return;
   }
   signInWithFirebaseGoogleIdToken(response.credential).catch(err => {
@@ -1507,14 +1507,14 @@ function renderGoogleIdentityButton(){
   if(!clientId){
     googleIdentityButtonReady = false;
     setAuthDebugStatus({gisButtonRendered:'no'});
-    if(statusEl) statusEl.textContent = 'Add a Google OAuth web client ID to enable the Google button.';
+    if(statusEl) statusEl.textContent = 'Google sign-in is not set up yet.';
     authLog('Google Identity Services missing client ID');
     return false;
   }
   if(!(window.google && google.accounts && google.accounts.id)){
     googleIdentityButtonReady = false;
     setAuthDebugStatus({gisButtonRendered:'no'});
-    if(statusEl) statusEl.textContent = 'Google sign-in is loading…';
+    if(statusEl) statusEl.textContent = 'Loading Google sign-in…';
     authLog('Google Identity Services script missing');
     return false;
   }
@@ -1543,7 +1543,7 @@ function renderGoogleIdentityButton(){
   }catch(err){
     googleIdentityButtonReady = false;
     setAuthDebugStatus({gisButtonRendered:'no'});
-    if(statusEl) statusEl.textContent = 'Google sign-in could not be rendered. Use popup or email/password fallback.';
+    if(statusEl) statusEl.textContent = 'Google sign-in could not be shown. Use email sign-in instead.';
     authLog('Google Identity Services render failed', err && (err.code || err.message || String(err)));
     return false;
   }
@@ -1554,7 +1554,7 @@ async function initGoogleIdentityServices(){
   googleIdentityInitPromise = (async () => {
     const clientId = getGoogleIdentityClientId();
     if(!clientId){
-      setGoogleIdentityStatus('Set the Google OAuth web client ID to enable Google sign-in.');
+      setGoogleIdentityStatus('Google sign-in is not set up yet.');
       setAuthDebugStatus({gisLoaded:'no'});
       authLog('Google Identity Services unavailable: missing client ID');
       return false;
@@ -1562,7 +1562,7 @@ async function initGoogleIdentityServices(){
     const ready = await waitForGoogleIdentityServices(4000);
     if(!ready){
       googleIdentityScriptChecked = true;
-      setGoogleIdentityStatus('Google sign-in is unavailable. Use popup or email/password fallback.');
+      setGoogleIdentityStatus('Google sign-in is not available right now. Use email sign-in instead.');
       setAuthDebugStatus({gisLoaded:'no'});
       authLog('Google Identity Services missing or timed out');
       return false;
@@ -1580,15 +1580,15 @@ async function signInWithFirebaseGoogleIdToken(idToken){
     try{ initFirebaseTracker(); }catch(_){ }
   }
   if(!trackerAuth){
-    setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+    setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.');
     return null;
   }
   const token = String(idToken || '').trim();
   if(!token){
     authLog('Google Identity credential missing');
-    setGoogleIdentityStatus('Google did not return a sign-in credential. Try again or use email/password.');
+    setGoogleIdentityStatus('We could not finish sign-in. Try again or use email sign-in.');
     setAuthDebugStatus({credentialReceived:'no', firebaseSignIn:'error:no-credential'});
-    rememberAuthError('Google did not return a sign-in credential. Try again or use email/password.');
+    rememberAuthError('We could not finish sign-in. Try again or use email sign-in.');
     return null;
   }
   const provider = firebase.auth.GoogleAuthProvider.credential(token);
@@ -1604,7 +1604,7 @@ async function signInWithFirebaseGoogleIdToken(idToken){
       clearRedirectTrackingFlags();
       setIOSPopupFallbackEnabled(false);
       await upsertSignedInUserProfile(user);
-      setGoogleIdentityStatus('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
+      setGoogleIdentityStatus('Signed in as ' + (authEmail(user) || user.displayName || 'visitor') + '.');
       setAuthDebugStatus({firebaseSignIn:'success', finalEmail: authEmail(user) || user.email || '—'});
       setTrackerMessage('Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.');
     }
@@ -1618,11 +1618,11 @@ async function signInWithFirebaseGoogleIdToken(idToken){
 
 function firebaseIdentityErrorMessage(err){
   const code = (err && err.code) ? err.code : '';
-  if(code === 'auth/unauthorized-domain') return 'Firebase rejected this origin. Add https://mdnadon112-sketch.github.io to authorized domains. (' + code + ')';
-  if(code === 'auth/operation-not-allowed') return 'Google sign-in is disabled in Firebase. Enable Google as a sign-in provider. (' + code + ')';
-  if(code === 'auth/account-exists-with-different-credential') return 'That email already exists with a different sign-in method. Use the matching method. (' + code + ')';
-  if(code === 'auth/network-request-failed') return 'Network error while signing in. Check your connection and try again. (' + code + ')';
-  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Turn off Private Browsing or use a full browser. (' + code + ')';
+  if(code === 'auth/unauthorized-domain') return 'Sign-in is not available from this web address yet.';
+  if(code === 'auth/operation-not-allowed') return 'This sign-in option is not available right now.';
+  if(code === 'auth/account-exists-with-different-credential') return 'That email is already linked to another sign-in method.';
+  if(code === 'auth/network-request-failed') return 'We could not connect. Check your internet and try again.';
+  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Try a full browser.';
   return authErrorMessage(err);
 }
 
@@ -1747,7 +1747,7 @@ function startAuthObserver(){
     authStateObserved = true;
     setAuthBootState('error', err && (err.code || err.message || String(err)));
     authLog('onAuthStateChanged fired with error', err && (err.code || err.message || String(err)));
-    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+    rememberAuthError(authErrorMessage(err));
     renderAuthState(null);
   });
 }
@@ -1871,14 +1871,14 @@ function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addE
 async function sendPasswordResetFromGate(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.'); return; }
     const raw = document.getElementById('gateEmailInput')?.value || document.getElementById('authEmailInput')?.value || '';
     const email = String(raw || '').trim().toLowerCase();
     if(!email){ rememberAuthError('Enter your email address first, then tap Reset password.'); return; }
     await trackerAuth.sendPasswordResetEmail(email);
     setTrackerMessage('Password reset email sent. Check your inbox for ' + email + '.');
   }catch(e){
-    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    rememberAuthError(authErrorMessage(e));
   }
 }
 
@@ -1912,7 +1912,7 @@ function setLoginView(view){
 async function handleEmailLogin(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh and try again.'); return; }
     const email = String((document.getElementById('gateEmailInput')?.value || document.getElementById('authEmailInput')?.value || '')).trim().toLowerCase();
     const password = String(document.getElementById('gatePasswordInput')?.value || document.getElementById('authPasswordInput')?.value || '');
     if(!email){ rememberAuthError('Please enter your email address.'); return; }
@@ -1933,7 +1933,7 @@ async function handleEmailLogin(){
   }catch(e){
     const code = e && e.code ? e.code : '';
     if(code === 'auth/operation-not-allowed'){
-      rememberAuthError('Email/password sign-in is not enabled in Firebase.');
+      rememberAuthError('This sign-in option is not available right now.');
     } else {
       rememberAuthError(authErrorMessage(e));
     }
@@ -1946,7 +1946,7 @@ async function handleEmailLogin(){
 async function handleCreateAccount(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh and try again.'); return; }
     const fullName = String(document.getElementById('regNameInput')?.value || '').trim();
     const email = String(document.getElementById('regEmailInput')?.value || '').trim().toLowerCase();
     const password = String(document.getElementById('regPasswordInput')?.value || '');
@@ -1973,7 +1973,7 @@ async function handleCreateAccount(){
   }catch(e){
     const code = e && e.code ? e.code : '';
     if(code === 'auth/operation-not-allowed'){
-      rememberAuthError('Email/password sign-in is not enabled in Firebase.');
+      rememberAuthError('This sign-in option is not available right now.');
     } else {
       rememberAuthError(authErrorMessage(e));
     }
@@ -1986,7 +1986,7 @@ async function handleCreateAccount(){
 async function handlePasswordReset(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh and try again.'); return; }
     const email = String(document.getElementById('resetEmailInput')?.value || '').trim().toLowerCase();
     if(!email){ rememberAuthError('Please enter your email address.'); return; }
     const btn = document.getElementById('sendResetLinkBtn');
@@ -2024,7 +2024,7 @@ function resetSignInButton(){
     authEmailSignInBtn:'Email sign-in',
     createAccountBtn:'Create account',
     sendResetLinkBtn:'Send reset link',
-    authEmailRegisterBtn:'Register / Make an account'
+    authEmailRegisterBtn:'Create account'
   };
   Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
 }
@@ -2037,7 +2037,7 @@ async function startGoogleIdentitySignIn(){
       try{ initFirebaseTracker(); }catch(_){ }
     }
     if(!trackerAuth){
-      setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+      setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.');
       return;
     }
     const platform = getAuthPlatformSignals();
@@ -2053,7 +2053,7 @@ async function startGoogleIdentitySignIn(){
     });
     if(platform.isIOS && platform.isStandalonePWA){
       setMobileTroubleshootingPanel(true, 'iOS Home Screen/PWA mode detected');
-      rememberAuthError('For iPhone Home Screen mode, open TripGuide in Safari first to complete sign-in, then return to the Home Screen app.');
+      rememberAuthError('For iPhone Home Screen mode, open TripGuide in Safari first to finish sign-in, then return to the app.');
       return;
     }
     setLoginGate(true, 'Opening Google Sign-In…');
@@ -2061,19 +2061,19 @@ async function startGoogleIdentitySignIn(){
     if(!platform.isLikelyInAppLaunch) setMobileTroubleshootingPanel(false);
     const initialized = await initGoogleIdentityServices();
     if(!initialized){
-      setGoogleIdentityStatus('Google sign-in failed. Try again or use email/password.');
-      rememberAuthError('Google sign-in failed. Try again or use email/password.');
+      setGoogleIdentityStatus('We could not finish sign-in. Try again or use email sign-in.');
+      rememberAuthError('We could not finish sign-in. Try again or use email sign-in.');
       return;
     }
-    setGoogleIdentityStatus('Tap the Google button to sign in.');
+    setGoogleIdentityStatus('Tap the Google button to continue.');
     const rendered = renderGoogleIdentityButton();
     authLog('Google Identity sign-in ready', {rendered, googleIdentityButtonReady});
     if(!rendered){
-      rememberAuthError('Google sign-in could not be rendered. Use popup or email/password fallback.');
+      rememberAuthError('Google sign-in could not be shown. Use email sign-in instead.');
     }
   }catch(e){
     authLog('Google Identity sign-in initialization failed', e && (e.code || e.message || String(e)));
-    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    rememberAuthError(authErrorMessage(e));
   }finally{
     googleSignInPending = false;
     if(!currentUser) resetSignInButton();
@@ -2089,7 +2089,7 @@ async function signInWithGooglePopupFallback(){
       try{ initFirebaseTracker(); }catch(_){ }
     }
     if(!trackerAuth){
-      setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.');
+      setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.');
       return;
     }
     const platform = getAuthPlatformSignals();
@@ -2121,14 +2121,14 @@ async function signInWithGooglePopupFallback(){
     authLog('Firebase Google popup failed', err && (err.code || err.message || String(err)));
     if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
       setAuthDebugStatus({firebaseSignIn:'error:' + String(code || 'popup')});
-      setMobileTroubleshootingPanel(true, 'Popup sign-in was blocked or closed. Try again, or use Email sign-in if enabled in Firebase.');
+      setMobileTroubleshootingPanel(true, 'The sign-in window was blocked or closed. Try again or use email sign-in.');
       rememberAuthError(code === 'auth/operation-not-supported-in-this-environment'
-        ? 'Popup sign-in is not supported in this browser. Use Email sign-in or open TripGuide in a full browser.'
+        ? 'This sign-in option is not supported in this browser. Use email sign-in or open TripGuide in a full browser.'
         : authErrorMessage(err));
       return;
     }
     setAuthDebugStatus({firebaseSignIn:'error:' + String(code || 'unknown')});
-    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+    rememberAuthError(authErrorMessage(err));
   }finally{
     googleSignInPending = false;
     if(!currentUser) resetSignInButton();
@@ -2139,14 +2139,14 @@ async function signInWithGoogle(){ return startGoogleIdentitySignIn(); }
 async function signInWithEmailPassword(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.'); return; }
     const gateEmail = document.getElementById('gateEmailInput')?.value || '';
     const authEmailValue = document.getElementById('authEmailInput')?.value || '';
     const gatePass = document.getElementById('gatePasswordInput')?.value || '';
     const authPass = document.getElementById('authPasswordInput')?.value || '';
     const email = String(gateEmail || authEmailValue).trim().toLowerCase();
     const password = String(gatePass || authPass);
-    if(!email || !password){ rememberAuthError('Enter the Firebase email and password, then tap Sign in with email or Register / Make an account.'); return; }
+    if(!email || !password){ rememberAuthError('Enter your email and password, then tap Sign in or Create account.'); return; }
     const gateBtn=document.getElementById('gateEmailSignInBtn');
     const authBtn=document.getElementById('authEmailSignInBtn');
     const gateRegisterBtn=document.getElementById('gateEmailRegisterBtn');
@@ -2155,8 +2155,8 @@ async function signInWithEmailPassword(){
     if(authBtn){ authBtn.textContent='Signing in…'; authBtn.disabled=true; }
     if(gateRegisterBtn){ gateRegisterBtn.disabled=true; }
     if(authRegisterBtn){ authRegisterBtn.disabled=true; }
-    setLoginGate(true, 'Signing in with Firebase email/password…');
-    setTrackerMessage('Signing in with Firebase email/password…');
+    setLoginGate(true, 'Signing in…');
+    setTrackerMessage('Signing in…');
     await setAuthPersistenceSafely();
     const result = await trackerAuth.signInWithEmailAndPassword(email, password);
     if(result && result.user){
@@ -2169,9 +2169,9 @@ async function signInWithEmailPassword(){
     }
   }catch(e){
     if(e && e.code === 'auth/operation-not-allowed'){
-      rememberAuthError('Email/password provider is not enabled in Firebase. Enable Email/Password in Firebase Authentication -> Sign-in method.');
+      rememberAuthError('This sign-in option is not available right now.');
     } else {
-    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    rememberAuthError(authErrorMessage(e));
     }
   }finally{
     if(!currentUser) resetSignInButton();
@@ -2180,14 +2180,14 @@ async function signInWithEmailPassword(){
 async function registerWithEmailPassword(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
-    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
+    if(!trackerAuth){ setTrackerMessage('Sign-in is not ready yet. Refresh the page and try again.'); return; }
     const gateEmail = document.getElementById('gateEmailInput')?.value || '';
     const authEmailValue = document.getElementById('authEmailInput')?.value || '';
     const gatePass = document.getElementById('gatePasswordInput')?.value || '';
     const authPass = document.getElementById('authPasswordInput')?.value || '';
     const email = String(gateEmail || authEmailValue).trim().toLowerCase();
     const password = String(gatePass || authPass);
-    if(!email || !password){ rememberAuthError('Enter an email and password, then tap Register / Make an account.'); return; }
+    if(!email || !password){ rememberAuthError('Enter an email and password, then tap Create account.'); return; }
     const gateSignInBtn=document.getElementById('gateEmailSignInBtn');
     const authSignInBtn=document.getElementById('authEmailSignInBtn');
     const gateRegisterBtn=document.getElementById('gateEmailRegisterBtn');
@@ -2196,8 +2196,8 @@ async function registerWithEmailPassword(){
     if(authRegisterBtn){ authRegisterBtn.textContent='Creating account…'; authRegisterBtn.disabled=true; }
     if(gateSignInBtn){ gateSignInBtn.disabled=true; }
     if(authSignInBtn){ authSignInBtn.disabled=true; }
-    setLoginGate(true, 'Creating Firebase account…');
-    setTrackerMessage('Creating Firebase account…');
+    setLoginGate(true, 'Creating account…');
+    setTrackerMessage('Creating account…');
     await setAuthPersistenceSafely();
     const result = await trackerAuth.createUserWithEmailAndPassword(email, password);
     if(result && result.user){
@@ -2210,9 +2210,9 @@ async function registerWithEmailPassword(){
     }
   }catch(e){
     if(e && e.code === 'auth/operation-not-allowed'){
-      rememberAuthError('Email/password provider is not enabled in Firebase. Enable Email/Password in Firebase Authentication -> Sign-in method.');
+      rememberAuthError('This sign-in option is not available right now.');
     } else {
-    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
+    rememberAuthError(authErrorMessage(e));
     }
   }finally{
     if(!currentUser) resetSignInButton();
@@ -2950,29 +2950,28 @@ function setTrackerMessage(text){
   const msg = text || '';
   const el=document.getElementById('trackerMessage'); if(el) el.textContent=msg;
   const authEl=document.getElementById('authMessage'); if(authEl) authEl.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in.');
-  const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Sign in with Google or email/password to continue.');
+  const gateMsg=document.getElementById('gateAuthMessage'); if(gateMsg) gateMsg.textContent=msg || (currentUser ? ('Signed in as ' + (authEmail(currentUser) || currentUser.displayName || 'Google user')) : 'Not signed in. Sign in to continue.');
   if(msg) console.info('[TripGuide Auth]', msg);
 }
 function authErrorMessage(e){
   const code = (e && e.code) ? e.code : '';
   const raw = (e && e.message) ? e.message : String(e || 'Unknown error');
-  if(code === 'auth/unauthorized-domain') return 'This domain must be added to Firebase Auth authorized domains: mdnadon112-sketch.github.io (' + code + ')';
-  if(code === 'auth/operation-not-allowed') return 'This sign-in provider is disabled in Firebase. (' + code + ')';
-  if(code === 'auth/admin-restricted-operation') return 'Account creation is restricted. An admin may need to create or approve this account. (' + code + ')';
-  if(code === 'auth/account-exists-with-different-credential') return 'This email already exists with a different sign-in method. (' + code + ')';
-  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Turn off Private Browsing or open in Safari/Chrome. (' + code + ')';
-  if(code === 'auth/popup-blocked') return 'Popup was blocked. Try again or use email/password. (' + code + ')';
-  if(code === 'auth/popup-closed-by-user') return 'Sign-in was closed before completion. (' + code + ')';
-  if(code === 'auth/network-request-failed') return 'Network error. Check connection and retry. (' + code + ')';
-  if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account in Firebase Authentication -> Users. (' + code + ')';
+  if(code === 'auth/unauthorized-domain') return 'Sign-in is not available from this web address yet.';
+  if(code === 'auth/operation-not-allowed') return 'This sign-in option is not available right now.';
+  if(code === 'auth/admin-restricted-operation') return 'This account needs approval before it can be used.';
+  if(code === 'auth/account-exists-with-different-credential') return 'That email is already linked to another sign-in method.';
+  if(code === 'auth/web-storage-unsupported') return 'This browser is blocking sign-in storage. Try a full browser.';
+  if(code === 'auth/popup-blocked') return 'The sign-in window was blocked. Try again or use email sign-in.';
+  if(code === 'auth/popup-closed-by-user') return 'Sign-in was closed before it finished.';
+  if(code === 'auth/network-request-failed') return 'We could not connect. Check your internet and try again.';
+  if(code === 'auth/user-disabled') return 'This account is currently unavailable.';
   if(code === 'auth/user-not-found') return 'No account found for that email address.';
-  if(code === 'auth/email-already-in-use') return 'An account already exists for that email. Try signing in instead.';
-  if(code === 'auth/wrong-password') return 'Incorrect email or password.';
-  if(code === 'auth/weak-password') return 'Password must be at least 6 characters.';
-  if(code === 'auth/invalid-credential') return 'Incorrect email or password.';
-  if(code === 'auth/invalid-email') return 'The email address format is invalid. (' + code + ')';
-  const safeRaw = String(raw || 'Unknown error').slice(0, 300);
-  return (code ? code + ': ' : 'Unknown auth error: ') + safeRaw;
+  if(code === 'auth/email-already-in-use') return 'An account already exists for this email.';
+  if(code === 'auth/wrong-password') return 'The email or password is incorrect.';
+  if(code === 'auth/weak-password') return 'Use a stronger password.';
+  if(code === 'auth/invalid-credential') return 'The email or password is incorrect.';
+  if(code === 'auth/invalid-email') return 'Enter a valid email address.';
+  return 'Something went wrong. Please try again.';
 }
 function setTrackerStatus(text, state){ const status=document.getElementById('trackerStatus'), dot=document.getElementById('trackerDot'); if(status) status.textContent=text; if(dot){dot.classList.remove('live','offline'); if(state) dot.classList.add(state);} }
 window.addEventListener('unhandledrejection', function(e){
@@ -3470,10 +3469,10 @@ function renderPushDiagnostics(){
   const toggleBtn = document.getElementById('togglePushDiagnosticsBtn');
   if(toggleBtn){
     if(pushDiagnosticsDebugOverride){
-      toggleBtn.textContent = 'Advanced Push Diagnostics (debugPush=1)';
+      toggleBtn.textContent = 'Show notification details';
       toggleBtn.disabled = true;
     } else {
-      toggleBtn.textContent = pushDiagnosticsExpanded ? 'Hide Advanced Push Diagnostics' : 'Advanced Push Diagnostics';
+      toggleBtn.textContent = pushDiagnosticsExpanded ? 'Hide notification details' : 'Show notification details';
       toggleBtn.disabled = false;
     }
   }
