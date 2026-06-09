@@ -333,7 +333,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
             </div>
             <div class="push-diagnostics-card" id="pushSendPanel">
               <h4>Send Notification</h4>
-              <p>Admin-only sender powered by Firebase Cloud Functions.</p>
+              <p>Optional Cloud Functions sender (legacy). Required TripGuide push notifications are sent from GitHub Actions workflows.</p>
               <div class="admin-tool-grid">
                 <input class="login-input" id="pushSendTitleInput" maxlength="80" placeholder="Notification title (max 80)">
                 <input class="login-input" id="pushSendBodyInput" maxlength="240" placeholder="Message body (max 240)">
@@ -349,7 +349,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
                 <input class="login-input" id="pushSendUrlInput" placeholder="Optional URL (default /TripGuide/)">
                 <button class="btn btn-go" type="button" id="sendPushNotificationBtn">Send Notification</button>
               </div>
-              <p class="admin-tool-note">Use the Single user target with a UID from Firebase Authentication/Database user records.</p>
+              <p class="admin-tool-note">This panel only works if the optional <code>sendTripGuideNotification</code> Cloud Function is deployed. Use GitHub Actions for required notifications.</p>
               <div class="tracker-alert" id="pushSendResult"></div>
             </div>
             <div class="tracker-modes"><button class="btn btn-dark" type="button" id="cleanupPushTokensBtn">Clean Disabled/Stale Tokens</button></div>
@@ -2386,8 +2386,7 @@ function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classLis
 
 /* PATCH v5.24: Firebase web push notifications - runtime code only */
 const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b8_KdG9yoywu4VQfz4jdP8nTsvbCrbfIRXYg9NT8B8NwGc';
-const VAPID_KEY = TRIPGUIDE_WEB_PUSH_VAPID_KEY;
-let tripGuideMessaging = null, tripGuideFunctions = null;
+let tripGuideMessaging = null;
 let tripGuideServiceWorkerRegistration = null, tripGuideServiceWorkerPromise = null, currentUserPushTokenRef = null, adminPushTokensRef = null;
 let pushDiagnosticsState = createPushDiagnosticsState();
 const pushDiagnosticsDebugOverride = (() => {
@@ -2474,8 +2473,7 @@ function togglePushDiagnosticsPanel(){
 }
 function getTripGuideFunctions(){
   if(!window.firebase || !firebase.functions) throw new Error('Firebase Functions SDK is missing in this browser session.');
-  if(!tripGuideFunctions) tripGuideFunctions = firebase.app().functions('us-central1');
-  return tripGuideFunctions;
+  return firebase.app().functions('us-central1');
 }
 async function sendTripGuideNotificationFromAdmin(){
   if(!isAdmin || !currentUser){ setTrackerMessage('Only admins can send notifications.'); return; }
@@ -2499,6 +2497,7 @@ async function sendTripGuideNotificationFromAdmin(){
   setPushSendResult('Sending…');
   if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
   try{
+    setPushSendResult('Cloud Functions sender is optional. Required TripGuide notifications should be sent from GitHub Actions. Sending via Cloud Functions now…');
     const callable = getTripGuideFunctions().httpsCallable('sendTripGuideNotification');
     const response = await callable(payload);
     const result = response && response.data ? response.data : {};
@@ -2639,7 +2638,7 @@ async function ensureTripGuideServiceWorkerRegistration(){
   if(tripGuideServiceWorkerPromise) return tripGuideServiceWorkerPromise;
   pushDiagnosticsState.serviceWorker = { registered: false, scope: 'Registering…', error: '', attempted: true };
   renderPushDiagnostics();
-  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('./firebase-messaging-sw.js?v=pushhandler3', { scope: './' })
+  tripGuideServiceWorkerPromise = navigator.serviceWorker.register('/TripGuide/firebase-messaging-sw.js')
     .then(registration => {
       tripGuideServiceWorkerRegistration = registration;
       pushDiagnosticsState.serviceWorker = { registered: true, scope: registration.scope || '—', error: '', attempted: true };
@@ -2735,6 +2734,11 @@ function startPushDiagnostics(){
 }
 
 async function enableTripGuidePush(){
+  const user = firebase.auth && firebase.auth().currentUser;
+  if(!user){
+    throw new Error('Sign in before enabling notifications.');
+  }
+
   if(!('Notification' in window)){
     throw new Error('This browser does not support notifications.');
   }
@@ -2753,14 +2757,12 @@ async function enableTripGuidePush(){
     throw new Error('Notification permission was not granted.');
   }
 
-  const swReg = await navigator.serviceWorker.register('/TripGuide/firebase-messaging-sw.js?v=pushhandler3');
-
-  await navigator.serviceWorker.ready;
+  const swReg = await ensureTripGuideServiceWorkerRegistration();
 
   const messaging = firebase.messaging();
 
   const token = await messaging.getToken({
-    vapidKey: VAPID_KEY,
+    vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
     serviceWorkerRegistration: swReg
   });
 
@@ -2768,30 +2770,9 @@ async function enableTripGuidePush(){
     throw new Error('FCM did not return a token.');
   }
 
-  const user = firebase.auth().currentUser;
-
-  if(!user){
-    throw new Error('Sign in before enabling notifications.');
-  }
-
-  const tokenId = token.replace(/[.#$[\]/]/g, '_');
-  const now = Date.now();
-
-  await firebase.database()
-    .ref(`tripGuide/pushTokens/${user.uid}/${tokenId}`)
-    .set({
-      token,
-      enabled: true,
-      uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      platform: navigator.platform || '',
-      userAgent: navigator.userAgent || '',
-      createdAt: now,
-      lastSeen: now
-    });
-
-  alert('Notifications enabled.');
+  await saveCurrentUserPushToken(token, true);
+  await refreshPushBrowserDiagnostics();
+  setTrackerMessage('Notifications enabled for this device.');
 }
 async function disableTripGuidePushOnDevice(){
   try{
@@ -2869,6 +2850,7 @@ function bindPushButton(){
     btn.addEventListener('click', () => {
       enableTripGuidePush().catch((err) => {
         console.error(err);
+        setTrackerMessage('Enable notifications failed: ' + safePushError(err));
         alert(err.message || String(err));
       });
     });
@@ -2914,6 +2896,7 @@ document.addEventListener('click', function(e){
   if(target.id === 'enablePushBtn'){
     enableTripGuidePush().catch((err) => {
       console.error(err);
+      setTrackerMessage('Enable notifications failed: ' + safePushError(err));
       alert(err.message || String(err));
     });
   }

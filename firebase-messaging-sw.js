@@ -43,16 +43,41 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const url =
+  const fallbackUrl = 'https://mdnadon112-sketch.github.io/TripGuide/';
+  const rawUrl =
     (event.notification && event.notification.data && event.notification.data.url) ||
-    'https://mdnadon112-sketch.github.io/TripGuide/';
+    fallbackUrl;
+  let targetUrl = fallbackUrl;
+  try {
+    targetUrl = new URL(rawUrl, fallbackUrl).href;
+  } catch (_) {
+    targetUrl = fallbackUrl;
+  }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if ('focus' in client) return client.focus();
+      const tripGuideClient = clientList.find((client) => {
+        try {
+          return String(client.url || '').includes('/TripGuide');
+        } catch (_) {
+          return false;
+        }
+      });
+
+      if (tripGuideClient) {
+        return tripGuideClient.focus()
+          .then(() => ('navigate' in tripGuideClient ? tripGuideClient.navigate(targetUrl) : tripGuideClient))
+          .catch(() => tripGuideClient.focus());
       }
-      if (clients.openWindow) return clients.openWindow(url);
+
+      for (const client of clientList) {
+        if ('focus' in client) {
+          return client.focus()
+            .then(() => ('navigate' in client ? client.navigate(targetUrl) : client))
+            .catch(() => client.focus());
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
       return undefined;
     })
   );
