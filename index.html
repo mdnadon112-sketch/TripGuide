@@ -158,6 +158,48 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 @media(max-width:430px){.login-card{border-radius:22px;padding:16px}.login-card h2{font-size:26px}.login-actions .btn{min-height:52px}}
 @media print{.login-gate{display:none!important}body.login-required .wrap{filter:none;pointer-events:auto;user-select:auto}}
 
+/* PATCH v5.25: larger daily section titles for faster readability */
+.day h2{
+  font-size:clamp(34px,5.8vw,56px);
+  line-height:.95;
+  margin:0;
+  letter-spacing:-.045em;
+  font-weight:950;
+  max-width:100%;
+}
+.day-sub{
+  color:var(--muted);
+  font-weight:800;
+  margin:8px 0 0;
+  font-size:clamp(15px,2vw,19px);
+  line-height:1.25;
+}
+.day-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:start;
+  padding:12px 8px 20px;
+  border-bottom:1px solid var(--line);
+}
+.day-kicker{margin-bottom:10px;}
+.go-stack{align-self:start;}
+@media(max-width:700px){
+  .day h2{
+    font-size:clamp(34px,10vw,48px);
+    line-height:.96;
+  }
+  .day-sub{
+    font-size:16px;
+  }
+  .day-head{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .go-stack{justify-content:stretch;}
+  .go-stack .btn{flex:1;}
+}
+
 </style>
 </head>
 <body>
@@ -178,7 +220,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
         <button class="btn btn-ghost" type="button" id="gateEmailRegisterBtn">Register / Make an account</button>
       </div>
     </div>
-    <div class="login-debug" id="gateAuthMessage">Checking existing Firebase session…</div>
+    <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
     <div class="login-note">Use Google sign-in. Admins can approve viewers, remove access, or promote any signed-in account to admin without that person requesting admin privileges.</div>
   </div>
 </div>
@@ -469,7 +511,7 @@ let trackableMaps = new Map();
 let liveDriverMarkers = new Map();
 let liveAccuracyCircles = new Map();
 let latestLiveLocation = null;
-let overviewFoodMarkers = [];
+let overviewMarkerGroups = null;
 let trackerInitialized = false;
 window.__activeDay = 1;
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
@@ -613,13 +655,57 @@ function initOverviewMap(){
   const el = document.getElementById('overviewMap'); if(!el || initialized.has('overview')) return; initialized.add('overview');
   const map = new google.maps.Map(el, {zoom:5, center:{lat:34.8,lng:-97.2}, mapTypeControl:true, fullscreenControl:true, streetViewControl:false, gestureHandling:'cooperative', mapTypeId:'roadmap'});
   overviewMapRef = map; registerTrackableMap('overview', map);
-  overviewFoodMarkers = [];
-  (TRIP.overviewStops || []).forEach(s=>geocodeMarker(map,s));
-  (TRIP.overviewFoodStops || []).forEach(f=>geocodeMarker(map,f,{overviewFood:true}));
-  runWhenIdle(()=>TRIP.days.forEach(d => drawDayRoute(map, d, .62)));
-  map.addListener('zoom_changed', updateOverviewFoodMarkerVisibility);
-  updateOverviewFoodMarkerVisibility();
+
+  // Overview marker groups are created once and only visibility changes on zoom.
+  overviewMarkerGroups = {
+    tripStart: [],
+    hotels: [],
+    final: [],
+    majorStops: [],
+    fuelStops: [],
+    food: []
+  };
+
+  (TRIP.overviewStops || []).forEach(s => {
+    const kind = String(s.kind || '').toLowerCase();
+    const isVeryFirstStart = Number(s.sourceDay || 0) === 1 && Number(s.pointNumber || 0) === 1;
+    const isHotel = kind === 'hotel';
+    const isFinal = ['final','home','finish','homefinish'].includes(kind);
+    const isFuel = ['fuel','utility','gas'].includes(kind);
+
+    if(isVeryFirstStart){
+      addOverviewMarkerToGroup(map, 'tripStart', s);
+      return;
+    }
+    if(isHotel){
+      addOverviewMarkerToGroup(map, 'hotels', s);
+      return;
+    }
+    if(isFinal){
+      addOverviewMarkerToGroup(map, 'final', s);
+      return;
+    }
+    if(isFuel){
+      addOverviewMarkerToGroup(map, 'fuelStops', s);
+      return;
+    }
+    addOverviewMarkerToGroup(map, 'majorStops', s);
+  });
+
+  (TRIP.overviewFoodStops || []).forEach(f => addOverviewMarkerToGroup(map, 'food', f));
+
+  runWhenIdle(()=>TRIP.days.forEach(d => drawDayRoute(map, d, .62, null, {preserveViewport:true})));
+  map.addListener('zoom_changed', updateOverviewMarkerVisibility);
+  google.maps.event.addListenerOnce(map, 'idle', updateOverviewMarkerVisibility);
+  updateOverviewMarkerVisibility();
   markLoaded(el);
+}
+async function addOverviewMarkerToGroup(map, groupKey, stop){
+  const marker = await geocodeMarker(map, stop, {initialVisible:false});
+  if(!marker || !overviewMarkerGroups || !Array.isArray(overviewMarkerGroups[groupKey])) return;
+  marker.__targetMap = map;
+  overviewMarkerGroups[groupKey].push(marker);
+  updateOverviewMarkerVisibility();
 }
 function initLazyDayMaps(){
   const shells = document.querySelectorAll('.day .map-shell');
@@ -637,12 +723,13 @@ function initDayMap(dayNum){
   (d.foods || []).forEach(f=>geocodeMarker(map,f));
   markLoaded(el);
 }
-function drawDayRoute(map, d, opacity, onFail){
+function drawDayRoute(map, d, opacity, onFail, options){
+  options = options || {};
   const routeStops = d.routeStops || [];
   if(!routeStops.length || !directionsService) return;
   const origin = routeStops[0]; const destination = routeStops[routeStops.length-1];
   const waypoints = routeStops.slice(1,-1).map(q=>({location:q, stopover:true}));
-  const renderer = new google.maps.DirectionsRenderer({map, suppressMarkers:true, preserveViewport:false, polylineOptions:{strokeColor:'#1666d8',strokeWeight:6,strokeOpacity:opacity == null ? .9 : opacity}});
+  const renderer = new google.maps.DirectionsRenderer({map, suppressMarkers:true, preserveViewport:!!options.preserveViewport, polylineOptions:{strokeColor:'#1666d8',strokeWeight:6,strokeOpacity:opacity == null ? .9 : opacity}});
   directionsService.route({origin,destination,waypoints,travelMode:google.maps.TravelMode.DRIVING,optimizeWaypoints:false},(res,status)=>{
     if(status==='OK') renderer.setDirections(res); else if(typeof onFail === 'function') onFail(status);
   });
@@ -653,15 +740,42 @@ async function geocodeMarker(map,s,options){
   const pos = await geocodeQuery(s.query);
   if(!pos) return null;
   const label = s.mapLabel || s.displayLabel || s.label || '•';
-  const marker = new google.maps.Marker({position:pos,map:options.overviewFood ? null : map,title:(s.displayLabel ? s.displayLabel + ' — ' : '') + s.name,icon:makeMarkerIcon(label, colorFor(s.kind))});
+  const startVisible = options.initialVisible !== undefined ? !!options.initialVisible : true;
+  const marker = new google.maps.Marker({position:pos,map:startVisible ? map : null,title:(s.displayLabel ? s.displayLabel + ' — ' : '') + s.name,icon:makeMarkerIcon(label, colorFor(s.kind)),visible:startVisible});
+  marker.__targetMap = map;
   marker.addListener('click',()=>openInfo(map,marker,s));
-  if(options.overviewFood){ marker.__targetMap = map; overviewFoodMarkers.push(marker); updateOverviewFoodMarkerVisibility(); }
   return marker;
 }
-function updateOverviewFoodMarkerVisibility(){
-  if(!overviewMapRef || !overviewFoodMarkers) return;
-  const visible = (overviewMapRef.getZoom() || 0) >= 7;
-  overviewFoodMarkers.forEach(marker => marker.setMap(visible ? marker.__targetMap || overviewMapRef : null));
+function setMarkerGroupVisible(markers, visible){
+  if(!Array.isArray(markers)) return;
+  markers.forEach(marker => {
+    if(!marker) return;
+    marker.setVisible(!!visible);
+    marker.setMap(visible ? (marker.__targetMap || overviewMapRef) : null);
+  });
+}
+function updateOverviewMarkerVisibility(){
+  if(!overviewMapRef || !overviewMarkerGroups) return;
+
+  // Overview zoom policy:
+  // 0-7  : Trip Start + hotels + final destination only
+  // 8-10 : add major route stops (scenic/activity/pet/golf/spa/intermediate)
+  // 11+  : add fuel/utility stops
+  // 12+  : add food pins
+  const zoom = overviewMapRef.getZoom() || 5;
+  const showTripStart = true;
+  const showHotels = true;
+  const showFinal = true;
+  const showMajorStops = zoom >= 8;
+  const showFuelStops = zoom >= 10;
+  const showFood = zoom >= 12;
+
+  setMarkerGroupVisible(overviewMarkerGroups.tripStart, showTripStart);
+  setMarkerGroupVisible(overviewMarkerGroups.hotels, showHotels);
+  setMarkerGroupVisible(overviewMarkerGroups.final, showFinal);
+  setMarkerGroupVisible(overviewMarkerGroups.majorStops, showMajorStops);
+  setMarkerGroupVisible(overviewMarkerGroups.fuelStops, showFuelStops);
+  setMarkerGroupVisible(overviewMarkerGroups.food, showFood);
 }
 function openInfo(map, marker, s){
   const info = new google.maps.InfoWindow();
@@ -864,9 +978,24 @@ function userProfileForWrite(user){
 function upsertSignedInUserProfile(user){
   if(!trackerDb || !user || !user.uid) return Promise.resolve();
   const ref = signedInUserRef(user.uid);
+  const approvedRef = trackerDb.ref(`${TRACKER_BASE}/approvedUsers/${user.uid}`);
   const profile = userProfileForWrite(user);
-  return ref.transaction(existing => Object.assign({}, existing || {}, profile, {createdAt: (existing && existing.createdAt) || Date.now()}))
-    .catch(e => { setTrackerMessage('Signed-in profile write failed: ' + (e.message || String(e))); });
+  return Promise.all([
+    ref.transaction(existing => Object.assign({}, existing || {}, profile, {createdAt: (existing && existing.createdAt) || Date.now()})),
+    approvedRef.transaction(existing => {
+      if(!existing) return null;
+      return Object.assign({}, existing, {
+        uid: profile.uid,
+        email: profile.email,
+        name: profile.name,
+        photoURL: profile.photoURL,
+        emailVerified: profile.emailVerified,
+        provider: profile.provider,
+        updatedAt: Date.now(),
+        lastSeen: Date.now()
+      });
+    })
+  ]).catch(e => { setTrackerMessage('Signed-in profile write failed: ' + (e.message || String(e))); });
 }
 const TRACKER_BASE = 'tripGuide';
 const TRACKER_PATH = TRACKER_BASE + '/live'; // legacy single-driver path, kept for old clients only
@@ -889,6 +1018,13 @@ let latestLiveTrackers = [];
 let displayedLiveTrackers = [];
 let tripGuideForegroundMessageBound = false;
 let currentHubTab = 'progress';
+let authReady = false;
+let redirectHandled = false;
+let authStateObserved = false;
+let authObserverStarted = false;
+let redirectUserCache = null;
+let googleAuthProvider = null;
+let googleSignInPending = false;
 function isCoreLiveTrackerEmail(email){ return LIVE_TRACKER_EMAILS.includes(canonicalEmail(email)); }
 function isCoreLiveTrackerUser(user){ return !!(user && isCoreLiveTrackerEmail(authEmail(user) || user.email)); }
 function liveTrackerDisplayName(data){
@@ -911,8 +1047,135 @@ function clearAuthError(){
   lastAuthErrorAt = 0;
 }
 
+function authLog(message, detail){
+  if(detail !== undefined) console.log('[TripGuide Auth] ' + message, detail);
+  else console.log('[TripGuide Auth] ' + message);
+}
 
-function initFirebaseTracker(){
+function isAppleWebKitBrowser(){
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  return isIOS || isSafari;
+}
+
+function setupAuthProvider(){
+  if(!window.firebase || !firebase.auth) return null;
+  if(!googleAuthProvider){
+    googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+    googleAuthProvider.addScope('email');
+    googleAuthProvider.addScope('profile');
+    googleAuthProvider.setCustomParameters({prompt:'select_account'});
+  }
+  return googleAuthProvider;
+}
+
+async function setAuthPersistenceSafely(){
+  if(!trackerAuth || !window.firebase || !firebase.auth) return;
+  const authNs = firebase.auth;
+  const options = [
+    {name:'browserLocalPersistence', value:authNs.browserLocalPersistence},
+    {name:'LOCAL', value:authNs.Auth && authNs.Auth.Persistence && authNs.Auth.Persistence.LOCAL},
+    {name:'SESSION', value:authNs.Auth && authNs.Auth.Persistence && authNs.Auth.Persistence.SESSION},
+    {name:'NONE', value:authNs.Auth && authNs.Auth.Persistence && authNs.Auth.Persistence.NONE}
+  ].filter(x => !!x.value);
+  for(const option of options){
+    try{
+      await trackerAuth.setPersistence(option.value);
+      authLog('Auth persistence set/fallback used: ' + option.name);
+      return;
+    }catch(err){
+      authLog('Auth persistence failed for ' + option.name + '. Trying fallback.', err && (err.code || err.message || String(err)));
+    }
+  }
+  authLog('Auth persistence unavailable; using Firebase default persistence.');
+}
+
+async function processRedirectResultSafely(){
+  if(!trackerAuth || !trackerAuth.getRedirectResult){
+    redirectHandled = true;
+    return null;
+  }
+  try{
+    const result = await trackerAuth.getRedirectResult();
+    sessionStorage.removeItem('tripGuideRedirectStarted');
+    if(result && result.user){
+      redirectUserCache = result.user;
+      authLog('Redirect result processed: redirect user found', {email: authEmail(result.user), uid: result.user.uid});
+      setTrackerMessage('Redirect sign-in complete.');
+      await upsertSignedInUserProfile(result.user);
+      return result.user;
+    }
+    const current = trackerAuth.currentUser || firebase.auth().currentUser;
+    if(current){
+      redirectUserCache = current;
+      authLog('Redirect result processed: currentUser found', {email: authEmail(current), uid: current.uid});
+      await upsertSignedInUserProfile(current);
+      return current;
+    }
+    authLog('Redirect result processed: no redirect user and no currentUser.');
+    return null;
+  }catch(err){
+    sessionStorage.removeItem('tripGuideRedirectStarted');
+    authLog('Redirect result processed with error', err && (err.code || err.message || String(err)));
+    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+    return null;
+  }finally{
+    redirectHandled = true;
+  }
+}
+
+function renderAuthState(user, accessState){
+  const current = user || (trackerAuth && trackerAuth.currentUser) || redirectUserCache || null;
+  const redirectStarted = sessionStorage.getItem('tripGuideRedirectStarted') === '1';
+  const canRenderGate = (authReady && redirectHandled) || authStateObserved;
+
+  if(current){
+    setLoginGate(false, 'Signed in as ' + (authEmail(current) || current.displayName || 'Google user') + '.', 'currentUser exists');
+    handleAuthState(current);
+    return;
+  }
+
+  if(!canRenderGate || (redirectStarted && !redirectHandled)){
+    setLoginGate(false, 'Checking existing session…', 'awaiting auth initialization and redirect processing');
+    setTrackerMessage('Checking existing session…');
+    return;
+  }
+
+  authLog('gate shown/hidden reason: showing gate once because no user after auth + redirect checks');
+  handleAuthState(null);
+  if(accessState){
+    setTrackerMessage(accessState);
+  }
+}
+
+function startAuthObserver(){
+  if(!trackerAuth || authObserverStarted) return;
+  authObserverStarted = true;
+  trackerAuth.onAuthStateChanged((user) => {
+    authReady = true;
+    authStateObserved = true;
+    const effectiveUser = user || trackerAuth.currentUser || redirectUserCache || null;
+    authLog('onAuthStateChanged fired', {hasUser: !!effectiveUser});
+    if(effectiveUser){
+      sessionStorage.removeItem('tripGuideRedirectStarted');
+      authLog('user email/uid found', {email: authEmail(effectiveUser), uid: effectiveUser.uid});
+      upsertSignedInUserProfile(effectiveUser);
+      renderAuthState(effectiveUser);
+      return;
+    }
+    renderAuthState(null);
+  }, (err) => {
+    authReady = true;
+    authStateObserved = true;
+    authLog('onAuthStateChanged fired with error', err && (err.code || err.message || String(err)));
+    rememberAuthError((err && err.message) ? err.message : authErrorMessage(err));
+    renderAuthState(null);
+  });
+}
+
+
+async function initFirebaseTracker(){
   if(trackerInitialized) return;
   trackerInitialized = true;
   try{
@@ -922,6 +1185,7 @@ function initFirebaseTracker(){
       return;
     }
     if(!firebase.apps.length) firebase.initializeApp(TRACKER_CONFIG);
+    authLog('Firebase initialized');
     trackerAuth = firebase.auth(); trackerDb = firebase.database(); trackerRef = trackerDb.ref(TRACKER_PATH); liveTrackersRef = trackerDb.ref(LIVE_TRACKERS_PATH);
     try{
       if(!tripGuideForegroundMessageBound){
@@ -954,12 +1218,29 @@ function initFirebaseTracker(){
     }catch(err){
       console.warn('[TripGuide] Foreground messaging handler not active:', err);
     }
-    // LOCAL persistence keeps the signed-in state after the Google Auth return.
-    try{ trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); }catch(_){}
+
     bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip(); createWatcherModal();
-    setLoginGate(true, 'Checking existing Firebase session…');
-    trackerAuth.onAuthStateChanged(handleAuthState);
-    finishSignInFromRedirect();
+
+    authReady = false;
+    redirectHandled = false;
+    authStateObserved = false;
+    redirectUserCache = null;
+    setLoginGate(false, 'Checking existing session…', 'startup init');
+    setTrackerMessage('Checking existing session…');
+
+    setupAuthProvider();
+    await setAuthPersistenceSafely();
+    startAuthObserver();
+    const redirectUser = await processRedirectResultSafely();
+    authLog('Redirect result processed', {hasUser: !!redirectUser});
+
+    if(redirectUser){
+      authReady = true;
+      renderAuthState(redirectUser, 'Redirect sign-in complete.');
+    } else if(!authStateObserved){
+      authReady = true;
+      renderAuthState(redirectUser || trackerAuth.currentUser || null);
+    }
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
@@ -978,12 +1259,13 @@ function bindHubControls(){
   });
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
-function setLoginGate(show, message){
+function setLoginGate(show, message, reason){
   const gate=document.getElementById('loginGate');
   const gateMsg=document.getElementById('gateAuthMessage');
   if(gate) gate.classList.toggle('show', !!show);
   if(document.body) document.body.classList.toggle('login-required', !!show);
   if(gateMsg && message) gateMsg.textContent = message;
+  if(reason){ authLog('gate shown/hidden reason: ' + (show ? 'show' : 'hide') + ' - ' + reason); }
   if(show){ setTimeout(()=>{ try{ document.getElementById('gateSignInBtn')?.focus(); }catch(_){} }, 80); }
 }
 function resetSignInButton(){
@@ -997,24 +1279,9 @@ function resetSignInButton(){
   };
   Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
 }
-async function finishSignInFromRedirect(){
-  if(!trackerAuth || !trackerAuth.getRedirectResult) return;
-  try{
-    const result = await trackerAuth.getRedirectResult();
-    if(result && result.user){
-      try{ await result.user.getIdToken(true); }catch(_){}
-      currentUser = result.user;
-      clearAuthError();
-      updateAuthUI();
-      setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
-    }
-  }catch(e){
-    rememberAuthError('Google Sign-In return failed: ' + authErrorMessage(e));
-  }finally{
-    resetSignInButton();
-  }
-}
-async function signInWithGoogle(){
+async function signInWithGoogleSafe(){
+  if(googleSignInPending) return;
+  googleSignInPending = true;
   const btn = document.getElementById('signInBtn');
   const gateBtn = document.getElementById('gateSignInBtn');
   try{
@@ -1022,44 +1289,50 @@ async function signInWithGoogle(){
       try{ initFirebaseTracker(); }catch(_){}
     }
     if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready yet. Refresh the page and try again.'); return; }
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('email');
-    provider.addScope('profile');
-    provider.setCustomParameters({prompt:'select_account'});
+    const provider = setupAuthProvider() || new firebase.auth.GoogleAuthProvider();
     if(btn){ btn.textContent = 'Opening Google…'; btn.disabled = true; }
     if(gateBtn){ gateBtn.textContent = 'Opening Google…'; gateBtn.disabled = true; }
     setLoginGate(true, 'Opening Google Sign-In…');
     setTrackerMessage('Opening Google Sign-In…');
-    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
 
-    // GitHub Pages is non-Firebase hosting. Popup avoids the Firebase redirect return/storage issue; redirect remains a fallback.
+    await setAuthPersistenceSafely();
+
+    if(isAppleWebKitBrowser()){
+      authLog('Apple WebKit detected; using redirect sign-in.');
+      sessionStorage.setItem('tripGuideRedirectStarted', '1');
+      setLoginGate(true, 'Redirecting to Google Sign-In…');
+      await trackerAuth.signInWithRedirect(provider);
+      return;
+    }
+
     try{
       const result = await trackerAuth.signInWithPopup(provider);
       if(result && result.user){
-        try{ await result.user.getIdToken(true); }catch(_){}
-        currentUser = result.user;
         clearAuthError();
-        updateAuthUI();
+        await upsertSignedInUserProfile(result.user);
         setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.displayName || 'Google user') + '.');
       }
-    }catch(e){
-      const code = (e && e.code) ? e.code : '';
+    }catch(err){
+      const code = (err && err.code) ? err.code : '';
       if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(code)){
-        setTrackerMessage('Popup did not complete. Redirecting to Google Sign-In…');
+        authLog('Popup sign-in failed; falling back to redirect.', err && (err.code || err.message || String(err)));
+        sessionStorage.setItem('tripGuideRedirectStarted', '1');
         if(btn){ btn.textContent = 'Redirecting to Google…'; }
         if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
         setLoginGate(true, 'Redirecting to Google Sign-In…');
         await trackerAuth.signInWithRedirect(provider);
         return;
       }
-      rememberAuthError(authErrorMessage(e));
+      throw err;
     }
   }catch(e){
-    rememberAuthError('Sign-In setup error: ' + authErrorMessage(e));
+    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
   }finally{
+    googleSignInPending = false;
     if(!currentUser) resetSignInButton();
   }
 }
+async function signInWithGoogle(){ return signInWithGoogleSafe(); }
 async function signInWithEmailPassword(){
   try{
     if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
@@ -1081,7 +1354,7 @@ async function signInWithEmailPassword(){
     if(authRegisterBtn){ authRegisterBtn.disabled=true; }
     setLoginGate(true, 'Signing in with Firebase email/password…');
     setTrackerMessage('Signing in with Firebase email/password…');
-    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+    await setAuthPersistenceSafely();
     const result = await trackerAuth.signInWithEmailAndPassword(email, password);
     if(result && result.user){
       try{ await result.user.getIdToken(true); }catch(_){}
@@ -1091,7 +1364,7 @@ async function signInWithEmailPassword(){
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
   }catch(e){
-    rememberAuthError(authErrorMessage(e));
+    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
   }finally{
     if(!currentUser) resetSignInButton();
   }
@@ -1117,7 +1390,7 @@ async function registerWithEmailPassword(){
     if(authSignInBtn){ authSignInBtn.disabled=true; }
     setLoginGate(true, 'Creating Firebase account…');
     setTrackerMessage('Creating Firebase account…');
-    try{ await trackerAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(_){}
+    await setAuthPersistenceSafely();
     const result = await trackerAuth.createUserWithEmailAndPassword(email, password);
     if(result && result.user){
       try{ await result.user.getIdToken(true); }catch(_){}
@@ -1127,7 +1400,7 @@ async function registerWithEmailPassword(){
       setTrackerMessage('Account created and signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
   }catch(e){
-    rememberAuthError(authErrorMessage(e));
+    rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
   }finally{
     if(!currentUser) resetSignInButton();
   }
@@ -1135,7 +1408,7 @@ async function registerWithEmailPassword(){
 function tripGuideSignInClick(event){
   if(event){ event.preventDefault(); event.stopPropagation(); }
   setTrackerMessage('Sign-in button clicked. Opening Google…');
-  signInWithGoogle();
+  signInWithGoogleSafe();
 }
 window.tripGuideSignInClick = tripGuideSignInClick;
 // Capture-phase backup in case another element steals or blocks the button handler.
@@ -1157,19 +1430,19 @@ function handleAuthState(user){
     const err = recentAuthError();
     if(err){
       setTrackerStatus('Sign-in blocked','offline');
-      setLoginGate(true, err);
+      setLoginGate(true, err, 'auth error with no signed-in user');
       setTrackerMessage(err);
     } else {
       setTrackerStatus('Sign in required','offline');
-      setLoginGate(true, 'Not signed in. Sign in with Google to continue.');
+      setLoginGate(true, 'Not signed in. Sign in with Google to continue.', 'no current user after auth checks');
       setTrackerMessage('Not signed in.');
     }
     showAccessPanel(false); showProtectedHub(false); return;
   }
   clearAuthError();
-  setLoginGate(false);
+  setLoginGate(false, 'Signed in as ' + (authEmail(user) || user.displayName || 'Google user') + '.', 'authenticated user present');
   const email = authEmail(user) || user.displayName || 'Google user';
-  setTrackerMessage('Signed in as ' + email + (isAdmin ? ' • Admin' : ' • Checking admin override'));
+  setTrackerMessage('Signed in as ' + email + '.');
   setTrackerStatus('Signed in — checking access','live');
   upsertSignedInUserProfile(user);
 
@@ -1273,12 +1546,12 @@ function setAccessRequestUI(status){
 }
 function applyViewerNoAccessState(){
   if(isAdmin || isApproved) return;
-  setTrackerStatus(currentUserBlocked ? 'Access blocked' : 'Access required','offline');
+  setTrackerStatus(currentUserBlocked ? 'Blocked. Contact Mike or Lauren.' : 'Access required. Submit request.','offline');
   showProtectedHub(false);
   showAccessPanel(true);
   if(presenceInterval){ clearInterval(presenceInterval); presenceInterval=null; }
   setAccessRequestUI(latestOwnRequest && latestOwnRequest.status);
-  setTrackerMessage(currentUserBlocked ? 'You do not have access to view Mike and Lauren\'s location. This account is blocked.' : 'Please submit a request to gain access.');
+  setTrackerMessage(currentUserBlocked ? 'Blocked. Contact Mike or Lauren.' : 'Access required. Submit request.');
 }
 function cleanupSecureListeners(){
   try{ if(accessListenerRef){ accessListenerRef.off(); accessListenerRef=null; } }catch(e){}
