@@ -170,6 +170,10 @@ async function main() {
 
   if (!tokenRecords.length) {
     console.log('attempted=0 success=0 failure=0 cleaned=0');
+    // NUCLEAR_EXIT_AFTER_SUCCESS_SUMMARY
+    // Push already sent. Do not wait for Firebase/Admin SDK sockets.
+    setTimeout(() => process.exit(0), 500).unref();
+    await new Promise(() => process.stdout.write("", () => process.exit(0)));
     return;
   }
 
