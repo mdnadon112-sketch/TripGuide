@@ -226,6 +226,7 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
     <div class="login-actions hidden" id="signInRecoveryActions" aria-live="polite">
       <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in and try again</button>
       <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google sign-in again</button>
+      <button class="btn btn-dark" type="button" id="openDirectTripGuideBtn">Open direct TripGuide link</button>
     </div>
   </div>
 </div>
@@ -522,11 +523,15 @@ const TRIPGUIDE_BUILD = 'v5.28-authfix-2026-06-09T00:00:00Z';
 const REDIRECT_STARTED_KEY = 'tripGuideRedirectStarted';
 const REDIRECT_STARTED_AT_KEY = 'tripGuideRedirectStartedAt';
 const REDIRECT_ATTEMPTS_KEY = 'tripGuideRedirectAttemptCount';
+const REDIRECT_METHOD_KEY = 'tripGuideRedirectMethod';
+const PENDING_REDIRECT_KEY = 'tripGuidePendingRedirect';
+const REDIRECT_RETURN_HINT_KEY = 'tripGuideRedirectReturnHint';
 const SIGNIN_RETRY_LOCK_KEY = 'tripGuideSignInRetryLock';
 const SIGNIN_LAST_METHOD_KEY = 'tripGuideLastSignInMethod';
 const REDIRECT_ATTEMPT_LIMIT = 2;
-const REDIRECT_GRACE_MS = 3000;
+const REDIRECT_GRACE_MS = 4000;
 const REDIRECT_MAX_AGE_MS = 2 * 60 * 1000;
+const DIRECT_TRIPGUIDE_AUTHRESET_URL = 'https://mdnadon112-sketch.github.io/TripGuide/?authReset=1';
 window.__activeDay = 1;
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function svgEsc(s){return String(s ?? '').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
@@ -1105,10 +1110,11 @@ function getAuthPlatformSignals(){
   const isCriOS = /CriOS\//.test(ua);
   const isDesktop = !isIOS && !isAndroid;
   const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  const isInAppBrowser = /(FBAN|FBAV|Instagram|Line|Messenger|GSA|wv\)|WebView)/i.test(ua);
+  const isWhatsAppInApp = /(WhatsApp|WAWebView)/i.test(ua);
+  const isInAppBrowser = /(FBAN|FBAV|Instagram|Line|Messenger|GSA|wv\)|WebView)/i.test(ua) || isWhatsAppInApp;
   const isWebKit = /AppleWebKit/i.test(ua);
   const isPrivateishStorage = !storageAvailable('localStorage') || !storageAvailable('sessionStorage');
-  return { ua, isIOS, isAndroid, isDesktop, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWebKit, isPrivateishStorage };
+  return { ua, isIOS, isAndroid, isDesktop, isSafari, isCriOS, isStandalonePWA, isInAppBrowser, isWhatsAppInApp, isWebKit, isPrivateishStorage };
 }
 
 function isAppleWebKitBrowser(){
@@ -1154,8 +1160,13 @@ function getRedirectStartedAt(){
 function clearRedirectTrackingFlags(){
   try{ sessionStorage.removeItem(REDIRECT_STARTED_KEY); }catch(_){}
   try{ sessionStorage.removeItem(REDIRECT_STARTED_AT_KEY); }catch(_){}
+  try{ sessionStorage.removeItem(REDIRECT_METHOD_KEY); }catch(_){ }
+  try{ sessionStorage.removeItem(PENDING_REDIRECT_KEY); }catch(_){ }
   try{ sessionStorage.removeItem(SIGNIN_RETRY_LOCK_KEY); }catch(_){}
   try{ sessionStorage.removeItem(SIGNIN_LAST_METHOD_KEY); }catch(_){}
+  try{ sessionStorage.removeItem('tripGuideAuthRetryCount'); }catch(_){ }
+  try{ sessionStorage.removeItem('tripGuideAuthRetryLock'); }catch(_){ }
+  try{ localStorage.removeItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ }
   clearRedirectAttemptCount();
 }
 
@@ -1164,9 +1175,13 @@ function setRedirectStartedFlag(value){
     if(value){
       sessionStorage.setItem(REDIRECT_STARTED_KEY, '1');
       sessionStorage.setItem(REDIRECT_STARTED_AT_KEY, String(Date.now()));
+      sessionStorage.setItem(PENDING_REDIRECT_KEY, '1');
+      try{ localStorage.setItem(REDIRECT_RETURN_HINT_KEY, String(Date.now())); }catch(_){ }
     } else {
       sessionStorage.removeItem(REDIRECT_STARTED_KEY);
       sessionStorage.removeItem(REDIRECT_STARTED_AT_KEY);
+      sessionStorage.removeItem(PENDING_REDIRECT_KEY);
+      try{ localStorage.removeItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ }
     }
   }catch(_){ }
 }
@@ -1175,6 +1190,16 @@ function hasGoogleRedirectParamsInUrl(){
   try{
     const params = new URLSearchParams(window.location.search || '');
     return ['code','state','oauth_token','oauth_verifier'].some(k => params.has(k));
+  }catch(_){
+    return false;
+  }
+}
+
+function hasGoogleAuthReferrer(){
+  try{
+    const ref = String(document.referrer || '');
+    if(!ref) return false;
+    return /(accounts\.google\.com|apis\.google\.com|firebaseapp\.com\/__\/auth)/i.test(ref);
   }catch(_){
     return false;
   }
@@ -1194,6 +1219,39 @@ function resetTripGuideSignInState(){
   setMobileTroubleshootingPanel(false);
   setLoginGate(true, 'Sign-in state reset. Tap Google sign-in again.', 'manual sign-in state reset');
   setTrackerMessage('Sign-in state reset. Tap Google sign-in again.');
+}
+
+function clearTripGuideAuthResetUrlParam(){
+  try{
+    const url = new URL(window.location.href);
+    if(!url.searchParams.has('authReset')) return;
+    url.searchParams.delete('authReset');
+    const next = url.pathname + (url.search ? ('?' + url.searchParams.toString()) : '') + (url.hash || '');
+    window.history.replaceState({}, document.title, next);
+  }catch(_){ }
+}
+
+function handleAuthResetQueryOnLoad(){
+  try{
+    const params = new URLSearchParams(window.location.search || '');
+    if(params.get('authReset') !== '1') return false;
+    clearRedirectTrackingFlags();
+    redirectUserCache = null;
+    clearAuthError();
+    showSignInRecoveryActions(false);
+    setMobileTroubleshootingPanel(false);
+    clearTripGuideAuthResetUrlParam();
+    setAuthBootState('authReset');
+    setLoginGate(true, 'Sign-in state reset. Tap Google sign-in again.', 'authReset query parameter detected');
+    setTrackerMessage('Sign-in reset from direct link. Tap Google sign-in again.');
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+
+function openDirectTripGuideLink(){
+  window.location.assign(DIRECT_TRIPGUIDE_AUTHRESET_URL);
 }
 
 function clearStaleRedirectFlagsOnLoad(){
@@ -1244,7 +1302,7 @@ function setMobileTroubleshootingPanel(show, reasonText){
   panel.textContent = reason +
     'Mobile sign-in troubleshooting:\n' +
     '1. Open TripGuide directly in Safari or Chrome.\n' +
-    '2. Avoid in-app browsers (Gmail/Facebook/Messenger/Instagram).\n' +
+    '2. Avoid in-app browsers (Gmail/Facebook/Messenger/Instagram/WhatsApp).\n' +
     '3. Turn off Private Browsing / Incognito.\n' +
     '4. Allow cookies/site data for Google/Firebase sign-in.\n' +
     '5. If using Home Screen app, sign in through Safari first, then reopen/reinstall the icon.\n' +
@@ -1298,9 +1356,22 @@ async function processRedirectResultSafely(){
   const redirectStarted = (() => {
     try{ return sessionStorage.getItem(REDIRECT_STARTED_KEY) === '1'; }catch(_){ return false; }
   })();
+  const platform = getAuthPlatformSignals();
+  const hasRedirectParams = hasGoogleRedirectParamsInUrl();
+  const hasRedirectReferrer = hasGoogleAuthReferrer();
+  const hasRedirectHint = (() => {
+    try{ return !!localStorage.getItem(REDIRECT_RETURN_HINT_KEY); }catch(_){ return false; }
+  })();
+  const redirectPending = (() => {
+    try{ return sessionStorage.getItem(PENDING_REDIRECT_KEY) === '1'; }catch(_){ return false; }
+  })();
+  const lastMethod = (() => {
+    try{ return String(sessionStorage.getItem(SIGNIN_LAST_METHOD_KEY) || ''); }catch(_){ return ''; }
+  })();
+  const lastMethodWasRedirect = /^redirect/.test(lastMethod);
   const redirectStartedAt = getRedirectStartedAt();
   const redirectAgeMs = redirectStartedAt ? (Date.now() - redirectStartedAt) : 0;
-  authLog('Redirect pre-check', {redirectStarted, redirectStartedAt, redirectAgeMs, redirectAttemptCount: getRedirectAttemptCount()});
+  authLog('Redirect pre-check', {redirectStarted, hasRedirectParams, hasRedirectReferrer, hasRedirectHint, redirectPending, lastMethod, redirectStartedAt, redirectAgeMs, redirectAttemptCount: getRedirectAttemptCount()});
   try{
     const result = await trackerAuth.getRedirectResult();
     authLog('getRedirectResult completed', {result: result && result.user ? 'user' : 'null'});
@@ -1321,10 +1392,11 @@ async function processRedirectResultSafely(){
       await upsertSignedInUserProfile(current);
       return current;
     }
-    if(redirectStarted){
+    const shouldAttemptRecovery = redirectStarted || hasRedirectParams || hasRedirectHint || redirectPending || lastMethodWasRedirect || hasRedirectReferrer;
+    if(shouldAttemptRecovery){
       setTrackerMessage('Finishing sign-in…');
       const recovered = await waitForRecoveredUser(REDIRECT_GRACE_MS);
-      authLog('Redirect grace recovery check', {recovered: !!recovered, currentUserPresent: !!(trackerAuth && trackerAuth.currentUser), authStateObserved});
+      authLog('Redirect grace recovery check', {recovered: !!recovered, currentUserPresent: !!(trackerAuth && trackerAuth.currentUser), authStateObserved, shouldAttemptRecovery, redirectStarted, hasRedirectParams, hasRedirectReferrer, hasRedirectHint, redirectPending, lastMethod});
       if(recovered){
         clearRedirectTrackingFlags();
         redirectUserCache = recovered;
@@ -1334,10 +1406,16 @@ async function processRedirectResultSafely(){
       const attempts = getRedirectAttemptCount();
       const tooOld = redirectAgeMs > REDIRECT_MAX_AGE_MS;
       const retryBlocked = attempts > REDIRECT_ATTEMPT_LIMIT;
-      const msg = redirectRecoveryFailureMessage(retryBlocked ? 'redirect-attempt-limit' : (tooOld ? 'redirect-state-expired' : 'redirect-session-missing'));
-      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, retryBlocked});
+      const recoveryCode = retryBlocked ? 'redirect-attempt-limit' : (tooOld ? 'redirect-state-expired' : 'redirect-session-missing');
+      const msg = recoveryCode === 'redirect-session-missing'
+        ? 'Finishing sign-in took longer than expected. You can reset sign-in state and try again, or open the direct TripGuide link if this keeps failing. (redirect-session-missing)'
+        : redirectRecoveryFailureMessage(recoveryCode);
+      authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, retryBlocked, recoveryCode});
       rememberAuthError(msg);
       setRedirectStartedFlag(false);
+      if(platform && platform.isInAppBrowser){
+        setMobileTroubleshootingPanel(true, 'If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
+      }
     }
     authLog('Redirect result processed: no redirect user and no currentUser.');
     return null;
@@ -1473,6 +1551,7 @@ async function initFirebaseTracker(){
 
     setupAuthProvider();
     await setAuthPersistenceSafely();
+    handleAuthResetQueryOnLoad();
     clearStaleRedirectFlagsOnLoad();
     startAuthObserver();
     const redirectUser = await processRedirectResultSafely();
@@ -1491,6 +1570,7 @@ function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   bindClick('resetSignInStateBtn', resetTripGuideSignInState);
   bindClick('retryGoogleSignInBtn', signInWithGoogle);
+  bindClick('openDirectTripGuideBtn', openDirectTripGuideLink);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
@@ -1561,9 +1641,7 @@ async function signInWithGoogleSafe(){
     }
 
     if(platform.isInAppBrowser){
-      setMobileTroubleshootingPanel(true, 'In-app browser detected');
-      rememberAuthError('Sign-in is unreliable inside in-app browsers. Open this TripGuide link directly in Safari or Chrome.');
-      return;
+      setMobileTroubleshootingPanel(true, 'In-app browser detected. If this keeps failing, copy the link and open it directly in Safari instead of returning from WhatsApp.');
     }
 
     if(platform.isIOS && platform.isStandalonePWA){
@@ -1589,6 +1667,7 @@ async function signInWithGoogleSafe(){
         rememberAuthError('Sign-in got stuck because the previous Google redirect did not finish. Reset sign-in state, then try again. If you are on iPhone, open this page directly in Safari. (redirect-attempt-limit)');
         return;
       }
+      try{ sessionStorage.setItem(REDIRECT_METHOD_KEY, 'redirect'); }catch(_){ }
       setRedirectStartedFlag(true);
       setLoginGate(true, 'Redirecting to Google Sign-In…');
       authLog('Starting redirect sign-in', {redirectAttemptCount: attempts});
@@ -1616,6 +1695,7 @@ async function signInWithGoogleSafe(){
           return;
         }
         setSelectedSignInMethod('redirect-fallback');
+        try{ sessionStorage.setItem(REDIRECT_METHOD_KEY, 'redirect-fallback'); }catch(_){ }
         setRedirectStartedFlag(true);
         if(btn){ btn.textContent = 'Redirecting to Google…'; }
         if(gateBtn){ gateBtn.textContent = 'Redirecting to Google…'; }
@@ -1660,6 +1740,7 @@ async function signInWithEmailPassword(){
       try{ await result.user.getIdToken(true); }catch(_){}
       currentUser = result.user;
       clearAuthError();
+      clearRedirectTrackingFlags();
       updateAuthUI();
       setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
@@ -1696,6 +1777,7 @@ async function registerWithEmailPassword(){
       try{ await result.user.getIdToken(true); }catch(_){}
       currentUser = result.user;
       clearAuthError();
+      clearRedirectTrackingFlags();
       updateAuthUI();
       setTrackerMessage('Account created and signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
     }
