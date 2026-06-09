@@ -1,10 +1,14 @@
 /* TripGuide service worker: raw push handler (import-free, registration-safe) */
+const TRIPGUIDE_SW_BUILD = 'v5.28-authfix-2026-06-09T00:00:00Z';
 
 self.addEventListener('install', () => {
+  // Keep this worker push-only; no fetch handler means auth redirects are untouched.
+  console.log('[TripGuide SW] install', TRIPGUIDE_SW_BUILD);
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('[TripGuide SW] activate', TRIPGUIDE_SW_BUILD);
   event.waitUntil(self.clients.claim());
 });
 
