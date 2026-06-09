@@ -4,6 +4,8 @@ const admin = require('firebase-admin');
 
 const TRACKER_BASE = 'tripGuide';
 const SITE_URL = 'https://mdnadon112-sketch.github.io/TripGuide/';
+const TRIPGUIDE_ORIGIN = 'https://mdnadon112-sketch.github.io';
+const TRIPGUIDE_PATH_PREFIX = '/TripGuide';
 const MAX_TOKEN_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 const BATCH_SIZE = 500;
 const TARGET_TYPES = new Set(['allActive', 'adminsOnly', 'approvedViewers', 'singleUser']);
@@ -42,10 +44,13 @@ function resolveDatabaseUrl(serviceAccount) {
   throw new Error('Missing Firebase database URL.');
 }
 
-function resolveUrl(rawInput) {
+function normalizeTripGuideUrl(rawInput) {
   const raw = String(rawInput || '/TripGuide/').trim() || '/TripGuide/';
   try {
-    return new URL(raw, SITE_URL).href;
+    const parsed = new URL(raw, SITE_URL);
+    if (parsed.origin !== TRIPGUIDE_ORIGIN) return SITE_URL;
+    if (!String(parsed.pathname || '').startsWith(TRIPGUIDE_PATH_PREFIX)) return SITE_URL;
+    return parsed.href;
   } catch {
     return SITE_URL;
   }
@@ -128,7 +133,7 @@ async function main() {
   const body = required('INPUT_BODY');
   const targetType = input('INPUT_TARGET_TYPE', 'allActive');
   const uid = input('INPUT_UID');
-  const url = resolveUrl(input('INPUT_URL', '/TripGuide/'));
+  const url = normalizeTripGuideUrl(input('INPUT_URL', '/TripGuide/'));
 
   if (!TARGET_TYPES.has(targetType)) {
     throw new Error('INPUT_TARGET_TYPE must be one of allActive, adminsOnly, approvedViewers, singleUser.');

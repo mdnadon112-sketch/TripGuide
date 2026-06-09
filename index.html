@@ -372,6 +372,22 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
           <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver/Admin Controls</button>
         </div>
+        <div class="push-diagnostics hidden" id="pushRecommendPanel">
+          <div><h3>Turn On Trip Updates</h3><p>Get updates when Mike and Lauren post, arrive, or start moving.</p></div>
+          <p class="hidden" id="pushRecommendIosHint">For best results on iPhone, open TripGuide from your Home Screen, then turn on notifications.</p>
+          <div class="tracker-modes">
+            <button class="btn btn-google" type="button" id="pushRecommendEnableBtn">Turn On Notifications</button>
+            <button class="btn btn-ghost" type="button" id="pushRecommendNotNowBtn">Not Now</button>
+          </div>
+          <div class="tracker-alert auth-debug hidden" id="pushRecommendStatus"></div>
+        </div>
+        <div class="push-diagnostics hidden" id="pushRecoveryPanel">
+          <div><h3>Turn Notifications Back On</h3><p id="pushRecoveryInstructions"></p></div>
+          <div class="tracker-modes">
+            <button class="btn btn-ghost" type="button" id="pushRecoveryRetryBtn">Try Again</button>
+          </div>
+          <div class="tracker-alert auth-debug hidden" id="pushRecoveryStatus"></div>
+        </div>
         <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications are off.</div>
         </div>
         <div class="hub-section hidden" id="hubSectionAdmin" data-hub-section="admin">
@@ -2435,6 +2451,8 @@ function setAccessRequestUI(status){
 }
 function applyViewerNoAccessState(){
   if(isAdmin || isApproved) return;
+  showPushRecommendationPrompt(false);
+  showPushRecoveryPanel(false);
   if(!viewerAccessStateResolved){
     setTrackerStatus('Checking access…','offline');
     showAccessPanel(false);
@@ -2467,6 +2485,9 @@ function cleanupSecureListeners(){
   latestOwnRequest = null;
   pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
   pushDiagnosticsState.admin = { usersWithTokens: 0, enabledTokens: 0, entries: [] };
+  notificationRecommendationState = { settingsLoadedForUid: '', settings: {}, activeTokenForDevice: false, promptVisible: false };
+  showPushRecommendationPrompt(false);
+  showPushRecoveryPanel(false);
   renderPushDiagnostics();
 }
 function updateAuthUI(){
@@ -2558,6 +2579,7 @@ function requestTrackerAccess(){
 function enableProtectedHub(){
   currentHubTab = 'progress';
   showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); startPresence(); listenMessages(); listenVotes(); startPushDiagnostics();
+  applyNotificationRecommendationState().catch(()=>{});
 }
 function listenAdminRequests(){
   const panel=document.getElementById('adminPanel'); panel?.classList.remove('hidden');
@@ -3287,9 +3309,11 @@ function closeFoodPreview(){ document.getElementById('foodPhotoModal')?.classLis
 const TRIPGUIDE_WEB_PUSH_VAPID_KEY = 'BGOClK-9YnkgVzVoT6sScivke6xQlkt19rhpg5KY1b8_KdG9yoywu4VQfz4jdP8nTsvbCrbfIRXYg9NT8B8NwGc';
 const VAPID_KEY = TRIPGUIDE_WEB_PUSH_VAPID_KEY;
 const TRIPGUIDE_SW_QUERY = 'pushhandler4-authfix';
+const PUSH_PROMPT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 let tripGuideMessaging = null, tripGuideFunctions = null;
 let tripGuideServiceWorkerRegistration = null, tripGuideServiceWorkerPromise = null, currentUserPushTokenRef = null, adminPushTokensRef = null;
 let pushDiagnosticsState = createPushDiagnosticsState();
+let notificationRecommendationState = { settingsLoadedForUid: '', settings: {}, activeTokenForDevice: false, promptVisible: false };
 const pushDiagnosticsDebugOverride = (() => {
   try{ return new URLSearchParams(window.location.search).get('debugPush') === '1'; }catch(_){ return false; }
 })();
@@ -3354,6 +3378,54 @@ function safePushError(err){
   const message = err.message ? String(err.message) : String(err);
   return code && !message.includes(code) ? `${code}: ${message}` : message;
 }
+function currentUserSettingsRef(){
+  if(!trackerDb || !currentUser || !currentUser.uid) return null;
+  return trackerDb.ref(`${TRACKER_BASE}/userSettings/${currentUser.uid}`);
+}
+function setPushRecommendStatus(text){
+  const el = document.getElementById('pushRecommendStatus');
+  if(!el) return;
+  const msg = String(text || '').trim();
+  el.textContent = msg;
+  el.classList.toggle('hidden', !msg);
+}
+function showPushRecommendationPrompt(show){
+  const panel = document.getElementById('pushRecommendPanel');
+  if(panel) panel.classList.toggle('hidden', !show);
+  const iosHint = document.getElementById('pushRecommendIosHint');
+  if(iosHint) iosHint.classList.toggle('hidden', !(show && detectPushPlatformHint() === 'iOS'));
+  if(!show) setPushRecommendStatus('');
+  notificationRecommendationState.promptVisible = !!show;
+}
+async function loadNotificationUserSettings(){
+  if(!currentUser || !currentUser.uid || !trackerDb) return {};
+  if(notificationRecommendationState.settingsLoadedForUid === currentUser.uid) return notificationRecommendationState.settings || {};
+  const snap = await currentUserSettingsRef().get();
+  const settings = snap.val() || {};
+  notificationRecommendationState.settingsLoadedForUid = currentUser.uid;
+  notificationRecommendationState.settings = settings;
+  return settings;
+}
+async function updateNotificationUserSettings(patch){
+  const ref = currentUserSettingsRef();
+  if(!ref) return;
+  await ref.update(patch || {});
+  notificationRecommendationState.settings = Object.assign({}, notificationRecommendationState.settings || {}, patch || {});
+  notificationRecommendationState.settingsLoadedForUid = currentUser.uid;
+}
+async function hasActivePushTokenForCurrentDevice(){
+  if(!trackerDb || !currentUser || !currentUser.uid) return false;
+  const snap = await trackerDb.ref(`${TRACKER_BASE}/pushTokens/${currentUser.uid}`).get();
+  const records = snap.val() || {};
+  const deviceLabel = detectPushDeviceLabel();
+  const platform = detectPushPlatformHint().toLowerCase();
+  const active = Object.values(records).some(record => {
+    if(!record || record.enabled !== true || !record.token) return false;
+    return String(record.deviceLabel || '') === String(deviceLabel) && String(record.platform || '').toLowerCase() === platform;
+  });
+  notificationRecommendationState.activeTokenForDevice = active;
+  return active;
+}
 function setPushSendResult(text, bad){
   const el = document.getElementById('pushSendResult');
   if(!el) return;
@@ -3362,7 +3434,7 @@ function setPushSendResult(text, bad){
 }
 function statusTextForPush(){
   const permission = String(pushDiagnosticsState && pushDiagnosticsState.browser && pushDiagnosticsState.browser.permission || '').toLowerCase();
-  if(permission === 'denied') return 'Notifications blocked for this browser/site.';
+  if(permission === 'denied') return 'Notifications are blocked in your browser settings.';
   if(pushDiagnosticsState && pushDiagnosticsState.currentToken && pushDiagnosticsState.currentToken.enabled === true) return 'Notifications enabled for this device.';
   return 'Notifications not enabled.';
 }
@@ -3458,6 +3530,120 @@ async function saveCurrentUserPushToken(token, enabled){
   };
   await trackerDb.ref(`${userTokenPath}/${tokenId}`).set(tokenRecord);
   return { tokenId, tokenRecord, existed: !!existing };
+}
+async function ensurePushTokenReadyForCurrentDevice(){
+  const user = firebase.auth && firebase.auth().currentUser;
+  if(!user) throw new Error('Sign in before enabling notifications.');
+  const permission = String((typeof Notification !== 'undefined' && Notification.permission) ? Notification.permission : 'default').toLowerCase();
+  if(permission !== 'granted') throw new Error('Notification permission was not granted.');
+  const swReg = await ensureTripGuideServiceWorkerRegistration();
+  await navigator.serviceWorker.ready;
+  const messaging = firebase.messaging();
+  const token = await messaging.getToken({
+    vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
+    serviceWorkerRegistration: swReg
+  });
+  if(!token) throw new Error('Notifications are not available right now.');
+  await saveCurrentUserPushToken(token, true);
+  await updateNotificationUserSettings({ notificationsEnabled: true });
+  notificationRecommendationState.activeTokenForDevice = true;
+  await refreshPushBrowserDiagnostics();
+  showPushRecommendationPrompt(false);
+}
+async function applyNotificationRecommendationState(){
+  if(!currentUser || (!isApproved && !isAdmin)) { showPushRecommendationPrompt(false); showPushRecoveryPanel(false); return; }
+  await refreshPushBrowserDiagnostics();
+  const permission = String((typeof Notification !== 'undefined' && Notification.permission) ? Notification.permission : 'unsupported').toLowerCase();
+  if(permission === 'granted'){
+    showPushRecommendationPrompt(false);
+    showPushRecoveryPanel(false);
+    try{
+      const hasActiveToken = await hasActivePushTokenForCurrentDevice();
+      if(!hasActiveToken) await ensurePushTokenReadyForCurrentDevice();
+    }catch(_){ }
+    return;
+  }
+  if(permission === 'denied'){
+    showPushRecommendationPrompt(false);
+    showPushRecoveryPanel(true);
+    try{ await updateNotificationUserSettings({ notificationsEnabled: false }); }catch(_){ }
+    return;
+  }
+  showPushRecoveryPanel(false);
+  const settings = await loadNotificationUserSettings();
+  const dismissedAt = Number(settings.notificationsPromptDismissedAt || 0);
+  const dismissedRecently = dismissedAt > 0 && (Date.now() - dismissedAt) < PUSH_PROMPT_COOLDOWN_MS;
+  const hasActiveToken = await hasActivePushTokenForCurrentDevice();
+  const shouldPrompt = (!hasActiveToken) && (!dismissedRecently);
+  showPushRecommendationPrompt(shouldPrompt);
+}
+async function dismissNotificationPromptForNow(){
+  try{
+    await updateNotificationUserSettings({ notificationsPromptDismissedAt: Date.now(), notificationsEnabled: false });
+  }catch(_){ }
+  showPushRecommendationPrompt(false);
+}
+function getPushRecoveryInstructions(){
+  const platform = detectPushPlatformHint();
+  const ua = String((navigator && navigator.userAgent) || '').toLowerCase();
+  const isChrome = ua.includes('chrome/') && !ua.includes('edg/');
+  if(platform === 'iOS'){
+    return 'On iPhone, open TripGuide from your Home Screen. Then check Settings \u2192 Notifications \u2192 TripGuide and allow notifications.';
+  }
+  if(platform === 'Android' && isChrome){
+    return 'Open site settings for TripGuide and allow notifications. Then come back and tap Try Again.';
+  }
+  return 'Click the site settings icon near the address bar and allow notifications for TripGuide. Then tap Try Again.';
+}
+function showPushRecoveryPanel(show){
+  const panel = document.getElementById('pushRecoveryPanel');
+  if(panel) panel.classList.toggle('hidden', !show);
+  if(show){
+    const instructions = document.getElementById('pushRecoveryInstructions');
+    if(instructions) instructions.textContent = getPushRecoveryInstructions();
+    setPushRecoveryStatus('');
+  }
+}
+function setPushRecoveryStatus(text){
+  const el = document.getElementById('pushRecoveryStatus');
+  if(!el) return;
+  const msg = String(text || '').trim();
+  el.textContent = msg;
+  el.classList.toggle('hidden', !msg);
+}
+async function tryAgainPushRecovery(){
+  const permission = String((typeof Notification !== 'undefined' && Notification.permission) || 'unsupported').toLowerCase();
+  await refreshPushBrowserDiagnostics();
+  if(permission === 'granted'){
+    try{
+      await ensurePushTokenReadyForCurrentDevice();
+      showPushRecoveryPanel(false);
+      setTrackerMessage('Notifications are on.');
+      applyNotificationRecommendationState().catch(()=>{});
+    }catch(err){
+      setPushRecoveryStatus(err && err.message ? err.message : 'Something went wrong. Check your device settings.');
+    }
+    return;
+  }
+  if(permission === 'denied'){
+    setPushRecoveryStatus('Notifications are still blocked. Check your device settings and tap Try Again.');
+    return;
+  }
+  // default — ask now since the user explicitly clicked Try Again
+  try{
+    const newPermission = await Notification.requestPermission();
+    if(newPermission === 'granted'){
+      await ensurePushTokenReadyForCurrentDevice();
+      showPushRecoveryPanel(false);
+      setTrackerMessage('Notifications are on.');
+      applyNotificationRecommendationState().catch(()=>{});
+    }else{
+      setPushRecoveryStatus('Notifications are still off. You can turn them on in your browser settings.');
+      try{ await updateNotificationUserSettings({ notificationsEnabled: false }); }catch(_){ }
+    }
+  }catch(err){
+    setPushRecoveryStatus(err && err.message ? err.message : 'Something went wrong. Check your device settings.');
+  }
 }
 function setText(id, value){ const el=document.getElementById(id); if(el) el.textContent = value; }
 function renderPushDiagnostics(){
@@ -3583,9 +3769,11 @@ function listenCurrentUserPushToken(){
       error: ''
     } : { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: '' };
     renderPushDiagnostics();
+    applyNotificationRecommendationState().catch(()=>{});
   }, err => {
     pushDiagnosticsState.currentToken = { saved: false, createdAt: null, lastSeen: null, enabled: null, masked: '—', error: 'Token read failed: ' + safePushError(err) };
     renderPushDiagnostics();
+    applyNotificationRecommendationState().catch(()=>{});
   });
 }
 function listenAdminPushTokens(){
@@ -3631,6 +3819,7 @@ function startPushDiagnostics(){
   listenCurrentUserPushToken();
   if(isAdmin) listenAdminPushTokens(); else stopAdminPushTokenListener();
   ensureTripGuideServiceWorkerRegistration().catch(()=>{});
+  applyNotificationRecommendationState().catch(()=>{});
   renderPushDiagnostics();
 }
 
@@ -3652,28 +3841,25 @@ async function enableTripGuidePush(){
     throw new Error('Firebase Messaging is not loaded.');
   }
 
-  const permission = await Notification.requestPermission();
+  const currentPermission = String(Notification.permission || 'default').toLowerCase();
+  if(currentPermission === 'denied'){
+    try{ await updateNotificationUserSettings({ notificationsEnabled: false }); }catch(_){ }
+    showPushRecommendationPrompt(false);
+    showPushRecoveryPanel(true);
+    return;
+  }
 
+  const permission = currentPermission === 'granted' ? 'granted' : await Notification.requestPermission();
   if(permission !== 'granted'){
-    throw new Error('Notification permission was not granted.');
+    try{ await updateNotificationUserSettings({ notificationsEnabled: false }); }catch(_){ }
+    setPushRecommendStatus('Notifications stayed off. You can turn them on later.');
+    setTrackerMessage('Notifications stayed off for now.');
+    await refreshPushBrowserDiagnostics();
+    await applyNotificationRecommendationState().catch(()=>{});
+    return;
   }
 
-  const swReg = await ensureTripGuideServiceWorkerRegistration();
-  await navigator.serviceWorker.ready;
-
-  const messaging = firebase.messaging();
-
-  const token = await messaging.getToken({
-    vapidKey: TRIPGUIDE_WEB_PUSH_VAPID_KEY,
-    serviceWorkerRegistration: swReg
-  });
-
-  if(!token){
-    throw new Error('FCM did not return a token.');
-  }
-
-  await saveCurrentUserPushToken(token, true);
-  await refreshPushBrowserDiagnostics();
+  await ensurePushTokenReadyForCurrentDevice();
   setTrackerMessage('Notifications enabled for this device.');
 }
 async function disableTripGuidePushOnDevice(){
@@ -3700,6 +3886,7 @@ async function disableTripGuidePushOnDevice(){
     }
     const now = Date.now();
     await userTokenRef.child(existing.tokenId).update({ enabled: false, lastSeen: now });
+    try{ await updateNotificationUserSettings({ notificationsEnabled: false }); }catch(_){ }
     pushDiagnosticsState.currentToken = {
       saved: true,
       createdAt: existing.record && existing.record.createdAt || null,
@@ -3758,6 +3945,38 @@ function bindPushButton(){
     });
   }
 }
+function bindPushRecoveryButtons(){
+  const retryBtn = document.getElementById('pushRecoveryRetryBtn');
+  if(retryBtn && !retryBtn.dataset.boundPushRecovery){
+    retryBtn.dataset.boundPushRecovery = 'true';
+    retryBtn.addEventListener('click', () => {
+      setPushRecoveryStatus('');
+      tryAgainPushRecovery().catch((err) => {
+        setPushRecoveryStatus(err && err.message ? err.message : 'Something went wrong. Check your device settings.');
+      });
+    });
+  }
+}
+function bindPushRecommendationButtons(){
+  const enableBtn = document.getElementById('pushRecommendEnableBtn');
+  if(enableBtn && !enableBtn.dataset.boundPushPromptEnable){
+    enableBtn.dataset.boundPushPromptEnable = 'true';
+    enableBtn.addEventListener('click', () => {
+      setPushRecommendStatus('');
+      enableTripGuidePush().catch((err) => {
+        setPushRecommendStatus(err && err.message ? err.message : 'Notifications are unavailable right now.');
+      });
+    });
+  }
+  const notNowBtn = document.getElementById('pushRecommendNotNowBtn');
+  if(notNowBtn && !notNowBtn.dataset.boundPushPromptNotNow){
+    notNowBtn.dataset.boundPushPromptNotNow = 'true';
+    notNowBtn.addEventListener('click', () => {
+      dismissNotificationPromptForNow().catch(()=>{});
+      setTrackerMessage('Notifications stayed off for now.');
+    });
+  }
+}
 function bindDisablePushButton(){
   const btn = document.getElementById('disablePushBtn');
   if(btn && !btn.dataset.boundDisablePush){
@@ -3788,13 +4007,16 @@ function bindPushDiagnosticsToggleButton(){
 }
 
 document.addEventListener('click', function(e){
-  const target = e.target && e.target.closest ? e.target.closest('#enablePushBtn, #disablePushBtn, #cleanupPushTokensBtn, #sendPushNotificationBtn, #togglePushDiagnosticsBtn') : null;
+  const target = e.target && e.target.closest ? e.target.closest('#enablePushBtn, #disablePushBtn, #cleanupPushTokensBtn, #sendPushNotificationBtn, #togglePushDiagnosticsBtn, #pushRecommendEnableBtn, #pushRecommendNotNowBtn, #pushRecoveryRetryBtn') : null;
   if(!target) return;
   if(target.id === 'enablePushBtn' && target.dataset.boundPush) return;
   if(target.id === 'disablePushBtn' && target.dataset.boundDisablePush) return;
   if(target.id === 'cleanupPushTokensBtn' && target.dataset.boundCleanupPush) return;
   if(target.id === 'sendPushNotificationBtn' && target.dataset.boundSendPush) return;
   if(target.id === 'togglePushDiagnosticsBtn' && target.dataset.boundPushDiagToggle) return;
+  if(target.id === 'pushRecommendEnableBtn' && target.dataset.boundPushPromptEnable) return;
+  if(target.id === 'pushRecommendNotNowBtn' && target.dataset.boundPushPromptNotNow) return;
+  if(target.id === 'pushRecoveryRetryBtn' && target.dataset.boundPushRecovery) return;
   if(target.id === 'enablePushBtn'){
     enableTripGuidePush().catch((err) => {
       console.error(err);
@@ -3806,6 +4028,22 @@ document.addEventListener('click', function(e){
   if(target.id === 'cleanupPushTokensBtn') cleanDisabledOrStalePushTokens();
   if(target.id === 'sendPushNotificationBtn') sendTripGuideNotificationFromAdmin();
   if(target.id === 'togglePushDiagnosticsBtn') togglePushDiagnosticsPanel();
+  if(target.id === 'pushRecommendEnableBtn'){
+    setPushRecommendStatus('');
+    enableTripGuidePush().catch((err) => {
+      setPushRecommendStatus(err && err.message ? err.message : 'Notifications are unavailable right now.');
+    });
+  }
+  if(target.id === 'pushRecommendNotNowBtn'){
+    dismissNotificationPromptForNow().catch(()=>{});
+    setTrackerMessage('Notifications stayed off for now.');
+  }
+  if(target.id === 'pushRecoveryRetryBtn'){
+    setPushRecoveryStatus('');
+    tryAgainPushRecovery().catch((err) => {
+      setPushRecoveryStatus(err && err.message ? err.message : 'Something went wrong. Check your device settings.');
+    });
+  }
 }, true);
 
 normalizeTripPinLabels();
@@ -3813,7 +4051,9 @@ renderStatic();
 renderPushDiagnostics();
 refreshPushBrowserDiagnostics().catch(()=>{});
 try{ bindPushButton(); }catch(_){}
-try{ bindDisablePushButton(); }catch(_){}
+try{ bindPushRecoveryButtons(); }catch(_){}
+try{ bindPushRecommendationButtons(); }catch(_){ }
+try{ bindDisablePushButton(); }catch(_){ }
 try{ bindCleanupPushButton(); }catch(_){}
 try{ bindSendPushNotificationButton(); }catch(_){}
 try{ bindPushDiagnosticsToggleButton(); }catch(_){}

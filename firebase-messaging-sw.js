@@ -1,5 +1,19 @@
 /* TripGuide service worker: raw push handler (import-free, registration-safe) */
 const TRIPGUIDE_SW_BUILD = 'v5.28-authfix-2026-06-09T00:00:00Z';
+const TRIPGUIDE_FALLBACK_URL = 'https://mdnadon112-sketch.github.io/TripGuide/';
+const TRIPGUIDE_ORIGIN = 'https://mdnadon112-sketch.github.io';
+const TRIPGUIDE_PATH_PREFIX = '/TripGuide';
+
+function normalizeTripGuideUrl(rawUrl) {
+  try {
+    const parsed = new URL(String(rawUrl || '').trim() || TRIPGUIDE_FALLBACK_URL, TRIPGUIDE_FALLBACK_URL);
+    if (parsed.origin !== TRIPGUIDE_ORIGIN) return TRIPGUIDE_FALLBACK_URL;
+    if (!String(parsed.pathname || '').startsWith(TRIPGUIDE_PATH_PREFIX)) return TRIPGUIDE_FALLBACK_URL;
+    return parsed.href;
+  } catch (_) {
+    return TRIPGUIDE_FALLBACK_URL;
+  }
+}
 
 self.addEventListener('install', () => {
   // Keep this worker push-only; no fetch handler means auth redirects are untouched.
@@ -29,10 +43,17 @@ self.addEventListener('push', (event) => {
   const data = payload.data || {};
   const webpush = payload.webpush || {};
   const fcmOptions = payload.fcmOptions || {};
+  const fcmMsgData = (data && data.FCM_MSG && data.FCM_MSG.data) || (payload && payload.FCM_MSG && payload.FCM_MSG.data) || {};
 
   const title = notification.title || data.title || payload.title || 'TripGuide';
   const body = notification.body || data.body || payload.body || 'New TripGuide update';
-  const url = data.url || fcmOptions.link || (webpush.fcm_options && webpush.fcm_options.link) || 'https://mdnadon112-sketch.github.io/TripGuide/';
+  const url = normalizeTripGuideUrl(
+    data.url ||
+    fcmOptions.link ||
+    (webpush.fcm_options && webpush.fcm_options.link) ||
+    (fcmMsgData && fcmMsgData.url) ||
+    TRIPGUIDE_FALLBACK_URL
+  );
 
   const options = {
     body,
@@ -47,40 +68,38 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const fallbackUrl = 'https://mdnadon112-sketch.github.io/TripGuide/';
+  const fallbackUrl = TRIPGUIDE_FALLBACK_URL;
+  const data = (event.notification && event.notification.data) || {};
+  const nestedFcmData = (data && data.FCM_MSG && data.FCM_MSG.data) || {};
   const rawUrl =
-    (event.notification && event.notification.data && event.notification.data.url) ||
+    data.url ||
+    nestedFcmData.url ||
     fallbackUrl;
-  let targetUrl = fallbackUrl;
-  try {
-    targetUrl = new URL(rawUrl, fallbackUrl).href;
-  } catch (_) {
-    targetUrl = fallbackUrl;
-  }
+  const targetUrl = normalizeTripGuideUrl(rawUrl);
+  let targetOrigin = TRIPGUIDE_ORIGIN;
+  try { targetOrigin = new URL(targetUrl).origin; } catch (_) { }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      const tripGuideClient = clientList.find((client) => {
+      const exactClient = clientList.find((client) => String(client.url || '') === targetUrl);
+      if (exactClient && 'focus' in exactClient) {
+        return exactClient.focus();
+      }
+
+      const sameOriginClient = clientList.find((client) => {
         try {
-          return String(client.url || '').includes('/TripGuide');
+          return new URL(String(client.url || ''), fallbackUrl).origin === targetOrigin;
         } catch (_) {
           return false;
         }
       });
 
-      if (tripGuideClient) {
-        return tripGuideClient.focus()
-          .then(() => ('navigate' in tripGuideClient ? tripGuideClient.navigate(targetUrl) : tripGuideClient))
-          .catch(() => tripGuideClient.focus());
+      if (sameOriginClient && 'focus' in sameOriginClient) {
+        return sameOriginClient.focus()
+          .then(() => ('navigate' in sameOriginClient ? sameOriginClient.navigate(targetUrl) : sameOriginClient))
+          .catch(() => sameOriginClient.focus());
       }
 
-      for (const client of clientList) {
-        if ('focus' in client) {
-          return client.focus()
-            .then(() => ('navigate' in client ? client.navigate(targetUrl) : client))
-            .catch(() => client.focus());
-        }
-      }
       if (clients.openWindow) return clients.openWindow(targetUrl);
       return undefined;
     })

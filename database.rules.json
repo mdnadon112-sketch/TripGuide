@@ -78,6 +78,22 @@
         ".read": "auth != null",
         ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')"
       },
+      "userSettings": {
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".write": "auth != null && (auth.uid === $uid || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+          ".validate": "!newData.exists() || ((!newData.child('notificationsPromptDismissedAt').exists() || newData.child('notificationsPromptDismissedAt').isNumber()) && (!newData.child('notificationsEnabled').exists() || newData.child('notificationsEnabled').isBoolean()))"
+        }
+      },
+      "notificationCopyHistory": {
+        ".read": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        ".indexOn": ["createdAt"]
+      },
+      "settings": {
+        ".read": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
+        ".write": "auth != null && (root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')"
+      },
       "pushTokens": {
         "$uid": {
           ".read": "auth != null && (auth.uid === $uid || root.child('tripGuide/admins/' + auth.uid + '/admin').val() === true || root.child('tripGuide/approvedUsers/' + auth.uid + '/admin').val() === true || auth.token.email === 'mdnadon112@gmail.com' || auth.token.email === 'mdnadon112@googlemail.com' || auth.token.email === 'pinnerpatter@gmail.com' || auth.token.email === 'pinnerpatter@googlemail.com')",
