@@ -188,6 +188,22 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .mobile-help-details .mobile-help-body{font-size:11px;padding:0 9px 9px}
 }
 @media print{.login-gate{display:none!important}body.login-required .wrap{filter:none;pointer-events:auto;user-select:auto}}
+/* Auth multi-view */
+.btn-link{background:none;border:none;color:#1666d8;font-size:13px;font-weight:900;cursor:pointer;padding:3px 0;display:inline-block;line-height:1.5;text-align:left}
+.btn-link:hover{text-decoration:underline}
+.login-email-toggle{width:100%;margin-top:4px}
+.email-login-panel{display:grid;gap:8px;margin-top:8px;border-top:1px solid #e2e8f0;padding-top:10px}
+.auth-form{display:grid;gap:8px;margin-top:10px}
+.auth-link-row{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.login-card .auth-view-title{font-size:24px;margin:0 0 6px}
+.auth-view-sub{margin-bottom:10px;font-size:14px}
+@media(max-width:430px){
+  .login-card .auth-view-title{font-size:21px}
+  .email-login-panel{padding-top:8px;gap:7px}
+  .auth-form{gap:7px}
+  .auth-link-row{gap:2px;margin-top:5px}
+  .btn-link{font-size:12px}
+}
 
 /* PATCH v5.25: larger daily section titles for faster readability */
 .day h2{
@@ -236,24 +252,60 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 <body>
 <div class="login-gate" id="loginGate" role="dialog" aria-modal="true" aria-labelledby="loginGateTitle">
   <div class="login-card">
-    <h2 id="loginGateTitle">Secure Live Trip Hub</h2>
-    <p>Sign in to view live location, trip updates, and messages.</p>
-    <div class="google-identity-shell">
-      <div class="google-identity-label">Google sign-in</div>
-      <div id="googleIdentityButton" class="google-identity-button"></div>
-      <div class="google-identity-note" id="googleIdentityStatus">Use Google sign-in for fastest access.</div>
-    </div>
-    <div class="login-divider" aria-hidden="true">or</div>
-    <div class="email-login" aria-label="Email sign-in fallback">
-      <div class="email-login-label">Email fallback</div>
-      <div class="email-login-grid">
+
+    <!-- ── LOGIN VIEW (default) ─────────────────────────────── -->
+    <div id="authViewLogin">
+      <h2 id="loginGateTitle">Secure Live Trip Hub</h2>
+      <p>Sign in to view live location, trip updates, and messages.</p>
+      <div class="google-identity-shell">
+        <div class="google-identity-label">Google Sign-In</div>
+        <div id="googleIdentityButton" class="google-identity-button"></div>
+        <div class="google-identity-note" id="googleIdentityStatus">Tap the Google button to sign in with your Google account.</div>
+      </div>
+      <div class="login-divider" aria-hidden="true">or</div>
+      <button class="btn btn-ghost login-email-toggle" type="button" id="showEmailLoginBtn">Login with Email</button>
+      <div class="email-login-panel hidden" id="emailLoginPanel">
         <input class="login-input" id="gateEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
         <input class="login-input" id="gatePasswordInput" type="password" autocomplete="current-password" placeholder="Password">
-        <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Sign in with email</button>
-        <button class="btn btn-ghost" type="button" id="gateEmailRegisterBtn">Register / Make an account</button>
-        <button class="btn btn-ghost" type="button" id="gatePasswordResetBtn">Reset password</button>
+        <button class="btn btn-dark" type="button" id="gateEmailSignInBtn">Log in</button>
+        <div class="auth-link-row">
+          <button class="btn-link" type="button" id="goToRegisterBtn">Don&#39;t have an account? Create one</button>
+          <button class="btn-link" type="button" id="goToResetBtn">Forgot password?</button>
+          <button class="btn-link" type="button" id="hideEmailLoginBtn">Hide email login</button>
+        </div>
       </div>
     </div>
+
+    <!-- ── REGISTER VIEW ──────────────────────────────────────── -->
+    <div id="authViewRegister" class="hidden">
+      <h2 class="auth-view-title">Create your account</h2>
+      <p class="auth-view-sub">Create an account, then request access to the trip hub.</p>
+      <div class="auth-form">
+        <input class="login-input" id="regNameInput" type="text" autocomplete="name" placeholder="Full name">
+        <input class="login-input" id="regEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
+        <input class="login-input" id="regPasswordInput" type="password" autocomplete="new-password" placeholder="Password">
+        <input class="login-input" id="regConfirmInput" type="password" autocomplete="new-password" placeholder="Confirm password">
+        <button class="btn btn-go" type="button" id="createAccountBtn">Create account</button>
+        <div class="auth-link-row">
+          <button class="btn-link" type="button" id="backToLoginFromRegBtn">Already have an account? Log in</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESET PASSWORD VIEW ────────────────────────────────── -->
+    <div id="authViewReset" class="hidden">
+      <h2 class="auth-view-title">Reset password</h2>
+      <p class="auth-view-sub">Enter your email and we&#39;ll send a reset link.</p>
+      <div class="auth-form">
+        <input class="login-input" id="resetEmailInput" type="email" autocomplete="username" inputmode="email" placeholder="Email address">
+        <button class="btn btn-dark" type="button" id="sendResetLinkBtn">Send reset link</button>
+        <div class="auth-link-row">
+          <button class="btn-link" type="button" id="backToLoginFromResetBtn">Back to login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATUS / MOBILE HELP ───────────────────────────────── -->
     <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
     <details class="mobile-help-details hidden" id="mobileAuthHelpPanel">
       <summary>Mobile sign-in help</summary>
@@ -1777,8 +1829,31 @@ async function initFirebaseTracker(){
   }catch(e){ setTrackerStatus('Tracker setup error','offline'); setTrackerMessage(e.message || String(e)); }
 }
 function bindHubControls(){
-  bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('gatePasswordResetBtn', sendPasswordResetFromGate); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
-  ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
+  // Login gate — view navigation
+  bindClick('showEmailLoginBtn', () => {
+    document.getElementById('emailLoginPanel')?.classList.remove('hidden');
+    document.getElementById('showEmailLoginBtn')?.classList.add('hidden');
+    setTimeout(()=>{ try{ document.getElementById('gateEmailInput')?.focus(); }catch(_){} }, 60);
+  });
+  bindClick('hideEmailLoginBtn', () => {
+    document.getElementById('emailLoginPanel')?.classList.add('hidden');
+    document.getElementById('showEmailLoginBtn')?.classList.remove('hidden');
+  });
+  bindClick('goToRegisterBtn', () => setLoginView('register'));
+  bindClick('goToResetBtn', () => setLoginView('resetPassword'));
+  bindClick('backToLoginFromRegBtn', () => setLoginView('login'));
+  bindClick('backToLoginFromResetBtn', () => setLoginView('login'));
+  // Login gate — auth actions
+  bindClick('gateEmailSignInBtn', handleEmailLogin);
+  bindClick('createAccountBtn', handleCreateAccount);
+  bindClick('sendResetLinkBtn', handlePasswordReset);
+  // Hub panel auth
+  bindClick('authEmailSignInBtn', handleEmailLogin); bindClick('authEmailRegisterBtn', handleCreateAccount);
+  bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
+  // Enter-key shortcuts
+  ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') handleEmailLogin(); }); });
+  const regConfirm=document.getElementById('regConfirmInput'); if(regConfirm) regConfirm.addEventListener('keydown', e=>{ if(e.key==='Enter') handleCreateAccount(); });
+  const resetEmail=document.getElementById('resetEmailInput'); if(resetEmail) resetEmail.addEventListener('keydown', e=>{ if(e.key==='Enter') handlePasswordReset(); });
   bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => setHubTab('admin'));
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
   bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
@@ -1806,6 +1881,135 @@ async function sendPasswordResetFromGate(){
     rememberAuthError((e && e.message) ? e.message : authErrorMessage(e));
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   AUTH MULTI-VIEW STATE + FUNCTIONS
+   ─────────────────────────────────────────────────────────────────────── */
+
+let currentLoginView = 'login';
+
+function setLoginView(view){
+  currentLoginView = view || 'login';
+  const viewMap = {login:'authViewLogin', register:'authViewRegister', resetPassword:'authViewReset'};
+  Object.values(viewMap).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+  const targetId = viewMap[currentLoginView] || 'authViewLogin';
+  const target = document.getElementById(targetId);
+  if(target) target.classList.remove('hidden');
+  clearAuthError();
+  const gateMsg = document.getElementById('gateAuthMessage');
+  if(gateMsg && gateMsg.textContent && !gateMsg.textContent.includes('session')) gateMsg.textContent = '';
+  setTimeout(() => {
+    try{
+      const inputs = target && target.querySelectorAll('input[type="email"],input[type="text"],input[type="password"]');
+      if(inputs && inputs.length) inputs[0].focus();
+    }catch(_){}
+  }, 80);
+}
+
+async function handleEmailLogin(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    const email = String((document.getElementById('gateEmailInput')?.value || document.getElementById('authEmailInput')?.value || '')).trim().toLowerCase();
+    const password = String(document.getElementById('gatePasswordInput')?.value || document.getElementById('authPasswordInput')?.value || '');
+    if(!email){ rememberAuthError('Please enter your email address.'); return; }
+    if(!password){ rememberAuthError('Please enter your password.'); return; }
+    const btn = document.getElementById('gateEmailSignInBtn');
+    if(btn){ btn.textContent = 'Signing in\u2026'; btn.disabled = true; }
+    setLoginGate(true, 'Signing in\u2026');
+    await setAuthPersistenceSafely();
+    const result = await trackerAuth.signInWithEmailAndPassword(email, password);
+    if(result && result.user){
+      try{ await result.user.getIdToken(true); }catch(_){}
+      currentUser = result.user;
+      clearAuthError();
+      clearRedirectTrackingFlags();
+      updateAuthUI();
+      setTrackerMessage('Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
+    }
+  }catch(e){
+    const code = e && e.code ? e.code : '';
+    if(code === 'auth/operation-not-allowed'){
+      rememberAuthError('Email/password sign-in is not enabled in Firebase.');
+    } else {
+      rememberAuthError(authErrorMessage(e));
+    }
+  }finally{
+    const btn = document.getElementById('gateEmailSignInBtn');
+    if(btn && !currentUser){ btn.textContent = 'Log in'; btn.disabled = false; }
+  }
+}
+
+async function handleCreateAccount(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    const fullName = String(document.getElementById('regNameInput')?.value || '').trim();
+    const email = String(document.getElementById('regEmailInput')?.value || '').trim().toLowerCase();
+    const password = String(document.getElementById('regPasswordInput')?.value || '');
+    const confirmPassword = String(document.getElementById('regConfirmInput')?.value || '');
+    if(!fullName){ rememberAuthError('Please enter your full name.'); return; }
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ rememberAuthError('Please enter a valid email address.'); return; }
+    if(!password){ rememberAuthError('Please enter a password.'); return; }
+    if(password !== confirmPassword){ rememberAuthError('Passwords do not match. Please try again.'); return; }
+    const btn = document.getElementById('createAccountBtn');
+    if(btn){ btn.textContent = 'Creating account\u2026'; btn.disabled = true; }
+    setLoginGate(true, 'Creating account\u2026');
+    await setAuthPersistenceSafely();
+    const result = await trackerAuth.createUserWithEmailAndPassword(email, password);
+    if(result && result.user){
+      try{ await result.user.updateProfile({ displayName: fullName }); }catch(_){}
+      try{ await result.user.getIdToken(true); }catch(_){}
+      currentUser = result.user;
+      clearAuthError();
+      clearRedirectTrackingFlags();
+      await upsertSignedInUserProfile(result.user);
+      updateAuthUI();
+      setTrackerMessage('Account created. Signed in as ' + (authEmail(result.user) || result.user.email || email) + '.');
+    }
+  }catch(e){
+    const code = e && e.code ? e.code : '';
+    if(code === 'auth/operation-not-allowed'){
+      rememberAuthError('Email/password sign-in is not enabled in Firebase.');
+    } else {
+      rememberAuthError(authErrorMessage(e));
+    }
+  }finally{
+    const btn = document.getElementById('createAccountBtn');
+    if(btn && !currentUser){ btn.textContent = 'Create account'; btn.disabled = false; }
+  }
+}
+
+async function handlePasswordReset(){
+  try{
+    if(!trackerAuth){ try{ initFirebaseTracker(); }catch(_){} }
+    if(!trackerAuth){ setTrackerMessage('Firebase Auth is not ready. Refresh and try again.'); return; }
+    const email = String(document.getElementById('resetEmailInput')?.value || '').trim().toLowerCase();
+    if(!email){ rememberAuthError('Please enter your email address.'); return; }
+    const btn = document.getElementById('sendResetLinkBtn');
+    if(btn){ btn.textContent = 'Sending\u2026'; btn.disabled = true; }
+    await trackerAuth.sendPasswordResetEmail(email);
+    const gateMsg = document.getElementById('gateAuthMessage');
+    if(gateMsg) gateMsg.textContent = 'If an account exists for that email, a reset link has been sent.';
+    clearAuthError();
+  }catch(e){
+    const code = e && e.code ? e.code : '';
+    if(code === 'auth/invalid-email'){
+      rememberAuthError('Please enter a valid email address.');
+    } else {
+      // Don't reveal whether account exists for other errors
+      const gateMsg = document.getElementById('gateAuthMessage');
+      if(gateMsg) gateMsg.textContent = 'If an account exists for that email, a reset link has been sent.';
+      clearAuthError();
+    }
+  }finally{
+    const btn = document.getElementById('sendResetLinkBtn');
+    if(btn){ btn.textContent = 'Send reset link'; btn.disabled = false; }
+  }
+}
 function setLoginGate(show, message, reason){
   const gate=document.getElementById('loginGate');
   const gateMsg=document.getElementById('gateAuthMessage');
@@ -1813,13 +2017,13 @@ function setLoginGate(show, message, reason){
   if(document.body) document.body.classList.toggle('login-required', !!show);
   if(gateMsg && message) gateMsg.textContent = message;
   if(reason){ authLog('gate shown/hidden reason: ' + (show ? 'show' : 'hide') + ' - ' + reason); }
-  if(show){ setTimeout(()=>{ try{ document.getElementById('gateEmailInput')?.focus(); }catch(_){} }, 80); }
 }
 function resetSignInButton(){
   const buttonLabels={
-    gateEmailSignInBtn:'Sign in with email',
+    gateEmailSignInBtn:'Log in',
     authEmailSignInBtn:'Email sign-in',
-    gateEmailRegisterBtn:'Register / Make an account',
+    createAccountBtn:'Create account',
+    sendResetLinkBtn:'Send reset link',
     authEmailRegisterBtn:'Register / Make an account'
   };
   Object.entries(buttonLabels).forEach(([id,label])=>{ const b=document.getElementById(id); if(b){ b.textContent=label; b.disabled=false; } });
@@ -2040,6 +2244,7 @@ function handleAuthState(user){
       setLoginGate(true, 'Not signed in. Sign in with Google to continue.', 'no current user after auth checks');
       setTrackerMessage('Not signed in.');
     }
+    setLoginView('login');
     showAccessPanel(false); showProtectedHub(false); return;
   }
   setAuthDebugStatus({finalEmail: authEmail(user) || user.email || '—', finalAccessState:'signedIn'});
@@ -2760,11 +2965,11 @@ function authErrorMessage(e){
   if(code === 'auth/popup-closed-by-user') return 'Sign-in was closed before completion. (' + code + ')';
   if(code === 'auth/network-request-failed') return 'Network error. Check connection and retry. (' + code + ')';
   if(code === 'auth/user-disabled') return 'This Firebase Auth user is disabled. Re-enable the account in Firebase Authentication -> Users. (' + code + ')';
-  if(code === 'auth/user-not-found') return 'No Firebase Auth user exists for that email. Use Register if account creation is allowed, or ask an admin to create/approve it. (' + code + ')';
-  if(code === 'auth/email-already-in-use') return 'That email already has a Firebase account. Use Sign in with email instead. (' + code + ')';
-  if(code === 'auth/wrong-password') return 'The email/password is incorrect for that account. (' + code + ')';
-  if(code === 'auth/weak-password') return 'Password must be at least 6 characters. (' + code + ')';
-  if(code === 'auth/invalid-credential') return 'Firebase rejected this credential. Verify provider setup and retry. (' + code + ')';
+  if(code === 'auth/user-not-found') return 'No account found for that email address.';
+  if(code === 'auth/email-already-in-use') return 'An account already exists for that email. Try signing in instead.';
+  if(code === 'auth/wrong-password') return 'Incorrect email or password.';
+  if(code === 'auth/weak-password') return 'Password must be at least 6 characters.';
+  if(code === 'auth/invalid-credential') return 'Incorrect email or password.';
   if(code === 'auth/invalid-email') return 'The email address format is invalid. (' + code + ')';
   const safeRaw = String(raw || 'Unknown error').slice(0, 300);
   return (code ? code + ': ' : 'Unknown auth error: ') + safeRaw;
