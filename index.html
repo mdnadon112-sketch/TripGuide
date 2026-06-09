@@ -145,6 +145,8 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 .login-card p{margin:0 0 14px;color:#475569;font-weight:750;line-height:1.45}
 .login-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
 .login-actions .btn{width:100%;min-height:54px;font-size:16px;border-radius:18px}
+.login-recovery-actions{margin-top:8px;gap:8px}
+.login-recovery-actions .btn{min-height:52px;font-size:15px}
 .email-login{margin-top:12px;border-top:1px solid #e2e8f0;padding-top:12px;display:grid;gap:9px}
 .email-login-label{font-size:12px;font-weight:950;color:#475569;text-transform:uppercase;letter-spacing:.06em}
 .email-login-grid{display:grid;grid-template-columns:1fr;gap:8px}
@@ -155,7 +157,26 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 @media(max-width:700px){.auth-email-row{grid-template-columns:1fr}.auth-email-row .btn{width:100%}}
 .login-debug{margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:16px;padding:10px 12px;font-size:13px;font-weight:850;line-height:1.4;word-break:break-word}
 .login-note{margin-top:10px;color:#64748b;font-size:12px;font-weight:750;line-height:1.35}
-@media(max-width:430px){.login-card{border-radius:22px;padding:16px}.login-card h2{font-size:26px}.login-actions .btn{min-height:52px}}
+.mobile-help-inline{margin-top:10px;color:#334155;font-size:12px;font-weight:750;line-height:1.35}
+.mobile-help-details{margin-top:8px;border:1px solid #dbe4f0;border-radius:12px;background:#f8fafc}
+.mobile-help-details summary{cursor:pointer;list-style:none;padding:8px 10px;font-size:12px;font-weight:900;color:#334155}
+.mobile-help-details summary::-webkit-details-marker{display:none}
+.mobile-help-details .mobile-help-body{padding:0 10px 10px;color:#475569;font-size:12px;font-weight:750;line-height:1.35;white-space:normal}
+@media(max-width:430px){
+  .login-gate{align-items:flex-start;padding:8px 8px calc(10px + var(--safe-bottom));overflow:auto}
+  .login-card{border-radius:20px;padding:12px;max-height:calc(100vh - 16px - var(--safe-bottom));overflow:auto;-webkit-overflow-scrolling:touch}
+  .login-card h2{font-size:24px}
+  .login-card p{margin-bottom:10px;font-size:13px}
+  .login-actions{margin-top:8px;gap:7px}
+  .login-actions .btn{min-height:50px;font-size:15px;border-radius:15px}
+  .login-recovery-actions .btn{min-height:50px}
+  .email-login{margin-top:9px;padding-top:9px;gap:7px}
+  .login-debug{margin-top:8px;padding:8px 9px;font-size:12px;border-radius:12px}
+  .login-note{margin-top:7px;font-size:11px}
+  .mobile-help-inline{font-size:11px;margin-top:7px}
+  .mobile-help-details summary{font-size:11px;padding:7px 9px}
+  .mobile-help-details .mobile-help-body{font-size:11px;padding:0 9px 9px}
+}
 @media print{.login-gate{display:none!important}body.login-required .wrap{filter:none;pointer-events:auto;user-select:auto}}
 
 /* PATCH v5.25: larger daily section titles for faster readability */
@@ -221,14 +242,14 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
       </div>
     </div>
     <div class="login-debug" id="gateAuthMessage">Checking existing session…</div>
+    <div class="login-actions login-recovery-actions hidden" id="signInRecoveryActions" aria-live="polite">
+      <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in state</button>
+      <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google again</button>
+      <button class="btn btn-google hidden" type="button" id="retryGooglePopupBtn">Try Google popup instead</button>
+      <button class="btn btn-dark" type="button" id="openDirectTripGuideBtn">Open direct Safari link</button>
+    </div>
     <div class="login-note">Use Google sign-in. Admins can approve viewers, remove access, or promote any signed-in account to admin without that person requesting admin privileges.</div>
     <div class="login-debug hidden" id="mobileAuthHelpPanel" aria-live="polite"></div>
-    <div class="login-actions hidden" id="signInRecoveryActions" aria-live="polite">
-      <button class="btn btn-ghost" type="button" id="resetSignInStateBtn">Reset sign-in and try again</button>
-      <button class="btn btn-google" type="button" id="retryGoogleSignInBtn">Try Google sign-in again</button>
-      <button class="btn btn-google hidden" type="button" id="retryGooglePopupBtn">Try Google popup instead</button>
-      <button class="btn btn-dark" type="button" id="openDirectTripGuideBtn">Open direct TripGuide link</button>
-    </div>
   </div>
 </div>
 <div class="wrap">
@@ -1083,7 +1104,7 @@ function rememberAuthError(text){
   setAuthBootState('error', lastAuthErrorText);
   const p = getAuthPlatformSignals();
   const isMobileRisk = p.isIOS || p.isInAppBrowser || p.isStandalonePWA || p.isPrivateishStorage;
-  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|Sign-in got stuck/i.test(lastAuthErrorText), {
+  showSignInRecoveryActions(/redirect-attempt-limit|redirect-state-expired|redirect-session-missing|redirect-null|redirect-timeout|Sign-in got stuck|did not restore the session|Google sign-in returned to TripGuide/i.test(lastAuthErrorText), {
     showPopupFallback: p.isIOS || getIOSPopupFallbackEnabled(),
     reason: lastAuthErrorText
   });
@@ -1352,19 +1373,33 @@ function setMobileTroubleshootingPanel(show, reasonText){
   if(!panel) return;
   if(!show){
     panel.classList.add('hidden');
-    panel.textContent = '';
+    panel.innerHTML = '';
     return;
   }
-  const reason = reasonText ? ('Issue detected: ' + reasonText + '\n\n') : '';
-  panel.textContent = reason +
-    'Mobile sign-in troubleshooting:\n' +
-    '1. Open TripGuide directly in Safari or Chrome.\n' +
-    '2. Avoid in-app browsers (Gmail/Facebook/Messenger/Instagram/WhatsApp).\n' +
-    '3. Turn off Private Browsing / Incognito.\n' +
-    '4. Allow cookies/site data for Google/Firebase sign-in.\n' +
-    '5. If using Home Screen app, sign in through Safari first, then reopen/reinstall the icon.\n' +
-    '6. If Google sign-in still fails, use Email/Password fallback if enabled.';
+  const signals = getAuthPlatformSignals();
+  const includeWhatsAppNote = signals.isLikelyInAppLaunch || /whatsapp/i.test(String(reasonText || ''));
+  const inAppLine = includeWhatsAppNote
+    ? 'Avoid in-app browsers, especially WhatsApp. Copy the link and open Safari directly.'
+    : 'Avoid in-app browsers such as Facebook, Gmail, Instagram, or Messenger.';
+  panel.innerHTML =
+    '<div class="mobile-help-inline">Google sign-in returned to TripGuide, but iPhone Safari did not restore the session. Use one of the options above.</div>' +
+    '<details class="mobile-help-details">' +
+      '<summary>Mobile sign-in troubleshooting</summary>' +
+      '<div class="mobile-help-body">' +
+        '1. Open TripGuide directly in Safari.<br>' +
+        '2. ' + esc(inAppLine) + '<br>' +
+        '3. Turn off Private Browsing.<br>' +
+        '4. Allow cookies/site data for Google and Firebase.<br>' +
+        '5. Try Email sign-in if Google keeps failing.' +
+      '</div>' +
+    '</details>';
   panel.classList.remove('hidden');
+}
+
+function retryGoogleAfterFailure(){
+  clearRedirectTrackingFlags();
+  setTrackerMessage('Retrying Google sign-in…');
+  signInWithGoogleSafeMethod('auto');
 }
 
 function setupAuthProvider(){
@@ -1466,7 +1501,7 @@ async function processRedirectResultSafely(){
       const isIOSRecovery = !!(platform && platform.isIOS);
       const msg = recoveryCode === 'redirect-session-missing'
         ? (isIOSRecovery
-          ? 'Google redirect did not restore your iPhone session. You can try Google popup instead, try Google again, reset sign-in state, or open the direct Safari link. (redirect-session-missing)'
+          ? 'Google sign-in returned to TripGuide, but iPhone Safari did not restore the session. Use one of the options below. (redirect-session-missing)'
           : 'Finishing sign-in took longer than expected. You can reset sign-in state and try again, or open the direct TripGuide link if this keeps failing. (redirect-session-missing)')
         : redirectRecoveryFailureMessage(recoveryCode);
       authLog('Redirect unresolved after full recovery checks', {attempts, tooOld, recoveryCode, isIOSRecovery});
@@ -1633,7 +1668,7 @@ async function initFirebaseTracker(){
 function bindHubControls(){
   bindClick('signInBtn', signInWithGoogle); bindClick('gateSignInBtn', signInWithGoogle); bindClick('gateEmailSignInBtn', signInWithEmailPassword); bindClick('authEmailSignInBtn', signInWithEmailPassword); bindClick('gateEmailRegisterBtn', registerWithEmailPassword); bindClick('authEmailRegisterBtn', registerWithEmailPassword); bindClick('signOutBtn', () => trackerAuth.signOut()); bindClick('requestAccessBtn', requestTrackerAccess);
   bindClick('resetSignInStateBtn', resetTripGuideSignInState);
-  bindClick('retryGoogleSignInBtn', signInWithGoogle);
+  bindClick('retryGoogleSignInBtn', retryGoogleAfterFailure);
   bindClick('retryGooglePopupBtn', signInWithGooglePopupFallback);
   bindClick('openDirectTripGuideBtn', openDirectTripGuideLink);
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') signInWithEmailPassword(); }); });
