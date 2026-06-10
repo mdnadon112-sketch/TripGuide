@@ -395,6 +395,118 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .go-stack .btn{flex:1;}
 }
 
+/* PATCH v6: day-card layout cleanup */
+/* 1. Overflow safeguard */
+html,body{max-width:100%;overflow-x:hidden}
+.day,.day *{max-width:100%}
+.day{overflow:hidden}
+/* 2. Title overflow fix */
+.day h2,.day-title,.day-route-title{
+  max-width:100%;width:100%;
+  overflow-wrap:anywhere;word-break:normal;hyphens:auto;
+  font-size:clamp(38px,10vw,58px);
+  line-height:.92;letter-spacing:-.055em;
+}
+@media(max-width:700px){
+  .day h2,.day-title,.day-route-title{
+    font-size:clamp(34px,9.3vw,50px);
+    line-height:.94;max-width:100%;overflow-wrap:anywhere;
+  }
+}
+/* 3. Hide redundant compact chips and old section-btn-row */
+.active-compact-row{display:none!important}
+.section-btn-row{display:none!important}
+/* 4. Day head: single column, go-stack below subtitle */
+.day-head{
+  display:block!important;
+  padding:12px 8px 16px;
+  border-bottom:1px solid var(--line);
+}
+/* 5. Compact 4-column action buttons */
+.go-stack{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 0;
+  align-self:auto;
+  justify-content:initial;
+  flex-wrap:initial;
+}
+.go-stack .btn{
+  min-height:54px;
+  padding:10px 8px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.15;
+  font-weight:900;
+  text-align:center;
+  justify-content:center;
+  flex:initial;
+}
+.day .go-main{
+  font-size:14px;
+  min-height:54px;
+  min-width:0;
+  border-radius:18px;
+  padding:10px 8px;
+}
+@media(max-width:700px){
+  .go-stack{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px;
+  }
+  .go-stack .btn{
+    min-height:52px;
+    font-size:12px;
+    padding:8px 4px;
+  }
+}
+/* 6. Day grid: map only, full width */
+.day-grid{grid-template-columns:1fr!important;gap:0!important}
+/* 7. Map shell spacing in card */
+.day .map-shell{margin-top:14px}
+/* 8. Simple sections container */
+.day-simple-sections{display:grid;gap:10px;margin-top:16px}
+/* 9. Clean accordion rows */
+.day-disclosure{
+  border:1px solid var(--line)!important;
+  border-radius:18px!important;
+  background:#f8fafc!important;
+  overflow:hidden;
+  margin-top:0!important;
+}
+.day-disclosure>summary{
+  min-height:58px;
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 18px;
+  font-size:16px;
+  font-weight:950;
+  background:#f8fafc;
+  color:var(--ink);
+  list-style:none;
+  cursor:pointer;
+  border-radius:0;
+}
+.day-disclosure>summary::-webkit-details-marker{display:none}
+.day-disclosure>summary::after{content:''!important;font-size:0!important}
+.day-disclosure>summary .toggle-plus{
+  font-size:22px;
+  line-height:1;
+  font-weight:950;
+  flex-shrink:0;
+  color:#64748b;
+}
+.day-disclosure:not([open])>summary .toggle-plus::after{content:'+'}
+.day-disclosure[open]>summary .toggle-plus::after{content:'−'}
+.day-disclosure-body{
+  padding:14px;
+  background:#fff;
+  border-top:1px solid var(--line);
+}
+
 </style>
 </head>
 <body>
@@ -944,79 +1056,96 @@ function renderDay(d){
       <div>
         <div class="day-kicker"><span class="pill">Day ${d.day}</span><span class="pill">${esc(d.date)}</span><span class="pill">${esc(d.drive)}</span></div>
         <h2>${esc(d.title)}</h2><p class="day-sub">${esc(d.subtitle)}</p>
-        <div class="active-compact-row"><span class="active-compact-chip" id="dayCompactProgress-${d.day}">Progress --</span><span class="active-compact-chip" id="dayCompactGps-${d.day}">GPS --</span><span class="active-compact-chip" id="dayCompactNext-${d.day}">Next: ${esc(nextStopName)}</span></div>
-        <div class="section-btn-row"><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'stopsDisclosure')">Stops</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'foodDisclosure')">Food</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'journalDisclosure')">Journal</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'metricsDisclosure')">Fun Information</button></div>
         <div class="day-status-strip"><span class="day-status-chip" id="dayStatus-${d.day}">Status: --</span><button class="day-collapse-btn" type="button" onclick="toggleDayCard(${d.day})" id="dayToggleBtn-${d.day}">Collapse</button></div>
+        <div class="go-stack"><a class="btn btn-go go-main" href="${esc(nextStopGoogle)}" target="_blank" rel="noopener">Next Stop</a><a class="btn btn-google" href="${esc(d.google_full)}" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-ghost" href="${esc(d.google_full)}" target="_blank" rel="noopener">Full Route</a></div>
+        <span id="dayCompactProgress-${d.day}" style="display:none"></span><span id="dayCompactGps-${d.day}" style="display:none"></span><span id="dayCompactNext-${d.day}" style="display:none"></span>
       </div>
-      <div class="go-stack"><a class="btn btn-go go-main" href="${esc(nextStopGoogle)}" target="_blank" rel="noopener">GO TO NEXT STOP</a><a class="btn btn-google" href="${esc(d.google_full)}" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-ghost" href="${esc(d.google_full)}" target="_blank" rel="noopener">Full Route</a></div>
     </header>
     <div class="day-summary-strip" id="daySummary-${d.day}"><b>No recap yet.</b><span>Add a comment after today gets interesting.</span></div>
     <div class="day-body" id="dayBody-${d.day}">
     <div class="day-grid">
       <div class="map-column"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><button class="map-expand" type="button" onclick="toggleMapSize(${d.day}, this)">Expand map</button><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div></div>
-      <aside class="side"><div class="info-grid"><div class="info"><b>Overnight</b><span>${esc(d.overnight)}</span></div><div class="info"><b>Drive</b><span>${esc(d.drive)}</span></div></div><div class="warn">${esc(d.warning)}</div><div class="todo"><h3>Route summary</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></aside>
     </div>
 
+    <div class="day-simple-sections">
+
     <details class="day-disclosure" id="stopsDisclosure-${d.day}">
-      <summary>Planned stops: ${plannedStops} <span id="stopsSummary-${d.day}">Next: ${esc(nextStopName)} • Open stops</span></summary>
-      <div class="day-disclosure-body"><div class="route-list">${d.stops.map(s=>renderRouteItem(s)).join('')}</div><div style="margin-top:8px;">${renderKindLegend(allDayMapItems(d), 'map-legend')}</div><details class="drawer"><summary>Show all stop links</summary><div class="drawer-body"><div class="food-grid">${d.stops.map(s=>renderStopLinkCard(s)).join('')}</div></div></details></div>
+      <summary><span>Planned Stops</span><span class="toggle-plus"></span></summary>
+      <div class="day-disclosure-body">
+        <span id="stopsSummary-${d.day}" style="display:none">Next: ${esc(nextStopName)} • Open stops</span>
+        <div class="info-grid"><div class="info"><b>Overnight</b><span>${esc(d.overnight)}</span></div><div class="info"><b>Drive</b><span>${esc(d.drive)}</span></div></div>
+        <div class="warn" style="margin-top:10px">${esc(d.warning)}</div>
+        <div class="todo" style="margin-top:10px"><h3>Route summary</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+        <div class="route-list" style="margin-top:10px">${d.stops.map(s=>renderRouteItem(s)).join('')}</div>
+        <div style="margin-top:8px;">${renderKindLegend(allDayMapItems(d), 'map-legend')}</div>
+        <details class="drawer"><summary>Show all stop links</summary><div class="drawer-body"><div class="food-grid">${d.stops.map(s=>renderStopLinkCard(s)).join('')}</div></div></details>
+      </div>
     </details>
 
     <details class="day-disclosure" id="foodDisclosure-${d.day}">
-      <summary>Dinner options: ${d.foods.length} <span id="foodSummary-${d.day}">Leading: -- • Open food voting</span></summary>
-      <div class="day-disclosure-body"><section class="food-section" style="margin-top:0;border-top:0;padding-top:0;"><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section></div>
+      <summary><span>Dinner Options</span><span class="toggle-plus"></span></summary>
+      <div class="day-disclosure-body">
+        <span id="foodSummary-${d.day}" style="display:none">Leading: -- • Open food voting</span>
+        <section class="food-section" style="margin-top:0;border-top:0;padding-top:0;"><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section>
+      </div>
     </details>
 
     <details class="day-disclosure" id="journalDisclosure-${d.day}">
-      <summary>Journal <span id="journalSummary-${d.day}">No recap yet. Add comment • Tag stop • Open recap</span></summary>
-      <div class="day-disclosure-body"><section class="recap-section" id="recapDay-${d.day}" style="margin-top:0;">
-      <div class="recap-head"><h3>Day ${d.day} Recap</h3><span class="pill">Road trip receipts</span></div>
-      <div class="recap-grid">
-        <div class="recap-item"><b>Route summary</b><span>${esc(d.subtitle || '--')}</span></div>
-        <div class="recap-item"><b>Miles covered</b><span id="recapMiles-${d.day}">--</span></div>
-        <div class="recap-item"><b>Fastest we allegedly moved</b><span id="recapTopSpeed-${d.day}">--</span></div>
-        <div class="recap-item"><b>Longest "quick stop"</b><span id="recapLongestStop-${d.day}">--</span></div>
-        <div class="recap-item"><b>Slowest crawl</b><span id="recapSlowestCrawl-${d.day}">--</span></div>
-        <div class="recap-item"><b>Arrival</b><span id="recapArrival-${d.day}">--</span></div>
-        <div class="recap-item"><b>Longest driving stretch</b><span id="recapStretch-${d.day}">--</span></div>
-      </div>
-      <div class="stop-tag-wrap">
-        <h4>Stop tags</h4>
-        <div class="stop-tag-grid">
-          <select class="login-input" id="stopTagTarget-${d.day}"></select>
-          <select class="login-input" id="stopTagType-${d.day}"></select>
-          <button class="btn btn-dark btn-small" type="button" onclick="saveStopTag(${d.day})">Save tag</button>
+      <summary><span>Journal</span><span class="toggle-plus"></span></summary>
+      <div class="day-disclosure-body">
+        <span id="journalSummary-${d.day}" style="display:none">No recap yet. Add comment • Tag stop • Open recap</span>
+        <section class="recap-section" id="recapDay-${d.day}" style="margin-top:0;">
+        <div class="recap-head"><h3>Day ${d.day} Recap</h3><span class="pill">Road trip receipts</span></div>
+        <div class="recap-grid">
+          <div class="recap-item"><b>Route summary</b><span>${esc(d.subtitle || '--')}</span></div>
+          <div class="recap-item"><b>Miles covered</b><span id="recapMiles-${d.day}">--</span></div>
+          <div class="recap-item"><b>Fastest we allegedly moved</b><span id="recapTopSpeed-${d.day}">--</span></div>
+          <div class="recap-item"><b>Longest "quick stop"</b><span id="recapLongestStop-${d.day}">--</span></div>
+          <div class="recap-item"><b>Slowest crawl</b><span id="recapSlowestCrawl-${d.day}">--</span></div>
+          <div class="recap-item"><b>Arrival</b><span id="recapArrival-${d.day}">--</span></div>
+          <div class="recap-item"><b>Longest driving stretch</b><span id="recapStretch-${d.day}">--</span></div>
         </div>
-        <div class="stop-tag-grid" style="margin-top:6px;grid-template-columns:minmax(0,1fr) auto;">
-          <input class="login-input" id="stopTagNote-${d.day}" placeholder="Optional stop note">
-          <button class="btn btn-ghost btn-small" type="button" onclick="addManualStopTag(${d.day})">Add stop note</button>
+        <div class="stop-tag-wrap">
+          <h4>Stop tags</h4>
+          <div class="stop-tag-grid">
+            <select class="login-input" id="stopTagTarget-${d.day}"></select>
+            <select class="login-input" id="stopTagType-${d.day}"></select>
+            <button class="btn btn-dark btn-small" type="button" onclick="saveStopTag(${d.day})">Save tag</button>
+          </div>
+          <div class="stop-tag-grid" style="margin-top:6px;grid-template-columns:minmax(0,1fr) auto;">
+            <input class="login-input" id="stopTagNote-${d.day}" placeholder="Optional stop note">
+            <button class="btn btn-ghost btn-small" type="button" onclick="addManualStopTag(${d.day})">Add stop note</button>
+          </div>
+          <div class="stop-tag-list" id="stopTagList-${d.day}"><div class="stop-tag-item">No stop tags yet.</div></div>
         </div>
-        <div class="stop-tag-list" id="stopTagList-${d.day}"><div class="stop-tag-item">No stop tags yet.</div></div>
-      </div>
-      <div class="recap-comments">
-        <h4>Comments</h4>
-        <div class="recap-comment-list" id="recapComments-${d.day}"><div class="recap-comment"><b>Trip Notes</b><p>No comments yet.</p></div></div>
-        <div class="recap-compose" id="recapCompose-${d.day}">
-          <textarea id="recapInput-${d.day}" placeholder="Add a day recap comment"></textarea>
-          <div class="tracker-modes" style="margin-top:0;"><button class="btn btn-go btn-small" type="button" onclick="addRecapComment(${d.day})">Post recap comment</button></div>
+        <div class="recap-comments">
+          <h4>Comments</h4>
+          <div class="recap-comment-list" id="recapComments-${d.day}"><div class="recap-comment"><b>Trip Notes</b><p>No comments yet.</p></div></div>
+          <div class="recap-compose" id="recapCompose-${d.day}">
+            <textarea id="recapInput-${d.day}" placeholder="Add a day recap comment"></textarea>
+            <div class="tracker-modes" style="margin-top:0;"><button class="btn btn-go btn-small" type="button" onclick="addRecapComment(${d.day})">Post recap comment</button></div>
+          </div>
         </div>
-      </div>
-      <div class="recap-pain">
-        <b id="recapPain-${d.day}">Road Pain Score: --</b>
-        <p id="recapDiagnosis-${d.day}">Diagnosis: Not enough evidence.</p>
-        <div class="tracker-modes" style="margin-top:8px;">
-          <input class="login-input" id="recapVerdictInput-${d.day}" placeholder="Optional daily verdict/diagnosis update">
-          <button class="btn btn-dark btn-small" type="button" onclick="saveDailyVerdict(${d.day})">Save diagnosis</button>
+        <div class="recap-pain">
+          <b id="recapPain-${d.day}">Road Pain Score: --</b>
+          <p id="recapDiagnosis-${d.day}">Diagnosis: Not enough evidence.</p>
+          <div class="tracker-modes" style="margin-top:8px;">
+            <input class="login-input" id="recapVerdictInput-${d.day}" placeholder="Optional daily verdict/diagnosis update">
+            <button class="btn btn-dark btn-small" type="button" onclick="saveDailyVerdict(${d.day})">Save diagnosis</button>
+          </div>
         </div>
-      </div>
-    </section></div>
+      </section></div>
     </details>
 
     <details class="day-disclosure" id="metricsDisclosure-${d.day}">
-      <summary>Fun Information <span id="metricsSummary-${d.day}">Top speed: -- • Open Fun Information</span></summary>
-      <div class="day-disclosure-body"><div class="recap-grid"><div class="recap-item"><b>Fastest we allegedly moved</b><span id="metricInlineSpeed-${d.day}">--</span></div><div class="recap-item"><b>Road Pain</b><span id="metricInlinePain-${d.day}">--</span></div><div class="recap-item"><b>Arrival</b><span id="metricInlineArrival-${d.day}">--</span></div><div class="recap-item"><b>Longest stop</b><span id="metricInlineStop-${d.day}">--</span></div></div></div>
+      <summary><span>Fun Information</span><span class="toggle-plus"></span></summary>
+      <div class="day-disclosure-body">
+        <span id="metricsSummary-${d.day}" style="display:none">Top speed: -- • Open Fun Information</span>
+        <div class="recap-grid"><div class="recap-item"><b>Fastest we allegedly moved</b><span id="metricInlineSpeed-${d.day}">--</span></div><div class="recap-item"><b>Road Pain</b><span id="metricInlinePain-${d.day}">--</span></div><div class="recap-item"><b>Arrival</b><span id="metricInlineArrival-${d.day}">--</span></div><div class="recap-item"><b>Longest stop</b><span id="metricInlineStop-${d.day}">--</span></div></div>
+      </div>
     </details>
 
+    </div>
     </div>
   </section>`;
 }
