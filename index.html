@@ -15,8 +15,8 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);--safe-top: env(safe-area-inset-top, 0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:rgba(22,102,216,.15)}
-html{scroll-behavior:smooth;background:var(--bg)}
-body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35;overflow-x:hidden}
+html{scroll-behavior:smooth;background:var(--bg);max-width:100%;overflow-x:hidden}
+body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35;max-width:100%;overflow-x:hidden}
 body.hub-open{overflow:hidden}
 a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{max-width:1180px;margin:0 auto;padding:calc(14px + var(--safe-top)) 14px calc(88px + var(--safe-bottom));display:flex;flex-direction:column}
 #dayRail{order:1}
@@ -44,7 +44,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .rail-progress-value{font-size:12px;font-weight:900;color:#0f172a;min-width:44px;text-align:right}
 
 .section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-title h2{font-size:26px;margin:0;letter-spacing:-.02em}.section-title p{margin:4px 0 0;color:var(--muted);font-weight:700}
-.day{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;margin:22px 0;box-shadow:var(--shadow);scroll-margin-top:88px}.day-head{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:6px 6px 14px;border-bottom:1px solid var(--line)}.day-kicker{display:flex;gap:clamp(.4rem,1.8vw,.55rem);flex-wrap:wrap;align-items:center;margin-bottom:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;font-size:clamp(.85rem,2.7vw,1.05rem);font-weight:800;line-height:1.1;padding:.35rem .65rem}.day h2{font-size:clamp(24px,5vw,36px);line-height:1.02;margin:0;letter-spacing:-.035em}.day-sub{color:var(--muted);font-weight:750;margin:7px 0 0}.go-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.day .go-main{font-size:22px;min-width:112px;min-height:58px;border-radius:18px}
+.day{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px;margin:22px 0;box-shadow:var(--shadow);scroll-margin-top:88px;overflow:hidden}.day-head{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:6px 6px 14px;border-bottom:1px solid var(--line)}.day-kicker{display:flex;gap:clamp(.4rem,1.8vw,.55rem);flex-wrap:wrap;align-items:center;margin-bottom:8px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;font-size:clamp(.85rem,2.7vw,1.05rem);font-weight:800;line-height:1.1;padding:.35rem .65rem}.day h2{font-size:clamp(24px,5vw,36px);line-height:1.02;margin:0;letter-spacing:-.035em}.day-sub{color:var(--muted);font-weight:750;margin:7px 0 0}.go-stack{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.day .go-main{font-size:22px;min-width:112px;min-height:58px;border-radius:18px}
 .day-grid{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(320px,.72fr);gap:14px;margin-top:14px}.side{display:grid;gap:12px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:12px}.info b{display:block;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.info span{display:block;margin-top:5px;font-weight:850}.warn{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-left:5px solid var(--orange);border-radius:18px;padding:13px;font-weight:850;font-size:13px}
 .todo{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:13px}.todo h3{margin:0 0 8px;font-size:15px}.todo ul{margin:0;padding-left:19px;color:#334155;font-size:14px;line-height:1.5}.route-list{display:grid;gap:7px}.route-item{display:flex;gap:9px;align-items:flex-start;padding:8px;background:white;border:1px solid var(--line);border-radius:14px}.pin-dot{min-width:42px;height:28px;padding:0 8px;border-radius:999px;display:grid;place-items:center;color:white;font-weight:950;font-size:12px;flex:0 0 auto;box-shadow:0 6px 14px rgba(15,23,42,.15)}.route-item b{font-size:13px}.route-item p{margin:1px 0 0;color:var(--muted);font-size:12px;font-weight:650}
 .food-section{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.food-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}.food-head h3{font-size:19px;margin:0}.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.food-card{overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 25px rgba(15,23,42,.05)}.food-photo{height:172px;background:#e2e8f0;position:relative;overflow:hidden}.food-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.03)}.photo-badge{position:absolute;left:10px;top:10px;background:rgba(15,23,42,.78);color:white;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;backdrop-filter:blur(10px)}.food-body{padding:12px}.food-body h4{margin:0 0 4px;font-size:16px}.food-body p{margin:0 0 10px;color:var(--muted);font-size:12px;font-weight:700;min-height:32px}.food-links{display:flex;gap:7px;flex-wrap:wrap}
@@ -353,14 +353,21 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
   .btn-link{font-size:12px}
 }
 
-/* PATCH v5.25: larger daily section titles for faster readability */
-.day h2{
-  font-size:clamp(34px,5.8vw,56px);
-  line-height:.95;
-  margin:0;
-  letter-spacing:-.045em;
-  font-weight:950;
+/* PATCH v5.26: clean day-card layout */
+.day,.day *{max-width:100%}
+.day h2,
+.day-title,
+.day-route-title{
   max-width:100%;
+  width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  hyphens:auto;
+  font-size:clamp(38px,10vw,58px);
+  line-height:.92;
+  letter-spacing:-.055em;
+  margin:0;
+  font-weight:950;
 }
 .day-sub{
   color:var(--muted);
@@ -371,28 +378,125 @@ body.login-required .wrap{filter:blur(2px);pointer-events:none;user-select:none}
 }
 .day-head{
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:18px;
+  grid-template-columns:minmax(0,1fr);
+  gap:14px;
   align-items:start;
-  padding:12px 8px 20px;
+  padding:12px 8px 16px;
   border-bottom:1px solid var(--line);
 }
 .day-kicker{margin-bottom:10px;}
-.go-stack{align-self:start;}
+.day-actions,
+.day-action-grid,
+.go-stack{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 0;
+  align-self:start;
+}
+.day-actions .btn,
+.day-action-grid .btn,
+.go-stack .btn{
+  min-height:54px;
+  padding:10px 12px;
+  border-radius:18px;
+  font-size:15px;
+  line-height:1.15;
+  font-weight:900;
+  text-align:center;
+  justify-content:center;
+}
+.day .go-main,
+.go-next-btn,
+.btn-go-next{
+  font-size:16px;
+  min-height:54px;
+  border-radius:18px;
+  padding:10px 12px;
+  min-width:0;
+}
+.day.active-day .map{height:min(50vh,460px);min-height:300px}
+.day:not(.active-day) .map{height:220px;min-height:200px}
+.active-compact-row,
+.section-btn-row,
+.day-status-strip,
+.day-summary-strip,
+.day-collapse-btn{display:none!important}
+.day-grid{grid-template-columns:minmax(0,1fr)}
+.day-simple-sections{display:grid;gap:10px;margin-top:16px}
+.day-simple-sections .day-disclosure{
+  margin-top:0;
+  border:none;
+  background:transparent;
+  border-radius:0;
+  overflow:visible;
+}
+.day-simple-sections .day-disclosure summary::after{content:none!important}
+.day-simple-toggle{
+  width:100%;
+  min-height:58px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:#f8fafc;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 18px;
+  font-size:16px;
+  font-weight:950;
+  text-align:left;
+  cursor:pointer;
+  list-style:none;
+}
+.day-simple-toggle::-webkit-details-marker{display:none}
+.day-simple-toggle span:first-child{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.toggle-plus{
+  font-size:22px;
+  line-height:1;
+  font-weight:950;
+}
+.toggle-plus::before{content:'+'}
+.day-disclosure[open] .toggle-plus::before{content:'−'}
+.day-simple-panel{
+  display:none;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  padding:14px;
+  margin-top:8px;
+}
+.day-simple-panel.day-disclosure-body{border-top:1px solid var(--line);padding:14px;background:#fff}
+.day-simple-panel.open,
+.day-disclosure[open] .day-simple-panel{display:block}
 @media(max-width:700px){
-  .day h2{
-    font-size:clamp(34px,10vw,48px);
-    line-height:.96;
+  .day h2,
+  .day-title,
+  .day-route-title{
+    font-size:clamp(34px,9.3vw,50px);
+    line-height:.94;
+    max-width:100%;
+    overflow-wrap:anywhere;
   }
-  .day-sub{
-    font-size:16px;
+  .day-actions,
+  .day-action-grid,
+  .go-stack{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
   }
-  .day-head{
-    grid-template-columns:1fr;
-    gap:12px;
+  .day-actions .btn,
+  .day-action-grid .btn,
+  .go-stack .btn{
+    min-height:52px;
+    font-size:14px;
+    padding:8px 8px;
   }
-  .go-stack{justify-content:stretch;}
-  .go-stack .btn{flex:1;}
+  .day-sub{font-size:16px}
 }
 
 </style>
@@ -936,40 +1040,31 @@ window.openDaySection = openDaySection;
 function renderDay(d){
   const routeStops = (d.stops || []);
   const nextStop = routeStops.find(s => s && s.kind !== 'start') || routeStops[0] || null;
-  const nextStopName = nextStop ? nextStop.name : '--';
   const nextStopGoogle = nextStop && nextStop.google ? nextStop.google : d.google_full;
-  const plannedStops = routeStops.filter(s => s && s.kind !== 'start').length;
   return `<section class="day" id="day-${d.day}" data-day="${d.day}">
     <header class="day-head">
       <div>
         <div class="day-kicker"><span class="pill">Day ${d.day}</span><span class="pill">${esc(d.date)}</span><span class="pill">${esc(d.drive)}</span></div>
         <h2>${esc(d.title)}</h2><p class="day-sub">${esc(d.subtitle)}</p>
-        <div class="active-compact-row"><span class="active-compact-chip" id="dayCompactProgress-${d.day}">Progress --</span><span class="active-compact-chip" id="dayCompactGps-${d.day}">GPS --</span><span class="active-compact-chip" id="dayCompactNext-${d.day}">Next: ${esc(nextStopName)}</span></div>
-        <div class="section-btn-row"><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'stopsDisclosure')">Stops</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'foodDisclosure')">Food</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'journalDisclosure')">Journal</button><button class="btn btn-ghost btn-small" type="button" onclick="openDaySection(${d.day}, 'metricsDisclosure')">Fun Information</button></div>
-        <div class="day-status-strip"><span class="day-status-chip" id="dayStatus-${d.day}">Status: --</span><button class="day-collapse-btn" type="button" onclick="toggleDayCard(${d.day})" id="dayToggleBtn-${d.day}">Collapse</button></div>
       </div>
-      <div class="go-stack"><a class="btn btn-go go-main" href="${esc(nextStopGoogle)}" target="_blank" rel="noopener">GO TO NEXT STOP</a><a class="btn btn-google" href="${esc(d.google_full)}" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-ghost" href="${esc(d.google_full)}" target="_blank" rel="noopener">Full Route</a></div>
+      <div class="go-stack"><a class="btn btn-go go-main" href="${esc(nextStopGoogle)}" target="_blank" rel="noopener">Next Stop</a><a class="btn btn-google" href="${esc(d.google_full)}" target="_blank" rel="noopener">Google Maps</a><a class="btn btn-waze" href="${esc(d.waze_final)}" target="_blank" rel="noopener">Waze</a><a class="btn btn-ghost" href="${esc(d.google_full)}" target="_blank" rel="noopener">Full Route</a></div>
     </header>
-    <div class="day-summary-strip" id="daySummary-${d.day}"><b>No recap yet.</b><span>Add a comment after today gets interesting.</span></div>
     <div class="day-body" id="dayBody-${d.day}">
     <div class="day-grid">
       <div class="map-column"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><button class="map-expand" type="button" onclick="toggleMapSize(${d.day}, this)">Expand map</button><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div></div>
-      <aside class="side"><div class="info-grid"><div class="info"><b>Overnight</b><span>${esc(d.overnight)}</span></div><div class="info"><b>Drive</b><span>${esc(d.drive)}</span></div></div><div class="warn">${esc(d.warning)}</div><div class="todo"><h3>Route summary</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></aside>
     </div>
-
+    <div class="day-simple-sections">
     <details class="day-disclosure" id="stopsDisclosure-${d.day}">
-      <summary>Planned stops: ${plannedStops} <span id="stopsSummary-${d.day}">Next: ${esc(nextStopName)} • Open stops</span></summary>
-      <div class="day-disclosure-body"><div class="route-list">${d.stops.map(s=>renderRouteItem(s)).join('')}</div><div style="margin-top:8px;">${renderKindLegend(allDayMapItems(d), 'map-legend')}</div><details class="drawer"><summary>Show all stop links</summary><div class="drawer-body"><div class="food-grid">${d.stops.map(s=>renderStopLinkCard(s)).join('')}</div></div></details></div>
+      <summary class="day-simple-toggle"><span>Planned Stops</span><span class="toggle-plus" aria-hidden="true"></span></summary>
+      <div class="day-disclosure-body day-simple-panel">${d.warning ? `<div class="warn">${esc(d.warning)}</div>` : ''}${(d.brief || []).length ? `<div class="todo" style="margin-top:${d.warning ? '10px' : '0'};"><h3>Route summary</h3><ul>${d.brief.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}<div class="route-list" style="margin-top:${(d.warning || (d.brief || []).length) ? '10px' : '0'};">${d.stops.map(s=>renderRouteItem(s)).join('')}</div><div style="margin-top:8px;">${renderKindLegend(allDayMapItems(d), 'map-legend')}</div><details class="drawer"><summary>Show all stop links</summary><div class="drawer-body"><div class="food-grid">${d.stops.map(s=>renderStopLinkCard(s)).join('')}</div></div></details></div>
     </details>
-
     <details class="day-disclosure" id="foodDisclosure-${d.day}">
-      <summary>Dinner options: ${d.foods.length} <span id="foodSummary-${d.day}">Leading: -- • Open food voting</span></summary>
-      <div class="day-disclosure-body"><section class="food-section" style="margin-top:0;border-top:0;padding-top:0;"><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section></div>
+      <summary class="day-simple-toggle"><span>Dinner Options</span><span class="toggle-plus" aria-hidden="true"></span></summary>
+      <div class="day-disclosure-body day-simple-panel"><section class="food-section" style="margin-top:0;border-top:0;padding-top:0;"><div class="food-grid">${d.foods.map((f,i)=>renderFoodCard(f,d.day,i)).join('')}</div></section></div>
     </details>
-
     <details class="day-disclosure" id="journalDisclosure-${d.day}">
-      <summary>Journal <span id="journalSummary-${d.day}">No recap yet. Add comment • Tag stop • Open recap</span></summary>
-      <div class="day-disclosure-body"><section class="recap-section" id="recapDay-${d.day}" style="margin-top:0;">
+      <summary class="day-simple-toggle"><span>Journal</span><span class="toggle-plus" aria-hidden="true"></span></summary>
+      <div class="day-disclosure-body day-simple-panel"><section class="recap-section" id="recapDay-${d.day}" style="margin-top:0;">
       <div class="recap-head"><h3>Day ${d.day} Recap</h3><span class="pill">Road trip receipts</span></div>
       <div class="recap-grid">
         <div class="recap-item"><b>Route summary</b><span>${esc(d.subtitle || '--')}</span></div>
@@ -1011,12 +1106,11 @@ function renderDay(d){
       </div>
     </section></div>
     </details>
-
     <details class="day-disclosure" id="metricsDisclosure-${d.day}">
-      <summary>Fun Information <span id="metricsSummary-${d.day}">Top speed: -- • Open Fun Information</span></summary>
-      <div class="day-disclosure-body"><div class="recap-grid"><div class="recap-item"><b>Fastest we allegedly moved</b><span id="metricInlineSpeed-${d.day}">--</span></div><div class="recap-item"><b>Road Pain</b><span id="metricInlinePain-${d.day}">--</span></div><div class="recap-item"><b>Arrival</b><span id="metricInlineArrival-${d.day}">--</span></div><div class="recap-item"><b>Longest stop</b><span id="metricInlineStop-${d.day}">--</span></div></div></div>
+      <summary class="day-simple-toggle"><span>Fun Information</span><span class="toggle-plus" aria-hidden="true"></span></summary>
+      <div class="day-disclosure-body day-simple-panel"><div class="recap-grid"><div class="recap-item"><b>Fastest we allegedly moved</b><span id="metricInlineSpeed-${d.day}">--</span></div><div class="recap-item"><b>Road Pain</b><span id="metricInlinePain-${d.day}">--</span></div><div class="recap-item"><b>Arrival</b><span id="metricInlineArrival-${d.day}">--</span></div><div class="recap-item"><b>Longest stop</b><span id="metricInlineStop-${d.day}">--</span></div></div></div>
     </details>
-
+    </div>
     </div>
   </section>`;
 }
@@ -3404,49 +3498,14 @@ function updateDayCardStates(){
   TRIP.days.forEach(d => {
     const day = Number(d.day);
     const card = document.getElementById(`day-${day}`);
-    const chip = document.getElementById(`dayStatus-${day}`);
-    const btn = document.getElementById(`dayToggleBtn-${day}`);
-    const summary = document.getElementById(`daySummary-${day}`);
     if(!card) return;
     const state = dayCardState(day);
     card.classList.toggle('active-day', state === 'active');
     card.classList.toggle('future-day', state === 'future');
     card.classList.toggle('completed-day', state === 'completed');
-    if(chip){
-      chip.className = `day-status-chip ${state === 'active' ? 'active' : (state === 'future' ? 'future' : 'complete')}`;
-      chip.textContent = state === 'active' ? 'Today' : (state === 'future' ? 'Upcoming' : 'Completed');
-    }
     const collapsed = isDayCollapsed(day);
     card.classList.toggle('collapsed', collapsed);
-    if(btn) btn.textContent = collapsed ? 'Expand' : 'Collapse';
-    if(summary){
-      const recap = dailyRecapsData[day] || {};
-      const m = recap.metrics || {};
-      const miles = Number.isFinite(Number(m.milesCoveredMi)) ? `${Number(m.milesCoveredMi).toFixed(0)} mi` : '--';
-      const arrival = Number.isFinite(Number(m.latestArrivalTs)) ? formatClock(Number(m.latestArrivalTs)) : '--';
-      const pain = computeRoadPainScore(day, recap);
-      const comments = Object.keys((recap && recap.comments) || {}).length;
-      const stops = (d.stops || []).filter(s => s && s.kind !== 'start').length;
-      if(state === 'future') summary.innerHTML = `<b>Day ${day} - Upcoming</b><span>Route: ${esc(d.start || '--')} -> ${esc(d.end || '--')} • Planned stops: ${stops} • Status: Future Mike and Lauren problem.</span>`;
-      else summary.innerHTML = `<b>Day ${day} - Complete</b><span>${esc(miles)} • ${esc(arrival)} arrival • Road Pain ${pain === null ? '--' : pain.toFixed(1) + '/10'} • ${comments} comment${comments===1?'':'s'}</span>`;
-    }
-    const progressChip = document.getElementById(`dayCompactProgress-${day}`);
-    const gpsChip = document.getElementById(`dayCompactGps-${day}`);
-    const nextChip = document.getElementById(`dayCompactNext-${day}`);
-    const stops = nextStopsForDay(day);
-    if(nextChip) nextChip.textContent = `Next: ${stops.next}`;
     const active = state === 'active';
-    const tripPct = lastValidProgress && Number.isFinite(Number(lastValidProgress.tripCompletedMeters)) && Number.isFinite(Number(lastValidProgress.totalTripMeters)) && Number(lastValidProgress.totalTripMeters) > 0
-      ? Math.round((Number(lastValidProgress.tripCompletedMeters) / Number(lastValidProgress.totalTripMeters)) * 100)
-      : null;
-    const activePct = lastValidProgress && Number(lastValidProgress.activeDay) === day && Number.isFinite(Number(lastValidProgress.dayCompletedMeters)) && Number.isFinite(Number(lastValidProgress.dayTotalMeters)) && Number(lastValidProgress.dayTotalMeters) > 0
-      ? Math.round((Number(lastValidProgress.dayCompletedMeters) / Number(lastValidProgress.dayTotalMeters)) * 100)
-      : null;
-    if(progressChip) progressChip.textContent = `Trip ${tripPct === null ? '--' : tripPct + '%'} • Today ${activePct === null ? '--' : activePct + '%'}`;
-    const gpsStrength = latestLiveLocation && Number(latestLiveLocation.computedDay || latestLiveLocation.activeDay || day) === day && Number.isFinite(Number(latestLiveLocation.accuracy))
-      ? Math.round(gpsStrengthPercent(latestLiveLocation.accuracy) || 0)
-      : null;
-    if(gpsChip) gpsChip.textContent = gpsStrength === null ? 'GPS --' : `GPS ${gpsStrength}%`;
     ['stopsDisclosure','foodDisclosure','journalDisclosure','metricsDisclosure'].forEach(prefix => {
       const panel = document.getElementById(`${prefix}-${day}`);
       if(!panel) return;
@@ -4043,21 +4102,10 @@ function renderDailyRecaps(){
     if(diagEl) diagEl.textContent = `Diagnosis: ${manualDiag || roadPainDiagnosis(score)}`;
     const verdictInput = document.getElementById(`recapVerdictInput-${day}`);
     if(verdictInput && !verdictInput.dataset.seeded && manualDiag){ verdictInput.value = manualDiag; verdictInput.dataset.seeded = '1'; }
-    const commentsCount = comments.length;
-    const journalSummary = document.getElementById(`journalSummary-${day}`);
-    if(journalSummary){
-      const msg = commentsCount ? `${commentsCount} comment${commentsCount===1?'':'s'} • ${manualDiag || roadPainDiagnosis(score)}` : 'No recap yet. Add comment • Tag stop • Open recap';
-      journalSummary.textContent = msg;
-    }
     setMetricText(`metricInlineSpeed-${day}`, Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--');
     setMetricText(`metricInlinePain-${day}`, score === null ? '--' : `${score.toFixed(1)} / 10`);
     setMetricText(`metricInlineArrival-${day}`, Number.isFinite(Number(metrics.latestArrivalTs)) ? formatClock(Number(metrics.latestArrivalTs)) : '--');
     setMetricText(`metricInlineStop-${day}`, Number.isFinite(Number(metrics.longestStopMs)) ? formatDurationMs(Number(metrics.longestStopMs)) : '--');
-    const metricsSummary = document.getElementById(`metricsSummary-${day}`);
-    if(metricsSummary) metricsSummary.textContent = `Top speed: ${Number.isFinite(Number(metrics.topSpeedMph)) ? `${Math.round(Number(metrics.topSpeedMph))} mph` : '--'} • Open Fun Information`;
-    const stops = nextStopsForDay(day);
-    const stopsSummary = document.getElementById(`stopsSummary-${day}`);
-    if(stopsSummary) stopsSummary.textContent = `Next: ${stops.next} • Open stops`;
   });
   renderBestWorstDays();
   updateDayCardStates();
