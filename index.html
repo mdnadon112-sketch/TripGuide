@@ -61,23 +61,25 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 /* PATCH v2: wife-safe mobile behavior */
 .map{height:min(46vh,430px);min-height:300px;}
 .overview-map{height:min(54vh,500px);min-height:330px;}
-.map-expand{position:absolute;right:12px;top:12px;z-index:3;border:1px solid rgba(15,23,42,.10);border-radius:999px;background:rgba(255,255,255,.94);color:#0f172a;font-weight:950;font-size:12px;padding:8px 11px;box-shadow:0 8px 22px rgba(15,23,42,.12);}
-.map-chip{max-width:calc(100% - 130px);}
-.map-shell.expanded .map{height:min(76vh,700px);min-height:520px;}
+.map-chip{max-width:calc(100% - 24px);}
+.map-card{display:grid;gap:8px}
+.map-toggle-button{width:100%;min-height:48px;border:0;border-radius:16px;font-size:15px;font-weight:950;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;box-shadow:0 10px 22px rgba(22,163,74,.24)}
+.map-card.map-expanded .map-toggle-button{background:linear-gradient(180deg,#ef4444,#b91c1c);color:#fff;box-shadow:0 10px 22px rgba(185,28,28,.24)}
+.map-card.map-expanded .map{height:min(76vh,700px);min-height:520px;}
 .bottom-bar{transform:translateZ(0);}
 .bottom-bar .btn{min-height:46px;border-radius:14px;font-size:14px;}
 .bottom-day{font-size:12px;min-width:60px;}
 @media(max-width:900px){
   .map{height:300px;min-height:260px;}
   .overview-map{height:350px;min-height:300px;}
-  .map-shell.expanded .map{height:72vh;min-height:480px;}
+  .map-card.map-expanded .map{height:72vh;min-height:480px;}
   .bottom-bar{display:grid;}
   .rail-progress{margin-top:-10px}
 }
 @media(max-width:430px){
   .map{height:270px;min-height:240px;}
   .overview-map{height:320px;min-height:280px;}
-  .map-shell.expanded .map{height:72vh;min-height:450px;}
+  .map-card.map-expanded .map{height:72vh;min-height:450px;}
   .bottom-bar{gap:7px;padding-left:8px;padding-right:8px;}
   .bottom-bar .btn{min-height:44px;font-size:13px;border-radius:14px;}
   .bottom-day{min-width:54px;font-size:12px;}
@@ -321,51 +323,21 @@ body.trip-hub-open .mobile-progress-sticky{display:none!important}
 .trip-hub-open .wrap{pointer-events:none}
 .trip-hub-open .hub-drawer,.trip-hub-open #bottomBar,.trip-hub-open #hubDrawerBackdrop{pointer-events:auto}
 .trip-hub-open #hubDrawerBackdrop{display:block}
-.compact-map-legend,.map-legend{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-bottom:2px}
+.compact-map-legend,.map-legend{display:flex;align-items:center;justify-content:flex-start;gap:6px;width:100%;max-width:100%;padding:6px 8px;margin:6px 0 0;border-radius:12px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.22);overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
 .compact-map-legend::-webkit-scrollbar,.map-legend::-webkit-scrollbar{display:none}
-.compact-map-legend span,.map-legend span{flex:0 0 auto;max-width:132px;padding:5px 7px;font-size:11px;gap:5px}
-.compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:14px;height:14px;font-size:12px}
-.compact-map-legend i,.map-legend i{width:9px;height:9px}
-.map-legend-wrap{position:relative;display:grid;gap:4px}
-.map-legend-toggle{display:none}
+.compact-map-legend span,.map-legend span{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;line-height:1;color:#fff;padding:4px 6px;border-radius:999px;background:rgba(255,255,255,.08)}
+.compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:11px;height:11px;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.compact-map-legend i,.map-legend i{width:6px;height:6px;border-radius:999px;flex:0 0 auto}
 .keyboard-open .hub-drawer{transition:none}
 @media(max-width:430px){
   .hub-drawer{left:0;right:0;border-radius:14px 14px 0 0}
   .hub-tabs{gap:5px}
   .hub-tab{font-size:11px;padding:6px 8px;min-height:32px}
-  .compact-map-legend span,.map-legend span{max-width:46px;padding:5px 6px}
-  .compact-map-legend .legend-label,.map-legend .legend-label{display:none}
+  .compact-map-legend span,.map-legend span{font-size:10px;padding:3px 5px}
 }
 @media(max-width:700px){
   :root{--hub-banner-height:64px}
-  .map-legend-wrap{margin-top:0}
-  .map-legend-toggle{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-height:28px;
-    border-radius:999px;
-    border:1px solid rgba(15,23,42,.12);
-    background:rgba(255,255,255,.9);
-    font-size:11px;
-    font-weight:900;
-    color:#0f172a;
-    padding:0 10px;
-    justify-self:start;
-  }
-  .map-legend{
-    display:none;
-    margin:0;
-    padding:4px;
-    border-radius:999px;
-    background:rgba(255,255,255,.88);
-    backdrop-filter:blur(10px);
-    white-space:nowrap;
-  }
-  .map-legend-wrap.open .map-legend{display:flex}
-  .map-legend span{font-size:10px;padding:4px 6px;gap:3px}
-  .map-legend i{width:7px;height:7px}
-  .map-legend .legend-label{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .compact-map-legend,.map-legend{padding:5px 6px;margin-top:4px;gap:5px}
   body.trip-hub-open .trip-hub-panel{
     position:fixed;
     left:0;
@@ -803,9 +775,11 @@ html,body{max-width:100%;overflow-x:hidden}
           <summary>Full Trip Map</summary>
           <div class="hub-full-map-body">
             <p class="hub-full-map-copy">View the whole route and live locations.</p>
-            <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
-            <div class="map-legend-wrap"><button class="map-legend-toggle" type="button" aria-expanded="false" onclick="toggleLegendRow(this)">Map Key</button><div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div></div>
-            <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Expand map</button>
+            <div class="map-card" id="overviewMapCard">
+              <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
+              <div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div>
+              <button class="map-toggle-button" type="button" onclick="toggleOverviewMapSize(this)">Expand map</button>
+            </div>
           </div>
         </details>
         <div class="hub-tabs" id="hubTabs" role="tablist" aria-label="Secure hub sections">
@@ -1268,7 +1242,7 @@ function renderDay(d){
     </header>
     <div class="day-body" id="dayBody-${d.day}">
     <div class="day-grid">
-      <div class="map-column"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><button class="map-expand" type="button" onclick="toggleMapSize(${d.day}, this)">Expand Map</button><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div></div>
+      <div class="map-column map-card" id="day-map-card-${d.day}"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div><button class="map-toggle-button" type="button" onclick="toggleMapSize(${d.day}, this)">Expand map</button></div>
     </div>
     <div class="day-simple-sections">
     <details class="day-disclosure" id="stopsDisclosure-${d.day}">
@@ -1340,7 +1314,7 @@ function renderKindLegend(items, extraClass){
   if(!kinds.length) return '';
   const short = {start:'Start', fuel:'Fuel', sight:'Scenic', pet:'Pet', golf:'Golf', spa:'Spa', hotel:'Hotel', food:'Food', homefinish:'Finish', finish:'Finish', stop:'Stop'};
   const row = kinds.map(k => `<span title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i><span class="legend-label">${esc(short[k] || pinKindName(k))}</span></span>`).join('');
-  return `<div class="map-legend-wrap"><button class="map-legend-toggle" type="button" aria-expanded="false" onclick="toggleLegendRow(this)">Map Key</button><div class="legend compact-map-legend ${esc(extraClass || '')}">${row}</div></div>`;
+  return `<div class="legend compact-map-legend ${esc(extraClass || '')}">${row}</div>`;
 }
 function renderDayPinLegend(d){
   // Legacy detailed pin list kept as a no-op so older references cannot break.
@@ -1679,17 +1653,41 @@ function observeDayForBottomBar(){
 }
 function toggleMapSize(dayNum, btn){
   const el = document.getElementById('map-day-'+dayNum);
-  const shell = el ? el.closest('[data-map-shell]') : null;
-  if(!shell) return;
-  shell.classList.toggle('expanded');
-  const expanded = shell.classList.contains('expanded');
-  if(btn) btn.textContent = expanded ? 'Close Map' : 'Expand Map';
+  const card = document.getElementById('day-map-card-' + dayNum);
+  if(!el || !card) return;
+  const expanded = !card.classList.contains('map-expanded');
+  document.querySelectorAll('.map-card.map-expanded').forEach(other => {
+    if(other !== card){
+      other.classList.remove('map-expanded');
+      const otherBtn = other.querySelector('.map-toggle-button');
+      if(otherBtn) otherBtn.textContent = 'Expand map';
+    }
+  });
+  card.classList.toggle('map-expanded', expanded);
+  if(btn) btn.textContent = expanded ? 'Close map' : 'Expand map';
   setTimeout(()=>{
     const map = dayMaps.get(dayNum);
     if(map && window.google && google.maps){ google.maps.event.trigger(map,'resize'); }
   }, 260);
 }
 window.toggleMapSize = toggleMapSize;
+
+function toggleOverviewMapSize(btn){
+  const card = document.getElementById('overviewMapCard');
+  if(!card) return;
+  const expanded = !card.classList.contains('map-expanded');
+  document.querySelectorAll('.map-card.map-expanded').forEach(other => {
+    if(other !== card){
+      other.classList.remove('map-expanded');
+      const otherBtn = other.querySelector('.map-toggle-button');
+      if(otherBtn) otherBtn.textContent = 'Expand map';
+    }
+  });
+  card.classList.toggle('map-expanded', expanded);
+  if(btn) btn.textContent = expanded ? 'Close map' : 'Expand map';
+  setTimeout(()=>refreshOverviewMapLayout(), 260);
+}
+window.toggleOverviewMapSize = toggleOverviewMapSize;
 
 
 /* PATCH v5.22: unique daily IDs, icon pins, overview food zoom, admin-state cleanup */
@@ -3931,15 +3929,6 @@ window.openHubDrawer = openHubDrawer;
 window.closeHubDrawer = closeHubDrawer;
 window.toggleHubDrawer = toggleHubDrawer;
 window.openHubFullMap = openHubFullMap;
-function toggleLegendRow(btn){
-  const wrap = btn && btn.closest ? btn.closest('.map-legend-wrap') : null;
-  if(!wrap) return;
-  const open = !wrap.classList.contains('open');
-  wrap.classList.toggle('open', open);
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  btn.textContent = open ? 'Hide Key' : 'Map Key';
-}
-window.toggleLegendRow = toggleLegendRow;
 window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeHubDrawer(); });
 function updateBottomNavActive(){
   const hub = document.getElementById('bottomHubBtn');
