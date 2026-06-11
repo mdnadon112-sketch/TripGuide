@@ -74,6 +74,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .map-card.map-minimized .map-card-detail{display:none!important}
 .legend-toggle-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#334155;font-size:12px;font-weight:900;padding:8px 12px;width:max-content;max-width:100%;box-shadow:0 4px 12px rgba(15,23,42,.06)}
 .map-legend-panel{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;max-width:100%;padding:6px 0 0;margin:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+.map-legend[hidden],.map-legend.is-hidden,.map-legend-panel[hidden],.map-legend-panel.is-hidden{display:none!important}
 .map-legend-panel::-webkit-scrollbar{display:none}
 .map-legend-panel span{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;line-height:1.1;color:#334155;padding:0;background:transparent}
 .map-legend-panel span:not(:last-child)::after{content:' •';color:rgba(51,65,85,.4);font-weight:900;margin-left:3px}
@@ -830,7 +831,7 @@ html,body{max-width:100%;overflow-x:hidden}
             <p class="hub-full-map-copy">View the full route overview and live location.</p>
             <div class="map-card map-expanded" id="overviewMapCard">
               <div class="map-frame"><div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div></div>
-              <button class="legend-toggle-button map-card-detail" type="button" onclick="toggleLegend(this)">Show legend</button>
+              <button class="legend-toggle-button map-card-detail" type="button" onclick="toggleLegend(this)" aria-expanded="false">Show legend</button>
               <div class="legend map-legend compact-map-legend map-legend-panel map-card-detail" id="overviewLegend" hidden><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div>
               <button class="btn btn-ghost btn-small map-card-detail" type="button" id="overviewCenterBtn">Zoom in to current location</button>
               <div class="right-counter-note hidden map-card-detail" id="overviewCenterStatus">Current location not available yet.</div>
@@ -1189,7 +1190,7 @@ function mapsLink(query){return 'https://www.google.com/maps/search/?api=1&query
 function wazeLink(query){return 'https://www.waze.com/ul?q=' + encodeURIComponent(query) + '&navigate=yes';}
 function renderStatic(){
   const quick = document.getElementById('dayRail');
-  if(quick) quick.innerHTML = TRIP.days.map(d=>`<a href="#day-${d.day}" data-rail-day="${d.day}">D${d.day}</a>`).join('');
+  if(quick) quick.innerHTML = TRIP.days.map(d=>`<a href="#day-${d.day}" data-rail-day="${d.day}" data-day-tab="${d.day}">D${d.day}</a>`).join('');
   const root = document.getElementById('days');
   root.innerHTML = TRIP.days.map(renderDay).join('');
   document.querySelectorAll('[data-food-card]').forEach(card=>hydrateFoodCard(card));
@@ -1232,7 +1233,7 @@ function renderDay(d){
     </header>
     <div class="day-body" id="dayBody-${d.day}">
     <div class="day-grid">
-      <div class="map-column map-card map-expanded" id="day-map-card-${d.day}"><div class="map-frame"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div></div><button class="legend-toggle-button map-card-detail" type="button" onclick="toggleLegend(this)">Show legend</button>${renderKindLegend(allDayMapItems(d), 'map-card-detail')}<button class="map-toggle-button is-danger" type="button" onclick="toggleMapSize(${d.day}, this)">Minimize map</button></div>
+      <div class="map-column map-card map-expanded" id="day-map-card-${d.day}"><div class="map-frame"><div class="map-shell" data-map-shell><div class="map-chip">Day ${d.day} route map</div><div class="map-loading">Loading Day ${d.day} Google map…</div><div id="map-day-${d.day}" class="map"></div></div></div><button class="legend-toggle-button map-card-detail" type="button" onclick="toggleLegend(this)" aria-expanded="false">Show legend</button>${renderKindLegend(allDayMapItems(d), 'map-card-detail')}<button class="map-toggle-button is-danger" type="button" onclick="toggleMapSize(${d.day}, this)">Minimize map</button></div>
     </div>
     <div class="day-simple-sections">
     <details class="day-disclosure" id="stopsDisclosure-${d.day}">
@@ -1550,9 +1551,44 @@ function observeDayForBottomBar(){
   }
 
   let activeDay = null;
+  let activeDayObserver = null;
   let forceUntil = 0;
   const listeners = [];
   const add = (target, event, fn, opts) => { target.addEventListener(event, fn, opts); listeners.push(()=>target.removeEventListener(event, fn, opts)); };
+
+  function stickyHeaderOffset(){
+    return Math.ceil(document.getElementById('mobileStickyShell')?.getBoundingClientRect().height || 0);
+  }
+
+  function scrollToDayCard(dayNum){
+    const card = document.querySelector(`.day[data-day="${Number(dayNum)}"]`);
+    if(!card) return;
+    const offset = stickyHeaderOffset() + 10;
+    const y = card.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({top:y, behavior:'smooth'});
+  }
+
+  function refreshActiveDayObserver(){
+    if(activeDayObserver){
+      try{ activeDayObserver.disconnect(); }catch(_){ }
+      activeDayObserver = null;
+    }
+    if(!('IntersectionObserver' in window)) return;
+    const headerOffset = stickyHeaderOffset();
+    activeDayObserver = new IntersectionObserver((entries)=>{
+      if(Date.now() < forceUntil) return;
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a,b)=> b.intersectionRatio - a.intersectionRatio || a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if(!visible) return;
+      const dayNum = Number(visible.target.dataset.day || visible.target.getAttribute('data-day-card'));
+      if(dayNum) setDayByNumber(dayNum);
+    }, {
+      threshold:[0.25,0.4,0.6],
+      rootMargin:`-${Math.max(headerOffset + 8, 1)}px 0px -45% 0px`
+    });
+    document.querySelectorAll('.day[data-day]').forEach(card => activeDayObserver.observe(card));
+  }
 
   function setDayByNumber(dayNum){
     const d = TRIP.days.find(x => x.day === Number(dayNum));
@@ -1624,12 +1660,15 @@ function observeDayForBottomBar(){
   }
 
   document.querySelectorAll('#dayRail a[href^="#day-"]').forEach(a=>{
-    const clickHandler = () => {
+    const clickHandler = (e) => {
+      e.preventDefault();
       const dayNum = Number(a.getAttribute('href').replace('#day-',''));
       forceUntil = Date.now() + 1200;
       dayCollapsePrefs[String(dayNum)] = false;
       saveDayCollapsePrefs();
       setDayByNumber(dayNum);
+      scrollToDayCard(dayNum);
+      try{ history.replaceState(null, '', '#day-' + dayNum); }catch(_){ location.hash = '#day-' + dayNum; }
       a.classList.add('pulse');
       setTimeout(()=>a.classList.remove('pulse'), 650);
       setTimeout(computeActiveDay, 80);
@@ -1641,31 +1680,46 @@ function observeDayForBottomBar(){
   });
 
   add(window, 'scroll', onScroll, {passive:true});
-  add(window, 'resize', onScroll, {passive:true});
-  add(window, 'orientationchange', onScroll, {passive:true});
+  add(window, 'resize', () => { onScroll(); refreshActiveDayObserver(); }, {passive:true});
+  add(window, 'orientationchange', () => { onScroll(); setTimeout(refreshActiveDayObserver, 120); }, {passive:true});
   add(window, 'hashchange', () => { forceUntil = Date.now() + 900; computeActiveDay(); }, {passive:true});
   add(document, 'visibilitychange', computeActiveDay, {passive:true});
 
   setDay(TRIP.days[0]);
+  refreshActiveDayObserver();
   computeActiveDay();
   setTimeout(computeActiveDay, 250);
   setTimeout(computeActiveDay, 900);
 
-  window.__bottomBarCleanup = () => { listeners.forEach(fn=>fn()); window.__bottomBarCleanup = null; };
+  window.__bottomBarCleanup = () => {
+    listeners.forEach(fn=>fn());
+    if(activeDayObserver){
+      try{ activeDayObserver.disconnect(); }catch(_){ }
+      activeDayObserver = null;
+    }
+    window.__bottomBarCleanup = null;
+  };
 }
 function setLegendExpanded(card, expanded, btn){
   if(!card) return;
   const legend = card.querySelector('.map-legend-panel');
   const toggle = btn || card.querySelector('.legend-toggle-button');
-  if(legend) legend.hidden = !expanded;
-  if(toggle) toggle.textContent = expanded ? 'Hide legend' : 'Show legend';
+  if(legend){
+    legend.hidden = !expanded;
+    legend.classList.toggle('is-hidden', !expanded);
+  }
+  if(toggle){
+    toggle.textContent = expanded ? 'Hide legend' : 'Show legend';
+    toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
 }
 function toggleLegend(btn){
   const card = btn ? btn.closest('.map-card') : null;
   if(!card) return;
   const legend = card.querySelector('.map-legend-panel');
   if(!legend) return;
-  setLegendExpanded(card, legend.hidden, btn);
+  const visible = !legend.hidden && !legend.classList.contains('is-hidden');
+  setLegendExpanded(card, !visible, btn);
 }
 window.toggleLegend = toggleLegend;
 
@@ -3933,6 +3987,7 @@ function setTripHubOpen(open){
     document.querySelectorAll('.progress-mini,.top-progress-strip,.day-progress-banner,#progressMini,#dayProgressBanner').forEach(el => {
       if(el) el.classList.remove('show');
     });
+    setLegendExpanded(document.getElementById('overviewMapCard'), false);
     setTimeout(()=>refreshOverviewMapLayout(), 260);
   }
   setTimeout(()=>updateMobileViewportVars(), next ? 0 : 80);
