@@ -319,6 +319,8 @@ body.trip-hub-open .mobile-progress-sticky{display:none!important}
 .bottom-bar{z-index:170;padding:6px 8px calc(6px + var(--safe-bottom))}
 .hub-bottom-banner{width:100%;min-height:46px;border-radius:12px;background:#16a34a;border:1px solid #22c55e;color:#fff;font-size:14px;font-weight:950}
 .hub-bottom-banner.is-open{background:#dc2626;border-color:#ef4444}
+.hub-more-banner{width:100%;min-height:48px;border:0;border-radius:16px;font-size:15px;font-weight:950;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;margin:10px 0;box-shadow:0 10px 22px rgba(22,163,74,.24)}
+.hub-more-banner.is-open{background:linear-gradient(180deg,#ef4444,#b91c1c);box-shadow:0 10px 22px rgba(185,28,28,.24)}
 .trip-hub-open .hub-bottom-banner{background:#dc2626;border-color:#ef4444}
 .trip-hub-open .wrap{pointer-events:none}
 .trip-hub-open .hub-drawer,.trip-hub-open #bottomBar,.trip-hub-open #hubDrawerBackdrop{pointer-events:auto}
@@ -786,15 +788,30 @@ html,body{max-width:100%;overflow-x:hidden}
           <button class="hub-tab active" type="button" id="hubTabProgress" data-hub-tab="progress" role="tab" aria-selected="true">Progress</button>
           <button class="hub-tab" type="button" id="hubTabLive" data-hub-tab="live" role="tab" aria-selected="false">Live</button>
           <button class="hub-tab" type="button" id="hubTabMessages" data-hub-tab="messages" role="tab" aria-selected="false">Messages</button>
+          <button class="hub-tab" type="button" id="hubTabSettings" data-hub-tab="settings" role="tab" aria-selected="false">Settings</button>
           <button class="hub-tab hidden" type="button" id="hubTabAdmin" data-hub-tab="admin" role="tab" aria-selected="false">Admin</button>
         </div>
         <div class="trip-metrics-shell" id="tripMetricsShell">
           <div class="mission-bar" id="missionBar">
             <span class="mission-actions">
               <button class="btn btn-ghost btn-small" type="button" id="missionCenterBtn">Zoom in to current location</button>
-              <button class="btn btn-ghost btn-small" type="button" id="missionMoreBtn" onclick="toggleMoreMenuFromBottom()">More</button>
             </span>
           </div>
+          <button class="hub-more-banner" type="button" id="missionMoreBtn" onclick="toggleMoreMenuFromBottom()">More</button>
+          <section class="more-menu hub-collapse-row hidden" id="moreMenuPanel" aria-label="More trip tools">
+            <div class="more-menu-body">
+              <div class="more-menu-links">
+                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('stopsDisclosure')">Planned stops</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('foodDisclosure')">Food options</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('journalDisclosure')">Journal</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Open full trip map</button>
+                <button class="btn btn-google btn-small" type="button" onclick="openActiveDayRouteLink('google')">Google route</button>
+                <button class="btn btn-waze btn-small" type="button" onclick="openActiveDayRouteLink('waze')">Waze route</button>
+                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayRouteLink('full')">Full route</button>
+              </div>
+              <p class="right-counter-note">Secondary tools only. Messages and Settings each have dedicated tabs.</p>
+            </div>
+          </section>
           <div class="hub-progress-card hub-live-progress hub-progress-sticky" id="hubProgressCard">
             <div class="hub-progress-head">
               <div>
@@ -829,37 +846,6 @@ html,body{max-width:100%;overflow-x:hidden}
               </div>
             </div>
           </details>
-          <details class="hub-collapse-row" id="hubPeopleWatchingPanel">
-            <summary>People Watching</summary>
-            <div class="hub-collapse-body">
-              <div class="vibe-strip" id="vibeStrip">
-                <div class="vibe-card" id="vibeCardMike">
-                  <span class="vibe-avatar" id="vibeAvatarMike">M</span>
-                  <span class="vibe-meta"><b>Mike</b><span id="vibeTextMike">--</span></span>
-                  <button class="vibe-pick-btn" type="button" id="vibePickMikeBtn">Set vibe</button>
-                </div>
-                <div class="vibe-card" id="vibeCardLauren">
-                  <span class="vibe-avatar" id="vibeAvatarLauren">L</span>
-                  <span class="vibe-meta"><b>Lauren</b><span id="vibeTextLauren">--</span></span>
-                  <button class="vibe-pick-btn" type="button" id="vibePickLaurenBtn">Set vibe</button>
-                </div>
-              </div>
-            </div>
-          </details>
-          <details class="hub-collapse-row" id="hubProgressDetailsPanel">
-            <summary>Progress Details</summary>
-            <div class="hub-collapse-body">
-              <div class="gps-compact" id="gpsCompactPanel" aria-live="polite">
-                <div class="gps-compact-row" id="gpsCompactPrimary"><b>GPS Strength:</b> --</div>
-              </div>
-              <div class="ayt-card" id="areWeThereCard">
-                <div class="ayt-head"><b>Progress details</b><span id="aytPct">--% done</span></div>
-                <div class="ayt-bar"><div class="ayt-fill" id="aytFill"></div></div>
-                <div class="ayt-status" id="aytMiles">-- / -- mi today</div>
-                <div class="ayt-status" id="aytStatus">Status: Data says ask again later.</div>
-              </div>
-            </div>
-          </details>
           <details class="trip-superlatives hub-collapse-row" id="tripSuperlativesPanel">
             <summary>Fun Information</summary>
             <div class="trip-superlatives-body">
@@ -884,18 +870,6 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="superlative-row"><b>Most cooked day so far</b><span id="metricWorstDay">--</span></div>
             </div>
           </details>
-          <details class="more-menu hub-collapse-row" id="moreMenuPanel">
-            <summary>More</summary>
-            <div class="more-menu-body">
-              <div class="more-menu-links">
-                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('live')">Tracker Details</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openHubProgressDetails()">Progress Details</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="setHubTab('messages')">Messages</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Open full trip map</button>
-                <button class="btn btn-dark btn-small" type="button" onclick="setHubTab('admin')" id="moreAdminBtn">Admin Tools</button>
-              </div>
-            </div>
-          </details>
         </div>
   <div class="hub-section hidden" id="hubSectionProgress" data-hub-section="progress"></div>
         <div class="hub-section hidden" id="hubSectionLive" data-hub-section="live">
@@ -907,8 +881,17 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <div class="tracker-modes">
           <button class="btn btn-ghost" type="button" id="centerLiveBtn">Zoom in to current location</button>
-          <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver Mode</button>
+        </div>
+        </div>
+        <div class="hub-section hidden" id="hubSectionSettings" data-hub-section="settings">
+        <div class="message-board">
+          <h3>Settings</h3>
+          <p>Notification, device, and viewing preferences are grouped here.</p>
+          <div class="tracker-modes">
+            <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
+          </div>
+          <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications are off.</div>
         </div>
         <div class="push-diagnostics hidden" id="pushRecommendPanel">
           <div><h3>Turn On Trip Updates</h3><p>Get updates when Mike and Lauren post, arrive, or start moving.</p></div>
@@ -926,9 +909,6 @@ html,body{max-width:100%;overflow-x:hidden}
           </div>
           <div class="tracker-alert auth-debug hidden" id="pushRecoveryStatus"></div>
         </div>
-        <div class="tracker-alert auth-debug" id="pushNotificationStatusLine">Notifications are off.</div>
-        </div>
-        <div class="hub-section hidden" id="hubSectionAdmin" data-hub-section="admin">
         <div class="tracker-modes hidden" id="pushDiagnosticsToggleWrap">
           <button class="btn btn-dark btn-small" type="button" id="togglePushDiagnosticsBtn">Notification details</button>
         </div>
@@ -998,6 +978,8 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="push-token-list" id="pushAdminTokenList"><div class="push-token-empty">Device details appear after an admin signs in.</div></div>
           </div>
         </div>
+        </div>
+        <div class="hub-section hidden" id="hubSectionAdmin" data-hub-section="admin">
         <div class="driver-panel" id="driverPanel">
           <div class="driver-row">
             <button class="btn btn-go" type="button" id="startTrackingBtn">Start Tracking</button>
@@ -3271,7 +3253,7 @@ function applyHubTabAccess(){
   if(!isAdmin && currentHubTab === 'admin') currentHubTab = 'progress';
 }
 function setHubTab(tab){
-  const allowed = new Set(['progress','live','messages','admin']);
+  const allowed = new Set(['progress','live','messages','settings','admin']);
   const target = allowed.has(tab) ? tab : 'progress';
   if(target === 'admin' && !isAdmin){
     currentHubTab = 'progress';
@@ -3290,6 +3272,17 @@ function setHubTab(tab){
   });
 }
 window.setHubTab = setHubTab;
+function openActiveDayRouteLink(kind){
+  const day = currentActiveDayNumber();
+  const dayObj = TRIP.days.find(x => Number(x.day) === Number(day));
+  if(!dayObj) return;
+  let href = '';
+  if(kind === 'waze') href = dayObj.waze_final || '';
+  else if(kind === 'full') href = dayObj.google_full || '';
+  else href = dayObj.google_full || '';
+  if(href) window.open(href, '_blank', 'noopener');
+}
+window.openActiveDayRouteLink = openActiveDayRouteLink;
 function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
 function showProtectedHub(show){
   document.getElementById('protectedHub')?.classList.toggle('hidden', !show);
@@ -3849,25 +3842,31 @@ function updateMissionAndToday(progress, primary){
   if(missionCenterBtn) missionCenterBtn.onclick = () => { if(typeof centerLiveLocation === 'function') centerLiveLocation(); };
 }
 function toggleMoreMenuFromBottom(){
-  const details = document.getElementById('moreMenuPanel');
-  if(details) details.open = !details.open;
-  if(details && details.open) details.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const panel = document.getElementById('moreMenuPanel');
+  const btn = document.getElementById('missionMoreBtn');
+  if(!panel || !btn) return;
+  const open = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !open);
+  btn.classList.toggle('is-open', open);
+  btn.textContent = open ? 'Close More' : 'More';
+  document.body.classList.toggle('more-open', open);
+  if(open) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 window.toggleMoreMenuFromBottom = toggleMoreMenuFromBottom;
 function resetHubDisclosureDefaults(){
-  ['hubNextStopPanel','hubTodayPanel','hubPeopleWatchingPanel','hubProgressDetailsPanel','tripSuperlativesPanel','moreMenuPanel'].forEach(id => {
+  ['hubNextStopPanel','hubTodayPanel','tripSuperlativesPanel'].forEach(id => {
     const panel = document.getElementById(id);
     if(panel) panel.open = false;
   });
-}
-function openHubProgressDetails(){
-  const details = document.getElementById('hubProgressDetailsPanel');
-  if(details){
-    details.open = true;
-    details.scrollIntoView({behavior:'smooth', block:'nearest'});
+  const morePanel = document.getElementById('moreMenuPanel');
+  const moreBtn = document.getElementById('missionMoreBtn');
+  if(morePanel) morePanel.classList.add('hidden');
+  if(moreBtn){
+    moreBtn.classList.remove('is-open');
+    moreBtn.textContent = 'More';
   }
+  document.body.classList.remove('more-open');
 }
-window.openHubProgressDetails = openHubProgressDetails;
 let tripHubOpen = false;
 function setTripHubOpen(open){
   const next = !!open;
