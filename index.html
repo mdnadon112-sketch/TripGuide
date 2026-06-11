@@ -72,18 +72,19 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .map-card.map-expanded .map{height:min(76vh,700px);min-height:520px;}
 .map-card.map-minimized .map-frame{display:none}
 .map-card.map-minimized .map-card-detail{display:none!important}
-.legend-toggle-button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;border:1px solid var(--trip-blue-border);border-radius:12px;background:linear-gradient(180deg,var(--trip-blue),var(--trip-blue-dark));color:#fff;font-size:12px;font-weight:900;padding:8px 12px;width:max-content;max-width:100%;box-shadow:0 6px 14px var(--trip-blue-shadow)}
-.legend-toggle-button.is-open{background:linear-gradient(180deg,var(--trip-navy-2),var(--trip-navy));color:#e5f3ff;border-color:var(--trip-blue-border);box-shadow:0 6px 14px rgba(15,23,42,.18)}
-.zoom-location-button,.map-card-detail.btn-ghost{border-color:var(--trip-blue-border);background:linear-gradient(180deg,var(--trip-blue),var(--trip-blue-dark));color:#fff;box-shadow:0 8px 18px var(--trip-blue-shadow)}
-.zoom-location-button:hover,.map-card-detail.btn-ghost:hover{filter:brightness(1.03)}
-.map-legend-panel{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;max-width:100%;padding:6px 0 0;margin:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+.legend-toggle-button{display:inline-flex;align-items:center;justify-content:center;align-self:start;min-height:38px;padding:0 14px;border:1px solid var(--trip-blue-border);border-radius:14px;background:rgba(15,23,42,.86);color:#e5f3ff;font-size:13px;font-weight:850;box-shadow:none}
+.legend-toggle-button.is-open{background:rgba(8,20,38,.98);color:#e5f3ff;border-color:rgba(148,163,184,.3);box-shadow:none}
+.zoom-location-button,.map-card-detail.btn-ghost{width:100%;min-height:46px;border-radius:16px;border:1px solid var(--trip-blue-border);background:linear-gradient(180deg,rgba(29,155,240,.96),var(--trip-blue-dark));color:#fff;font-size:14px;font-weight:900;box-shadow:0 8px 16px rgba(29,155,240,.18)}
+.zoom-location-button:hover,.map-card-detail.btn-ghost:hover{filter:brightness(1.02)}
+.map-legend-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;width:100%;max-width:100%;padding:10px 12px;margin-top:8px;border-radius:14px;background:rgba(7,23,40,.72);border:1px solid rgba(148,163,184,.18);overflow:hidden;white-space:normal;scrollbar-width:none}
 .map-legend[hidden],.map-legend.is-hidden,.map-legend-panel[hidden],.map-legend-panel.is-hidden{display:none!important}
 .map-legend-panel::-webkit-scrollbar{display:none}
-.map-legend-panel span{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;line-height:1.1;color:#334155;padding:0;background:transparent}
-.map-legend-panel span:not(:last-child)::after{content:' •';color:rgba(51,65,85,.4);font-weight:900;margin-left:3px}
-.map-legend-panel .legend-icon{min-width:auto;height:auto;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
-.map-legend-panel i{display:none}
-.map-legend-panel .legend-label{font-size:10px}
+.map-legend-panel > span{display:inline-flex;align-items:center;gap:5px;min-width:0;background:transparent;border:0;border-radius:0;padding:0;color:rgba(255,255,255,.88);font-size:11px;font-weight:750;line-height:1.1;white-space:nowrap;box-shadow:none}
+.map-legend-panel > span::after{display:none!important;content:none!important}
+.map-legend-panel .legend-icon{font-size:14px;line-height:1;flex:0 0 auto;min-width:auto;height:auto;display:inline-flex;align-items:center;justify-content:center}
+.map-legend-panel i{display:block;width:7px;height:7px;border-radius:999px;flex:0 0 auto;opacity:.95}
+.map-legend-panel .legend-label{overflow:hidden;text-overflow:ellipsis;font-size:11px}
+@media(max-width:640px){.map-legend-panel{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .bottom-bar{transform:translateZ(0);}
 .bottom-bar .btn{min-height:46px;border-radius:14px;font-size:14px;}
 .bottom-day{font-size:12px;min-width:60px;}
@@ -836,7 +837,7 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="map-frame"><div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div></div>
               <button class="legend-toggle-button map-card-detail" type="button" onclick="toggleLegend(this)" aria-expanded="false">Show legend</button>
               <div class="legend map-legend compact-map-legend map-legend-panel map-card-detail" id="overviewLegend" hidden><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div>
-              <button class="btn btn-ghost btn-small map-card-detail zoom-location-button" type="button" id="overviewCenterBtn">Zoom in to current location</button>
+              <button class="btn btn-ghost btn-small map-card-detail zoom-location-button" type="button" id="overviewCenterBtn">Zoom to current location</button>
               <div class="right-counter-note hidden map-card-detail" id="overviewCenterStatus">Current location not available yet.</div>
               <button class="map-toggle-button is-danger" type="button" onclick="toggleOverviewMapSize(this)">Minimize map</button>
             </div>
