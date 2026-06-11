@@ -28,7 +28,7 @@ a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{ma
 .hero{position:relative;overflow:hidden;border-radius:30px;padding:22px;background:radial-gradient(circle at 0 0,rgba(22,102,216,.22),transparent 34%),linear-gradient(135deg,#fff,#eaf3ff);border:1px solid rgba(15,23,42,.08);box-shadow:var(--shadow)}
 .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid #bfdbfe;background:#eff6ff;color:#174ea6;border-radius:999px;padding:7px 11px;font-weight:800;font-size:12px;letter-spacing:.02em}
 h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spacing:-.04em}.lead{font-size:16px;color:#475569;max-width:720px;margin:0 0 18px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;padding:11px 14px;border:1px solid transparent;font-weight:900;font-size:14px;box-shadow:0 3px 10px rgba(15,23,42,.05);cursor:pointer}
-.btn-go{background:linear-gradient(180deg,#28d263,#159447);color:#fff;box-shadow:0 10px 22px rgba(22,163,74,.26)}.btn-google{background:#eaf2ff;color:#174ea6;border-color:#bdd7ff}.btn-waze{background:#e0f7ff;color:#036083;border-color:#b8efff}.btn-dark{background:#0f172a;color:white}.btn-ghost{background:#fff;color:#0f172a;border-color:var(--line)}.btn-food{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.btn-small{min-height:38px;border-radius:12px;padding:8px 11px;font-size:12px}
+.btn-go{background:linear-gradient(180deg,var(--trip-blue),var(--trip-blue-dark));color:#fff;border-color:var(--trip-blue-border);box-shadow:0 10px 22px var(--trip-blue-shadow)}.btn-google{background:#eaf2ff;color:#174ea6;border-color:#bdd7ff}.btn-waze{background:#e0f7ff;color:#036083;border-color:#b8efff}.btn-dark{background:#0f172a;color:white}.btn-ghost{background:#fff;color:#0f172a;border-color:var(--line)}.btn-food{background:linear-gradient(180deg,var(--trip-navy-2),var(--trip-navy));color:#e5f3ff;border-color:var(--trip-blue-border)}.btn-small{min-height:38px;border-radius:12px;padding:8px 11px;font-size:12px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.stat{background:rgba(255,255,255,.84);border:1px solid rgba(15,23,42,.08);border-radius:18px;padding:14px}.stat b{font-size:22px;display:block}.stat span{font-size:12px;color:var(--muted);font-weight:700}
 .map-shell{position:relative;overflow:hidden;border-radius:24px;border:1px solid var(--line);background:#dfe8f2;box-shadow:0 10px 30px rgba(15,23,42,.08)}.map{height:min(66vh,620px);min-height:390px;width:100%}.overview-map{height:min(68vh,660px);min-height:420px;margin-top:18px}.map-loading{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#e5edf6,#f8fafc);color:#334155;font-weight:900;text-align:center;padding:24px;z-index:1}.map-loaded .map-loading{display:none}.map-chip{position:absolute;left:12px;top:12px;z-index:2;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(15,23,42,.08);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;box-shadow:0 8px 24px rgba(15,23,42,.10)}
 .quick-nav{position:sticky;top:0;z-index:116;margin:14px -14px 18px;padding:10px 14px;background:rgba(244,247,251,.86);backdrop-filter:blur(16px);border-bottom:1px solid rgba(15,23,42,.07);overflow-x:auto;display:flex;gap:8px;scrollbar-width:none}.quick-nav::-webkit-scrollbar{display:none}.quick-nav a{flex:0 0 auto;background:white;border:1px solid var(--line);border-radius:999px;padding:9px 12px;font-weight:900;font-size:13px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
@@ -53,7 +53,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .drawer{margin-top:12px}.drawer summary{cursor:pointer;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px;font-weight:950}.drawer .drawer-body{padding:10px 0 0}
 .bottom-bar{position:fixed;left:0;right:0;bottom:var(--keyboard-offset);z-index:50;padding:6px 8px calc(6px + var(--safe-bottom));background:rgba(8,20,38,.92);backdrop-filter:blur(18px);display:none;gap:6px;align-items:center}.bottom-bar a{flex:1}.bottom-day{color:white;font-weight:900;font-size:12px;min-width:64px;text-align:center}
 .gm-info{max-width:260px}.gm-info img{width:100%;height:110px;object-fit:cover;border-radius:12px;margin:0 0 8px;background:#e2e8f0}.gm-info h3{margin:0 0 4px;font-size:15px}.gm-info p{margin:0 0 8px;color:#475569;font-size:12px}.gm-info .mini{display:flex;gap:6px;flex-wrap:wrap}.gm-info .mini a{font-weight:900;border-radius:10px;padding:7px 9px;font-size:12px;background:#eff6ff;color:#174ea6;border:1px solid #bfdbfe}
-.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.legend span{display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--line);border-radius:999px;padding:7px 9px;font-size:12px;font-weight:800;color:#334155}.legend i{display:block;width:11px;height:11px;border-radius:99px}.day-pin-legend{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:12px}.day-pin-legend h3{margin:0 0 8px;font-size:15px}.day-pin-key{display:grid;gap:7px}.day-pin-entry{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px}.day-pin-chip{min-width:42px;height:28px;border-radius:999px;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:950;padding:0 8px}.day-pin-entry b{display:block;font-size:13px}.day-pin-entry span{display:block;color:var(--muted);font-size:12px;font-weight:700}.kind-key{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.kind-key span{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 7px;font-size:11px;font-weight:850;color:#334155}.kind-key i{width:10px;height:10px;border-radius:999px;display:block}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.legend:not(.map-legend-panel) span{display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--line);border-radius:999px;padding:7px 9px;font-size:12px;font-weight:800;color:#334155}.legend:not(.map-legend-panel) i{display:block;width:11px;height:11px;border-radius:99px}.day-pin-legend{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:12px}.day-pin-legend h3{margin:0 0 8px;font-size:15px}.day-pin-key{display:grid;gap:7px}.day-pin-entry{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px}.day-pin-chip{min-width:42px;height:28px;border-radius:999px;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:950;padding:0 8px}.day-pin-entry b{display:block;font-size:13px}.day-pin-entry span{display:block;color:var(--muted);font-size:12px;font-weight:700}.kind-key{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.kind-key span{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 7px;font-size:11px;font-weight:850;color:#334155}.kind-key i{width:10px;height:10px;border-radius:999px;display:block}
 .footer{color:#64748b;text-align:center;font-size:12px;font-weight:700;padding:18px 0 4px}
 @media (hover:hover){.btn:hover,.quick-nav a:hover{transform:translateY(-1px);filter:brightness(1.02)}}
 @media(max-width:900px){.wrap{padding-left:10px;padding-right:10px}.stats{grid-template-columns:repeat(2,1fr)}.day{border-radius:24px;padding:10px}.day-head,.day-grid{grid-template-columns:1fr}.go-stack{justify-content:stretch}.go-stack .btn{flex:1}.food-grid{grid-template-columns:1fr}.food-photo{height:210px}.info-grid{grid-template-columns:1fr 1fr}.map{height:min(62vh,560px);min-height:360px}.overview-map{height:min(64vh,580px);min-height:390px}.bottom-bar{display:grid}}
@@ -79,11 +79,11 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .map-legend-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;width:100%;max-width:100%;padding:10px 12px;margin-top:8px;border-radius:14px;background:rgba(7,23,40,.72);border:1px solid rgba(148,163,184,.18);overflow:hidden;white-space:normal;scrollbar-width:none}
 .map-legend[hidden],.map-legend.is-hidden,.map-legend-panel[hidden],.map-legend-panel.is-hidden{display:none!important}
 .map-legend-panel::-webkit-scrollbar{display:none}
-.map-legend-panel > span{display:inline-flex;align-items:center;gap:5px;min-width:0;background:transparent;border:0;border-radius:0;padding:0;color:rgba(255,255,255,.88);font-size:11px;font-weight:750;line-height:1.1;white-space:nowrap;box-shadow:none}
-.map-legend-panel > span::after{display:none!important;content:none!important}
-.map-legend-panel .legend-icon{font-size:14px;line-height:1;flex:0 0 auto;min-width:auto;height:auto;display:inline-flex;align-items:center;justify-content:center}
-.map-legend-panel i{display:block;width:7px;height:7px;border-radius:999px;flex:0 0 auto;opacity:.95}
-.map-legend-panel .legend-label{overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.map-legend-panel > span,.map-legend-item{display:inline-flex;align-items:center;gap:5px;min-width:0;background:transparent;border:0;border-radius:0;padding:0;color:rgba(255,255,255,.88);font-size:11px;font-weight:750;line-height:1.1;white-space:nowrap;box-shadow:none}
+.map-legend-panel > span::after,.map-legend-item::after{display:none!important;content:none!important}
+.map-legend-panel .legend-icon,.map-legend-icon{font-size:14px;line-height:1;flex:0 0 auto;min-width:auto;height:auto;display:inline-flex;align-items:center;justify-content:center}
+.map-legend-panel i,.map-legend-dot{display:block;width:7px;height:7px;border-radius:999px;flex:0 0 auto;opacity:.95}
+.map-legend-panel .legend-label,.map-legend-label{overflow:hidden;text-overflow:ellipsis;font-size:11px}
 @media(max-width:640px){.map-legend-panel{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .bottom-bar{transform:translateZ(0);}
 .bottom-bar .btn{min-height:46px;border-radius:14px;font-size:14px;}
@@ -797,8 +797,8 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="mobile-sticky-shell" id="mobileStickyShell">
     <nav class="quick-nav" id="dayRail"></nav>
     <section class="rail-progress mobile-progress-sticky" id="railProgressBanner" aria-label="Trip progress summary">
-      <div class="rail-progress-row"><span class="rail-progress-label" id="railTripLabel">Trip</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railTripFill"></div></div><span class="rail-progress-value" id="railTripPct">--%</span></div>
-      <div class="rail-progress-row"><span class="rail-progress-label" id="railDayLabel">Today</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railDayFill"></div></div><span class="rail-progress-value" id="railDayPct">--%</span></div>
+      <div class="rail-progress-row"><span class="rail-progress-label" id="railTripLabel">Trip</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railTripFill"></div></div><span class="rail-progress-value" id="railTripPct">0%</span></div>
+      <div class="rail-progress-row"><span class="rail-progress-label" id="railDayLabel">Today</span><div class="rail-progress-track"><div class="rail-progress-fill" id="railDayFill"></div></div><span class="rail-progress-value" id="railDayPct">0%</span></div>
     </section>
   </div>
   <div class="mobile-sticky-shell-spacer" aria-hidden="true"></div>
@@ -1308,7 +1308,7 @@ function renderKindLegend(items, extraClass){
   const kinds = order.filter(k => used.has(k));
   if(!kinds.length) return '';
   const short = {start:'Start', fuel:'Fuel', sight:'Scenic', pet:'Pet', golf:'Golf', spa:'Spa', hotel:'Hotel', food:'Food', homefinish:'Finish', finish:'Finish', stop:'Stop'};
-  const row = kinds.map(k => `<span title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i><span class="legend-label">${esc(short[k] || pinKindName(k))}</span></span>`).join('');
+  const row = kinds.map(k => `<div class="map-legend-item" title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="map-legend-icon">${esc(iconForKind(k))}</span><span class="map-legend-dot" style="background:${colorFor(k)}"></span><span class="map-legend-label">${esc(short[k] || pinKindName(k))}</span></div>`).join('');
   return `<div class="legend compact-map-legend map-legend-panel ${esc(extraClass || '')}" hidden>${row}</div>`;
 }
 function renderDayPinLegend(d){
@@ -1733,12 +1733,23 @@ function setMapExpanded(card, expanded, btn){
   card.classList.toggle('map-expanded', expanded);
   card.classList.toggle('map-minimized', !expanded);
   const control = btn || card.querySelector('.map-toggle-button');
+  const legendToggle = card.querySelector('.legend-toggle-button');
+  const zoomButton = card.querySelector('.zoom-location-button');
+  const legendPanel = card.querySelector('.map-legend-panel');
   if(control){
     control.textContent = expanded ? 'Minimize map' : 'Expand map';
     control.classList.toggle('is-danger', expanded);
     control.classList.toggle('is-success', !expanded);
   }
-  if(!expanded) setLegendExpanded(card, false);
+  if(!expanded){
+    setLegendExpanded(card, false, legendToggle);
+    if(legendPanel) legendPanel.hidden = true;
+    if(legendToggle) legendToggle.hidden = true;
+    if(zoomButton) zoomButton.hidden = true;
+  } else {
+    if(legendToggle) legendToggle.hidden = false;
+    if(zoomButton) zoomButton.hidden = false;
+  }
 }
 
 function toggleMapSize(dayNum, btn){
@@ -1753,6 +1764,7 @@ function toggleMapSize(dayNum, btn){
   });
   setMapExpanded(card, expanded, btn);
   if(expanded){
+    initDayMap(dayNum);
     setTimeout(()=>{
       const map = dayMaps.get(dayNum);
       if(map && window.google && google.maps){ google.maps.event.trigger(map,'resize'); }
@@ -1771,7 +1783,10 @@ function toggleOverviewMapSize(btn){
     }
   });
   setMapExpanded(card, expanded, btn);
-  if(expanded) setTimeout(()=>refreshOverviewMapLayout(), 260);
+  if(expanded){
+    initOverviewMap();
+    setTimeout(()=>refreshOverviewMapLayout(), 260);
+  }
 }
 window.toggleOverviewMapSize = toggleOverviewMapSize;
 
@@ -3907,7 +3922,7 @@ function updateMissionAndToday(progress, primary){
   const gps = primary && Number.isFinite(Number(primary.accuracy)) ? `GPS ${Math.round(gpsStrengthPercent(primary.accuracy) || 0)}%` : 'GPS --';
   const stops = nextStopsForDay(day);
   setMetricText('missionDayChip', `Day ${day} Active`);
-  setMetricText('missionProgressChip', pct === null ? '--% done' : `${Math.round(pct)}% done`);
+  setMetricText('missionProgressChip', `${Math.round(pct || 0)}% done`);
   setMetricText('missionGpsChip', gps);
   setMetricText('missionTrackingChip', `Tracking ${primary && primary.active ? 'On' : 'Off'}`);
   setMetricText('missionNotifChip', `Notifications ${typeof Notification === 'undefined' ? '--' : (Notification.permission === 'granted' ? 'Enabled' : 'Blocked')}`);
@@ -4280,13 +4295,13 @@ function renderAreWeThere(progress){
   const pct = progress && Number.isFinite(Number(progress.tripCompletedMeters)) && Number.isFinite(Number(progress.totalTripMeters)) && Number(progress.totalTripMeters) > 0
     ? Math.max(0, Math.min(100, (Number(progress.tripCompletedMeters) / Number(progress.totalTripMeters)) * 100))
     : null;
-  if(pctEl) pctEl.textContent = pct === null ? '--% done' : `${Math.round(pct)}% done`;
+  if(pctEl) pctEl.textContent = `${Math.round(pct || 0)}% done`;
   if(fillEl) fillEl.style.width = pct === null ? '0%' : `${pct}%`;
   if(milesEl){
     if(progress && Number.isFinite(Number(progress.dayCompletedMeters)) && Number.isFinite(Number(progress.dayTotalMeters))){
       milesEl.textContent = `${fmtMi(progress.dayCompletedMeters)} / ${fmtMi(progress.dayTotalMeters)} mi today`;
     } else {
-      milesEl.textContent = '-- / -- mi today';
+      milesEl.textContent = '0.0 / 0.0 mi today';
     }
   }
   if(statusEl) statusEl.textContent = `Status: ${areWeThereStatus(pct)}`;
@@ -4891,10 +4906,10 @@ function updateProgressBanner(progress, data){
   const railTripLabel=document.getElementById('railTripLabel'), railTripPct=document.getElementById('railTripPct'), railTripFill=document.getElementById('railTripFill'), railDayLabel=document.getElementById('railDayLabel'), railDayPct=document.getElementById('railDayPct'), railDayFill=document.getElementById('railDayFill');
   if(!routeTotalsReady){
     if(railTripLabel) railTripLabel.textContent = 'Trip';
-    if(railTripPct) railTripPct.textContent = '--%';
+    if(railTripPct) railTripPct.textContent = '0%';
     if(railTripFill) railTripFill.style.width = '0%';
     if(railDayLabel) railDayLabel.textContent = 'Today';
-    if(railDayPct) railDayPct.textContent = '--%';
+    if(railDayPct) railDayPct.textContent = '0%';
     if(railDayFill) railDayFill.style.width = '0%';
     updateHubProgressCard(0, 0, currentActiveDayNumber());
     renderAreWeThere(null);
@@ -4903,10 +4918,10 @@ function updateProgressBanner(progress, data){
   }
   if(!progress || !progress.totalTripMeters){
     if(railTripLabel) railTripLabel.textContent = 'Trip';
-    if(railTripPct) railTripPct.textContent = '--%';
+    if(railTripPct) railTripPct.textContent = '0%';
     if(railTripFill) railTripFill.style.width = '0%';
     if(railDayLabel) railDayLabel.textContent = 'Today';
-    if(railDayPct) railDayPct.textContent = '--%';
+    if(railDayPct) railDayPct.textContent = '0%';
     if(railDayFill) railDayFill.style.width = '0%';
     updateHubProgressCard(0, 0, currentActiveDayNumber());
     renderAreWeThere(null);
