@@ -120,15 +120,15 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .mission-bar{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
 .mission-actions{display:flex;gap:6px;flex-wrap:wrap}
 .mission-actions .btn{min-height:32px;padding:6px 9px;border-radius:10px;font-size:11px;box-shadow:none}
-.hub-progress-card{margin:6px 0 2px;padding:14px 16px;border-radius:22px;background:radial-gradient(circle at top left,rgba(34,197,94,.18),transparent 36%),linear-gradient(135deg,rgba(15,23,42,.98),rgba(30,41,59,.95));border:1px solid rgba(148,163,184,.25);box-shadow:0 12px 30px rgba(0,0,0,.24);color:#fff}
-.hub-progress-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.hub-progress-card{margin:4px 0 2px;padding:11px 12px;border-radius:18px;background:radial-gradient(circle at top left,rgba(34,197,94,.18),transparent 36%),linear-gradient(135deg,rgba(15,23,42,.98),rgba(30,41,59,.95));border:1px solid rgba(148,163,184,.25);box-shadow:0 10px 24px rgba(0,0,0,.24);color:#fff}
+.hub-progress-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
 .hub-eyebrow{display:block;color:#93c5fd;font-size:12px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
-.hub-progress-head h3{margin:0;font-size:clamp(28px,8vw,34px);line-height:1.05;letter-spacing:-.03em}
-.hub-progress-day{flex:0 0 auto;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);font-weight:950;font-size:14px;white-space:nowrap}
-.hub-progress-row{display:grid;gap:7px;margin-top:12px}
+.hub-progress-head h3{margin:0;font-size:clamp(21px,6vw,26px);line-height:1.04;letter-spacing:-.02em}
+.hub-progress-day{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);font-weight:900;font-size:12px;white-space:nowrap}
+.hub-progress-row{display:grid;gap:6px;margin-top:8px}
 .hub-progress-label{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#cbd5e1;font-size:13px;font-weight:900}
-.hub-progress-label strong{color:#fff;font-size:15px}
-.hub-progress-track{height:9px;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.25);border:1px solid rgba(255,255,255,.12)}
+.hub-progress-label strong{color:#fff;font-size:14px}
+.hub-progress-track{height:7px;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.25);border:1px solid rgba(255,255,255,.12)}
 .hub-progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#22c55e,#38bdf8);box-shadow:0 0 22px rgba(56,189,248,.35);transition:width .35s ease}
 .hub-progress-fill.day{background:linear-gradient(90deg,#f97316,#22c55e)}
 .hub-collapse-row{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
@@ -265,11 +265,11 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 
 
 /* PATCH v5.11: top-positioned secure hub and live snap button */
-.top-hub{margin:0 0 16px;border-radius:28px;background:linear-gradient(135deg,rgba(8,20,38,.98),rgba(15,23,42,.94));}
+.top-hub{margin:0 0 16px;border-radius:28px;background:linear-gradient(135deg,#081426,#0b1a2c);}
 .top-hub .tracker-top h2{font-size:clamp(28px,5vw,44px);line-height:1;margin:0;letter-spacing:-.035em;}
 .top-hub .tracker-top p{font-size:14px;}
 .top-hub #showMikeLaurenBtn{min-height:44px;border-radius:999px;box-shadow:0 10px 22px rgba(22,163,74,.22);}
-.hub-drawer{position:fixed;left:0;right:0;bottom:0;z-index:120;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform .28s ease;box-shadow:0 -20px 60px rgba(2,6,23,.35)}
+.hub-drawer{position:fixed;left:0;right:0;bottom:0;z-index:120;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform .28s ease;box-shadow:0 -20px 60px rgba(2,6,23,.35);background:linear-gradient(180deg,#081426,#0b1727)}
 .hub-drawer.open{transform:translateY(0)}
 .hub-drawer-backdrop{position:fixed;inset:0;z-index:119;background:rgba(2,6,23,.45);display:none}
 .hub-drawer-backdrop.show{display:block}
@@ -302,40 +302,42 @@ body.trip-hub-open .mobile-progress-sticky{display:none!important}
 .bottom-bar{grid-template-columns:1fr}
 .bottom-day{display:none}
 .bottom-hub-btn{display:inline-flex;justify-content:center;align-items:center;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#16a34a;color:#fff;text-decoration:none;font-size:13px;font-weight:900;min-height:42px;padding:0 10px}
-@media(max-width:700px){.top-hub .auth-row{width:100%;}.top-hub #showMikeLaurenBtn{width:100%;}.hub-progress-card{padding:12px 14px;border-radius:18px}.hub-progress-head{align-items:flex-start}.hub-progress-head h3{font-size:clamp(22px,8vw,30px)}.hub-progress-day{font-size:12px;padding:6px 9px}.hub-progress-track{height:8px}}
+@media(max-width:700px){.top-hub .auth-row{width:100%;}.top-hub #showMikeLaurenBtn{width:100%;}.hub-progress-card{padding:10px 11px;border-radius:16px}.hub-progress-head{align-items:flex-start}.hub-progress-head h3{font-size:clamp(19px,6vw,23px)}.hub-progress-day{font-size:11px;padding:5px 8px}.hub-progress-track{height:6px}}
 
 /* PATCH v5.23: mobile-first hub sheet + compact legends */
 :root{--hub-banner-height:52px}
 .trip-hub-panel{touch-action:pan-y}
 .hub-drawer{bottom:calc(var(--hub-banner-height) + var(--safe-bottom) + var(--keyboard-offset));max-height:calc(100dvh - var(--hub-banner-height) - (var(--safe-bottom) * 2) - var(--keyboard-offset) - 8px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-.protected-hub{display:grid;gap:8px;padding-bottom:4px}
+.protected-hub{display:grid;gap:8px;padding-bottom:calc(var(--hub-banner-height) + var(--safe-bottom) + 16px)}
 .hub-tabs{display:flex;margin-top:4px;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
 .hub-tabs::-webkit-scrollbar{display:none}
 .hub-tab{display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:7px 10px;min-height:34px}
 .trip-metrics-shell{margin-top:2px;gap:6px}
 .hub-section{margin-top:8px}
-.hub-progress-sticky{position:sticky;top:0;z-index:24;background:rgba(8,20,38,.98);margin-top:0}
+.hub-progress-sticky{position:sticky;top:0;z-index:24;background:#081426;margin-top:0}
 .section-btn-row .btn,.more-menu-links .btn,.tracker-modes .btn{text-align:center;justify-content:center}
 .bottom-bar{z-index:170;padding:6px 8px calc(6px + var(--safe-bottom))}
 .hub-bottom-banner{width:100%;min-height:46px;border-radius:12px;background:#16a34a;border:1px solid #22c55e;color:#fff;font-size:14px;font-weight:950}
 .hub-bottom-banner.is-open{background:#dc2626;border-color:#ef4444}
-.hub-more-banner{width:100%;min-height:48px;border:0;border-radius:16px;font-size:15px;font-weight:950;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;margin:10px 0;box-shadow:0 10px 22px rgba(22,163,74,.24)}
-.hub-more-banner.is-open{background:linear-gradient(180deg,#ef4444,#b91c1c);box-shadow:0 10px 22px rgba(185,28,28,.24)}
+.hub-more-banner{width:100%;min-height:42px;border:0;border-radius:14px;font-size:14px;font-weight:900;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;margin:8px 0;box-shadow:0 8px 16px rgba(22,163,74,.2)}
+.hub-more-banner.is-open{background:linear-gradient(180deg,#dc2626,#991b1b);box-shadow:0 8px 16px rgba(153,27,27,.2)}
 .trip-hub-open .hub-bottom-banner{background:#dc2626;border-color:#ef4444}
 .trip-hub-open .wrap{pointer-events:none}
 .trip-hub-open .hub-drawer,.trip-hub-open #bottomBar,.trip-hub-open #hubDrawerBackdrop{pointer-events:auto}
 .trip-hub-open #hubDrawerBackdrop{display:block}
-.compact-map-legend,.map-legend{display:flex;align-items:center;justify-content:flex-start;gap:6px;width:100%;max-width:100%;padding:6px 8px;margin:6px 0 0;border-radius:12px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.22);overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+.compact-map-legend,.map-legend{display:flex;align-items:center;justify-content:flex-start;gap:4px;width:100%;max-width:100%;padding:3px 0;margin:4px 0 0;background:transparent;border:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
 .compact-map-legend::-webkit-scrollbar,.map-legend::-webkit-scrollbar{display:none}
-.compact-map-legend span,.map-legend span{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;line-height:1;color:#fff;padding:4px 6px;border-radius:999px;background:rgba(255,255,255,.08)}
-.compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:11px;height:11px;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
-.compact-map-legend i,.map-legend i{width:6px;height:6px;border-radius:999px;flex:0 0 auto}
+.compact-map-legend span,.map-legend span{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;line-height:1.1;color:#e2e8f0;padding:0;background:transparent}
+.compact-map-legend span:not(:last-child)::after,.map-legend span:not(:last-child)::after{content:' •';color:rgba(226,232,240,.55);font-weight:900;margin-left:3px}
+.compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:auto;height:auto;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.compact-map-legend i,.map-legend i{display:none}
+.compact-map-legend .legend-label,.map-legend .legend-label{font-size:10px}
 .keyboard-open .hub-drawer{transition:none}
 @media(max-width:430px){
   .hub-drawer{left:0;right:0;border-radius:14px 14px 0 0}
   .hub-tabs{gap:5px}
   .hub-tab{font-size:11px;padding:6px 8px;min-height:32px}
-  .compact-map-legend span,.map-legend span{font-size:10px;padding:3px 5px}
+  .compact-map-legend span,.map-legend span{font-size:10px}
 }
 @media(max-width:700px){
   :root{--hub-banner-height:64px}
@@ -378,6 +380,9 @@ body.trip-hub-open .mobile-progress-sticky{display:none!important}
   .trip-metrics-shell{gap:5px}
   .hub-section{margin-top:6px}
 }
+
+.trip-superlatives-body.collapsed .superlative-row:nth-of-type(n+6){display:none}
+#toggleSuperlativesBtn{margin-top:8px;width:100%}
 
 
 
@@ -785,18 +790,12 @@ html,body{max-width:100%;overflow-x:hidden}
           </div>
         </details>
         <div class="hub-tabs" id="hubTabs" role="tablist" aria-label="Secure hub sections">
-          <button class="hub-tab active" type="button" id="hubTabProgress" data-hub-tab="progress" role="tab" aria-selected="true">Progress</button>
-          <button class="hub-tab" type="button" id="hubTabLive" data-hub-tab="live" role="tab" aria-selected="false">Live</button>
+          <button class="hub-tab active" type="button" id="hubTabLive" data-hub-tab="live" role="tab" aria-selected="true">Live</button>
           <button class="hub-tab" type="button" id="hubTabMessages" data-hub-tab="messages" role="tab" aria-selected="false">Messages</button>
           <button class="hub-tab" type="button" id="hubTabSettings" data-hub-tab="settings" role="tab" aria-selected="false">Settings</button>
           <button class="hub-tab hidden" type="button" id="hubTabAdmin" data-hub-tab="admin" role="tab" aria-selected="false">Admin</button>
         </div>
         <div class="trip-metrics-shell" id="tripMetricsShell">
-          <div class="mission-bar" id="missionBar">
-            <span class="mission-actions">
-              <button class="btn btn-ghost btn-small" type="button" id="missionCenterBtn">Zoom in to current location</button>
-            </span>
-          </div>
           <button class="hub-more-banner" type="button" id="missionMoreBtn" onclick="toggleMoreMenuFromBottom()">More</button>
           <section class="more-menu hub-collapse-row hidden" id="moreMenuPanel" aria-label="More trip tools">
             <div class="more-menu-body">
@@ -838,7 +837,7 @@ html,body{max-width:100%;overflow-x:hidden}
             </div>
           </details>
           <details class="hub-collapse-row" id="hubTodayPanel">
-            <summary>Today</summary>
+            <summary>Today's Route</summary>
             <div class="hub-collapse-body">
               <div class="today-card" id="todayCard">
                 <div class="today-row"><b id="todayTitle">Today — Day --</b><span id="todayStatus">Status: Data says ask again later.</span></div>
@@ -848,7 +847,7 @@ html,body{max-width:100%;overflow-x:hidden}
           </details>
           <details class="trip-superlatives hub-collapse-row" id="tripSuperlativesPanel">
             <summary>Fun Information</summary>
-            <div class="trip-superlatives-body">
+            <div class="trip-superlatives-body collapsed" id="tripSuperlativesBody">
               <div class="right-counter-row">
                 <button class="btn btn-go btn-small" type="button" id="mikeRightBtn">Mike was right</button>
                 <button class="btn btn-food btn-small" type="button" id="laurenRightBtn">Lauren was right</button>
@@ -868,10 +867,10 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="superlative-row"><b>Biggest chunk of map erased</b><span id="metricProgressJump">--</span></div>
               <div class="superlative-row"><b>Best day so far</b><span id="metricBestDay">--</span></div>
               <div class="superlative-row"><b>Most cooked day so far</b><span id="metricWorstDay">--</span></div>
+              <button class="btn btn-ghost btn-small" type="button" id="toggleSuperlativesBtn" onclick="toggleSuperlativesExpanded()">Show all</button>
             </div>
           </details>
         </div>
-  <div class="hub-section hidden" id="hubSectionProgress" data-hub-section="progress"></div>
         <div class="hub-section hidden" id="hubSectionLive" data-hub-section="live">
         <div class="tracker-grid">
           <div class="tracker-card"><b>Last update</b><span id="trackerLast">No signal</span></div>
@@ -1789,7 +1788,7 @@ let roadPainWriteCache = {};
 let dayCollapsePrefs = {};
 let dayCollapseInitialized = false;
 let tripGuideForegroundMessageBound = false;
-let currentHubTab = 'progress';
+let currentHubTab = 'live';
 let authReady = false;
 let redirectHandled = false;
 let authStateObserved = false;
@@ -3250,13 +3249,13 @@ function updateTrackingControlVisibility(){
 function applyHubTabAccess(){
   const adminTab = document.getElementById('hubTabAdmin');
   if(adminTab) adminTab.classList.toggle('hidden', !isAdmin);
-  if(!isAdmin && currentHubTab === 'admin') currentHubTab = 'progress';
+  if(!isAdmin && currentHubTab === 'admin') currentHubTab = 'live';
 }
 function setHubTab(tab){
-  const allowed = new Set(['progress','live','messages','settings','admin']);
-  const target = allowed.has(tab) ? tab : 'progress';
+  const allowed = new Set(['live','messages','settings','admin']);
+  const target = allowed.has(tab) ? tab : 'live';
   if(target === 'admin' && !isAdmin){
-    currentHubTab = 'progress';
+    currentHubTab = 'live';
   } else {
     currentHubTab = target;
   }
@@ -3310,7 +3309,7 @@ function requestTrackerAccess(){
   trackerDb.ref(`${TRACKER_BASE}/accessRequests/${u.uid}`).set(req).then(()=>setTrackerMessage('Access request sent.')).catch(e=>{ setTrackerMessage(e.message || String(e)); applyViewerNoAccessState(); });
 }
 function enableProtectedHub(){
-  currentHubTab = 'progress';
+  currentHubTab = 'live';
   showProtectedHub(true); updateAuthUI(); if(isAdmin) forceAdminControlsVisible(); listenLiveTracker(); listenTripStatsSummary(); listenRoadJournalData(); startPresence(); listenMessages(); listenVotes(); startPushDiagnostics();
   applyNotificationRecommendationState().catch(()=>{});
 }
@@ -3817,7 +3816,7 @@ function updateMissionAndToday(progress, primary){
   if(dayChip){
     dayChip.className = 'mission-chip ' + (pct === null ? 'warn' : (pct >= 80 ? 'good' : (pct >= 40 ? 'warn' : 'bad')));
   }
-  setMetricText('todayTitle', `Today - Day ${day}`);
+  setMetricText('todayTitle', `Today's Route - Day ${day}`);
   setMetricText('todayStatus', `Status: ${areWeThereStatus(pct)}`);
   setMetricText('todayNextStop', `Next stop: ${stops.next}`);
   setMetricText('todayAfterStop', `After that: ${stops.after}`);
@@ -3827,7 +3826,6 @@ function updateMissionAndToday(progress, primary){
   setMetricText('todayVibeLauren', `Lauren: ${((lauren.uid && vibeChecksData[lauren.uid]) ? vibeChecksData[lauren.uid].vibe : '--') || '--'}`);
   const goBtn = document.getElementById('todayGoBtn');
   const missionGoBtn = document.getElementById('missionGoBtn');
-  const missionCenterBtn = document.getElementById('missionCenterBtn');
   const dayObj = TRIP.days.find(x => Number(x.day) === Number(day));
   const nextStop = dayObj && Array.isArray(dayObj.stops) ? (dayObj.stops.find(s => s && s.kind !== 'start') || dayObj.stops[0]) : null;
   const goHref = nextStop && nextStop.google ? nextStop.google : (dayObj ? dayObj.google_full : '');
@@ -3839,7 +3837,6 @@ function updateMissionAndToday(progress, primary){
     missionGoBtn.onclick = () => { if(goHref) window.open(goHref, '_blank', 'noopener'); };
     missionGoBtn.disabled = !goHref;
   }
-  if(missionCenterBtn) missionCenterBtn.onclick = () => { if(typeof centerLiveLocation === 'function') centerLiveLocation(); };
 }
 function toggleMoreMenuFromBottom(){
   const panel = document.getElementById('moreMenuPanel');
@@ -3853,6 +3850,15 @@ function toggleMoreMenuFromBottom(){
   if(open) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 window.toggleMoreMenuFromBottom = toggleMoreMenuFromBottom;
+function toggleSuperlativesExpanded(){
+  const body = document.getElementById('tripSuperlativesBody');
+  const btn = document.getElementById('toggleSuperlativesBtn');
+  if(!body || !btn) return;
+  const expanded = body.classList.contains('collapsed');
+  body.classList.toggle('collapsed', !expanded);
+  btn.textContent = expanded ? 'Show less' : 'Show all';
+}
+window.toggleSuperlativesExpanded = toggleSuperlativesExpanded;
 function resetHubDisclosureDefaults(){
   ['hubNextStopPanel','hubTodayPanel','tripSuperlativesPanel'].forEach(id => {
     const panel = document.getElementById(id);
@@ -3889,10 +3895,19 @@ function setTripHubOpen(open){
   }
   if(next){
     const panel = document.getElementById('overviewDisclosure');
-    if(panel) panel.open = true;
+    if(panel) panel.open = false;
     resetHubDisclosureDefaults();
-    document.querySelectorAll('[data-hub-section]').forEach(section => section.classList.add('hidden'));
-    try{ drawer?.scrollTo({top:0, behavior:'auto'}); }catch(_){ if(drawer) drawer.scrollTop = 0; }
+    setHubTab('live');
+    try{
+      const contentTop = document.getElementById('tripMetricsShell');
+      const top = contentTop ? Math.max(0, contentTop.offsetTop - 6) : 0;
+      drawer?.scrollTo({top, behavior:'auto'});
+    }catch(_){
+      if(drawer){
+        const contentTop = document.getElementById('tripMetricsShell');
+        drawer.scrollTop = contentTop ? Math.max(0, contentTop.offsetTop - 6) : 0;
+      }
+    }
     document.querySelectorAll('.progress-mini,.top-progress-strip,.day-progress-banner,#progressMini,#dayProgressBanner').forEach(el => {
       if(el) el.classList.remove('show');
     });
