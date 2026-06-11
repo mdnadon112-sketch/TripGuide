@@ -289,7 +289,7 @@ body.hub-open #progressMini,
 body.hub-open #dayProgressBanner,
 body.hub-open .rail-progress,
 body.hub-open .quick-nav,
-body.hub-open .bottom-bar{
+body.hub-open .bottom-bar:not(#bottomBar){
   display:none!important;
 }
 .day.active-day .map{height:240px;min-height:220px}
@@ -303,7 +303,8 @@ body.hub-open .bottom-bar{
 
 /* PATCH v5.23: mobile-first hub sheet + compact legends */
 :root{--hub-banner-height:52px}
-.hub-drawer{bottom:calc(var(--hub-banner-height) + var(--safe-bottom) + var(--keyboard-offset));max-height:calc(100dvh - var(--hub-banner-height) - (var(--safe-bottom) * 2) - var(--keyboard-offset) - 8px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.trip-hub-panel{touch-action:pan-y}
+.hub-drawer{bottom:calc(var(--hub-banner-height) + var(--safe-bottom) + var(--keyboard-offset));max-height:calc(100dvh - var(--hub-banner-height) - (var(--safe-bottom) * 2) - var(--keyboard-offset) - 8px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .protected-hub{display:grid;gap:8px;padding-bottom:4px}
 .hub-tabs{display:flex;margin-top:4px;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
 .hub-tabs::-webkit-scrollbar{display:none}
@@ -316,11 +317,16 @@ body.hub-open .bottom-bar{
 .hub-bottom-banner{width:100%;min-height:46px;border-radius:12px;background:#16a34a;border:1px solid #22c55e;color:#fff;font-size:14px;font-weight:950}
 .hub-bottom-banner.is-open{background:#dc2626;border-color:#ef4444}
 .trip-hub-open .hub-bottom-banner{background:#dc2626;border-color:#ef4444}
+.trip-hub-open .wrap{pointer-events:none}
+.trip-hub-open .hub-drawer,.trip-hub-open #bottomBar,.trip-hub-open #hubDrawerBackdrop{pointer-events:auto}
+.trip-hub-open #hubDrawerBackdrop{display:block}
 .compact-map-legend,.map-legend{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-bottom:2px}
 .compact-map-legend::-webkit-scrollbar,.map-legend::-webkit-scrollbar{display:none}
 .compact-map-legend span,.map-legend span{flex:0 0 auto;max-width:132px;padding:5px 7px;font-size:11px;gap:5px}
 .compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:14px;height:14px;font-size:12px}
 .compact-map-legend i,.map-legend i{width:9px;height:9px}
+.map-legend-wrap{position:relative;display:grid;gap:4px}
+.map-legend-toggle{display:none}
 .keyboard-open .hub-drawer{transition:none}
 @media(max-width:430px){
   .hub-drawer{left:0;right:0;border-radius:14px 14px 0 0}
@@ -328,6 +334,67 @@ body.hub-open .bottom-bar{
   .hub-tab{font-size:11px;padding:6px 8px;min-height:32px}
   .compact-map-legend span,.map-legend span{max-width:46px;padding:5px 6px}
   .compact-map-legend .legend-label,.map-legend .legend-label{display:none}
+}
+@media(max-width:700px){
+  :root{--hub-banner-height:64px}
+  .map-legend-wrap{margin-top:0}
+  .map-legend-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:28px;
+    border-radius:999px;
+    border:1px solid rgba(15,23,42,.12);
+    background:rgba(255,255,255,.9);
+    font-size:11px;
+    font-weight:900;
+    color:#0f172a;
+    padding:0 10px;
+    justify-self:start;
+  }
+  .map-legend{
+    display:none;
+    margin:0;
+    padding:4px;
+    border-radius:999px;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(10px);
+    white-space:nowrap;
+  }
+  .map-legend-wrap.open .map-legend{display:flex}
+  .map-legend span{font-size:10px;padding:4px 6px;gap:3px}
+  .map-legend i{width:7px;height:7px}
+  .map-legend .legend-label{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body.trip-hub-open .trip-hub-panel{
+    position:fixed;
+    left:0;
+    right:0;
+    top:0;
+    bottom:calc(var(--hub-banner-height) + var(--keyboard-offset));
+    height:calc(100dvh - var(--hub-banner-height) - var(--keyboard-offset));
+    z-index:900;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    touch-action:pan-y;
+    border-radius:0;
+  }
+  #bottomBar.hub-bottom-banner-host,
+  #bottomBar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:1000;
+    min-height:56px;
+    padding:6px 8px calc(10px + var(--safe-bottom));
+  }
+  .hub-bottom-banner{
+    min-height:56px;
+    border-radius:12px;
+    background:linear-gradient(180deg,#22c55e,#15803d);
+  }
+  .hub-bottom-banner.is-open{background:linear-gradient(180deg,#ef4444,#b91c1c)}
 }
 @media(max-height:740px){
   :root{--hub-banner-height:50px}
@@ -746,7 +813,7 @@ html,body{max-width:100%;overflow-x:hidden}
           <div class="hub-full-map-body">
             <p class="hub-full-map-copy">View the whole route and live locations.</p>
             <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
-            <div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel / utility</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic / activity</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet stop</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel / overnight</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Final finish / home</span></span></div>
+            <div class="map-legend-wrap"><button class="map-legend-toggle" type="button" aria-expanded="false" onclick="toggleLegendRow(this)">Map Key</button><div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div></div>
             <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Expand map</button>
           </div>
         </details>
@@ -1290,7 +1357,9 @@ function renderKindLegend(items, extraClass){
   const used = new Set((items || []).map(s => s.kind || 'stop'));
   const kinds = order.filter(k => used.has(k));
   if(!kinds.length) return '';
-  return `<div class="legend compact-map-legend ${esc(extraClass || '')}">${kinds.map(k => `<span title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i><span class="legend-label">${esc(pinKindName(k))}</span></span>`).join('')}</div>`;
+  const short = {start:'Start', fuel:'Fuel', sight:'Scenic', pet:'Pet', golf:'Golf', spa:'Spa', hotel:'Hotel', food:'Food', homefinish:'Finish', finish:'Finish', stop:'Stop'};
+  const row = kinds.map(k => `<span title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i><span class="legend-label">${esc(short[k] || pinKindName(k))}</span></span>`).join('');
+  return `<div class="map-legend-wrap"><button class="map-legend-toggle" type="button" aria-expanded="false" onclick="toggleLegendRow(this)">Map Key</button><div class="legend compact-map-legend ${esc(extraClass || '')}">${row}</div></div>`;
 }
 function renderDayPinLegend(d){
   // Legacy detailed pin list kept as a no-op so older references cannot break.
@@ -3820,33 +3889,48 @@ function openHubProgressDetails(){
   }
 }
 window.openHubProgressDetails = openHubProgressDetails;
-function openHubDrawer(){
+let tripHubOpen = false;
+function setTripHubOpen(open){
+  const next = !!open;
+  tripHubOpen = next;
   const drawer = document.getElementById('liveTracker');
-  drawer?.classList.add('open');
-  document.getElementById('hubDrawerBackdrop')?.classList.add('show');
-  document.body.classList.add('hub-open');
-  const panel = document.getElementById('overviewDisclosure');
-  if(panel) panel.open = true;
-  resetHubDisclosureDefaults();
-  document.querySelectorAll('[data-hub-section]').forEach(section => section.classList.add('hidden'));
-  document.body.classList.add('trip-hub-open');
-  try{ drawer?.scrollTo({top:0, behavior:'auto'}); }catch(_){ if(drawer) drawer.scrollTop = 0; }
-  updateMobileViewportVars();
+  const backdrop = document.getElementById('hubDrawerBackdrop');
+  const banner = document.getElementById('bottomHubBtn');
+  if(drawer){
+    drawer.classList.toggle('open', next);
+    drawer.classList.toggle('trip-hub-panel', true);
+  }
+  if(backdrop) backdrop.classList.toggle('show', next);
+  document.body.classList.toggle('hub-open', next);
+  document.body.classList.toggle('trip-hub-open', next);
+  if(banner){
+    banner.classList.toggle('is-open', next);
+    banner.textContent = next ? 'Close Hub' : 'Hub';
+    banner.title = next ? 'Close Trip Hub' : 'Open Trip Hub';
+    banner.setAttribute('aria-label', banner.title);
+  }
+  if(next){
+    const panel = document.getElementById('overviewDisclosure');
+    if(panel) panel.open = true;
+    resetHubDisclosureDefaults();
+    document.querySelectorAll('[data-hub-section]').forEach(section => section.classList.add('hidden'));
+    try{ drawer?.scrollTo({top:0, behavior:'auto'}); }catch(_){ if(drawer) drawer.scrollTop = 0; }
+    document.querySelectorAll('.progress-mini,.top-progress-strip,.day-progress-banner,#progressMini,#dayProgressBanner').forEach(el => {
+      if(el) el.classList.remove('show');
+    });
+    setTimeout(()=>refreshOverviewMapLayout(), 260);
+  }
+  setTimeout(()=>updateMobileViewportVars(), next ? 0 : 80);
   updateBottomNavActive();
-  setTimeout(()=>refreshOverviewMapLayout(), 260);
+}
+function openHubDrawer(){
+  setTripHubOpen(true);
 }
 function closeHubDrawer(){
-  document.getElementById('liveTracker')?.classList.remove('open');
-  document.getElementById('hubDrawerBackdrop')?.classList.remove('show');
-  document.body.classList.remove('hub-open');
-  document.body.classList.remove('trip-hub-open');
-  setTimeout(()=>updateMobileViewportVars(), 80);
-  updateBottomNavActive();
+  setTripHubOpen(false);
 }
 function toggleHubDrawer(){
-  const drawer = document.getElementById('liveTracker');
-  if(drawer && drawer.classList.contains('open')) closeHubDrawer();
-  else openHubDrawer();
+  setTripHubOpen(!tripHubOpen);
 }
 function refreshOverviewMapLayout(){
   if(!overviewMapRef || !window.google || !google.maps || !google.maps.event) return;
@@ -3866,11 +3950,20 @@ window.openHubDrawer = openHubDrawer;
 window.closeHubDrawer = closeHubDrawer;
 window.toggleHubDrawer = toggleHubDrawer;
 window.openHubFullMap = openHubFullMap;
+function toggleLegendRow(btn){
+  const wrap = btn && btn.closest ? btn.closest('.map-legend-wrap') : null;
+  if(!wrap) return;
+  const open = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.textContent = open ? 'Hide Key' : 'Map Key';
+}
+window.toggleLegendRow = toggleLegendRow;
 window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeHubDrawer(); });
 function updateBottomNavActive(){
   const hub = document.getElementById('bottomHubBtn');
   if(!hub) return;
-  const isOpen = !!document.getElementById('liveTracker')?.classList.contains('open');
+  const isOpen = !!tripHubOpen;
   hub.classList.toggle('active', isOpen);
   hub.classList.toggle('is-open', isOpen);
   hub.textContent = isOpen ? 'Close Hub' : 'Hub';
