@@ -321,6 +321,8 @@ body.trip-hub-open .mobile-progress-sticky{display:none!important}
 .hub-bottom-banner.is-open{background:#dc2626;border-color:#ef4444}
 .hub-more-banner{width:100%;min-height:42px;border:0;border-radius:14px;font-size:14px;font-weight:900;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;margin:8px 0;box-shadow:0 8px 16px rgba(22,163,74,.2)}
 .hub-more-banner.is-open{background:linear-gradient(180deg,#dc2626,#991b1b);box-shadow:0 8px 16px rgba(153,27,27,.2)}
+.hub-fun-banner{width:100%;min-height:44px;border:0;border-radius:14px;font-size:14px;font-weight:900;text-align:center;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#22c55e,#15803d);color:#fff;margin:8px 0;box-shadow:0 8px 16px rgba(22,163,74,.2)}
+.hub-fun-banner.is-open{background:linear-gradient(180deg,#dc2626,#991b1b);box-shadow:0 8px 16px rgba(153,27,27,.2)}
 .trip-hub-open .hub-bottom-banner{background:#dc2626;border-color:#ef4444}
 .trip-hub-open .wrap{pointer-events:none}
 .trip-hub-open .hub-drawer,.trip-hub-open #bottomBar,.trip-hub-open #hubDrawerBackdrop{pointer-events:auto}
@@ -778,39 +780,25 @@ html,body{max-width:100%;overflow-x:hidden}
         <button class="btn btn-go" type="button" id="requestAccessBtn">Request Access</button>
       </div>
       <div class="protected-hub hidden" id="protectedHub">
-        <details class="hub-full-map-card" id="overviewDisclosure">
-          <summary>Full Trip Map</summary>
+        <section class="hub-full-map-card hub-section" id="overviewDisclosure" data-hub-section="live">
           <div class="hub-full-map-body">
-            <p class="hub-full-map-copy">View the whole route and live locations.</p>
-            <div class="map-card" id="overviewMapCard">
+            <p class="hub-full-map-copy">View the full route overview and live location.</p>
+            <div class="map-card map-expanded" id="overviewMapCard">
               <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
               <div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Finish</span></span></div>
-              <button class="map-toggle-button" type="button" onclick="toggleOverviewMapSize(this)">Expand map</button>
+              <button class="btn btn-ghost btn-small" type="button" id="overviewCenterBtn">Zoom in to current location</button>
+              <div class="right-counter-note hidden" id="overviewCenterStatus">Current location not available yet.</div>
+              <button class="map-toggle-button" type="button" onclick="toggleOverviewMapSize(this)">Close map</button>
             </div>
           </div>
-        </details>
+        </section>
         <div class="hub-tabs" id="hubTabs" role="tablist" aria-label="Secure hub sections">
           <button class="hub-tab active" type="button" id="hubTabLive" data-hub-tab="live" role="tab" aria-selected="true">Live</button>
           <button class="hub-tab" type="button" id="hubTabMessages" data-hub-tab="messages" role="tab" aria-selected="false">Messages</button>
           <button class="hub-tab" type="button" id="hubTabSettings" data-hub-tab="settings" role="tab" aria-selected="false">Settings</button>
           <button class="hub-tab hidden" type="button" id="hubTabAdmin" data-hub-tab="admin" role="tab" aria-selected="false">Admin</button>
         </div>
-        <div class="trip-metrics-shell" id="tripMetricsShell">
-          <button class="hub-more-banner" type="button" id="missionMoreBtn" onclick="toggleMoreMenuFromBottom()">More</button>
-          <section class="more-menu hub-collapse-row hidden" id="moreMenuPanel" aria-label="More trip tools">
-            <div class="more-menu-body">
-              <div class="more-menu-links">
-                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('stopsDisclosure')">Planned stops</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('foodDisclosure')">Food options</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayDisclosure('journalDisclosure')">Journal</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Open full trip map</button>
-                <button class="btn btn-google btn-small" type="button" onclick="openActiveDayRouteLink('google')">Google route</button>
-                <button class="btn btn-waze btn-small" type="button" onclick="openActiveDayRouteLink('waze')">Waze route</button>
-                <button class="btn btn-ghost btn-small" type="button" onclick="openActiveDayRouteLink('full')">Full route</button>
-              </div>
-              <p class="right-counter-note">Secondary tools only. Messages and Settings each have dedicated tabs.</p>
-            </div>
-          </section>
+        <div class="trip-metrics-shell hub-section" id="tripMetricsShell" data-hub-section="live">
           <div class="hub-progress-card hub-live-progress hub-progress-sticky" id="hubProgressCard">
             <div class="hub-progress-head">
               <div>
@@ -828,25 +816,8 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="hub-progress-track"><div class="hub-progress-fill day" id="hubDayProgressFill"></div></div>
             </div>
           </div>
-          <details class="hub-collapse-row" id="hubNextStopPanel">
-            <summary>Next Stop</summary>
-            <div class="hub-collapse-body">
-              <div class="today-next" id="todayNextStop">Next stop: --</div>
-              <div class="today-after" id="todayAfterStop">After that: --</div>
-              <div class="today-row"><button class="btn btn-ghost btn-small" type="button" id="todayGoBtn">Open next stop</button><span id="todayGoHint">Primary GO lives on the active day card</span></div>
-            </div>
-          </details>
-          <details class="hub-collapse-row" id="hubTodayPanel">
-            <summary>Today's Route</summary>
-            <div class="hub-collapse-body">
-              <div class="today-card" id="todayCard">
-                <div class="today-row"><b id="todayTitle">Today — Day --</b><span id="todayStatus">Status: Data says ask again later.</span></div>
-                <div class="today-row"><span id="todayVibeMike">Mike: --</span><span id="todayVibeLauren">Lauren: --</span></div>
-              </div>
-            </div>
-          </details>
-          <details class="trip-superlatives hub-collapse-row" id="tripSuperlativesPanel">
-            <summary>Fun Information</summary>
+          <button class="hub-fun-banner" type="button" id="funInfoBanner" onclick="toggleFunInformation()">Fun Information</button>
+          <section class="trip-superlatives hub-collapse-row hidden" id="tripSuperlativesPanel" aria-label="Fun information">
             <div class="trip-superlatives-body collapsed" id="tripSuperlativesBody">
               <div class="right-counter-row">
                 <button class="btn btn-go btn-small" type="button" id="mikeRightBtn">Mike was right</button>
@@ -869,20 +840,9 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="superlative-row"><b>Most cooked day so far</b><span id="metricWorstDay">--</span></div>
               <button class="btn btn-ghost btn-small" type="button" id="toggleSuperlativesBtn" onclick="toggleSuperlativesExpanded()">Show all</button>
             </div>
-          </details>
+          </section>
         </div>
-        <div class="hub-section hidden" id="hubSectionLive" data-hub-section="live">
-        <div class="tracker-grid">
-          <div class="tracker-card"><b>Last update</b><span id="trackerLast">No signal</span></div>
-          <div class="tracker-card"><b>Accuracy</b><span id="trackerAccuracy">—</span></div>
-          <div class="tracker-card"><b>Speed</b><span id="trackerSpeed">—</span></div>
-          <div class="tracker-card"><b>Active day</b><span id="trackerDay">—</span></div>
-        </div>
-        <div class="tracker-modes">
-          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Zoom in to current location</button>
-          <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver Mode</button>
-        </div>
-        </div>
+        <button class="btn btn-dark hidden hub-section" data-hub-section="admin" type="button" id="driverModeBtn">Driver Mode</button>
         <div class="hub-section hidden" id="hubSectionSettings" data-hub-section="settings">
         <div class="message-board">
           <h3>Settings</h3>
@@ -1407,10 +1367,22 @@ function initOverviewMap(){
   (TRIP.overviewFoodStops || []).forEach(f => addOverviewMarkerToGroup(map, 'food', f));
 
   runWhenIdle(()=>TRIP.days.forEach(d => drawDayRoute(map, d, .62, null, {preserveViewport:true})));
+  runWhenIdle(()=>fitOverviewTripBounds());
   map.addListener('zoom_changed', updateOverviewMarkerVisibility);
   google.maps.event.addListenerOnce(map, 'idle', updateOverviewMarkerVisibility);
   updateOverviewMarkerVisibility();
   markLoaded(el);
+}
+async function fitOverviewTripBounds(){
+  if(!overviewMapRef || !window.google || !google.maps) return;
+  const stops = (TRIP.overviewStops || []).filter(Boolean);
+  if(!stops.length) return;
+  const points = await Promise.all(stops.map(s => geocodeQuery(s.query)));
+  const resolved = points.filter(Boolean);
+  if(resolved.length < 2) return;
+  const bounds = new google.maps.LatLngBounds();
+  resolved.forEach(pos => bounds.extend(pos));
+  overviewMapRef.fitBounds(bounds, {top:72,right:48,bottom:72,left:48});
 }
 async function addOverviewMarkerToGroup(map, groupKey, stop){
   const marker = await geocodeMarker(map, stop, {initialVisible:false});
@@ -2509,7 +2481,7 @@ function bindHubControls(){
   ['gatePasswordInput','authPasswordInput'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') handleEmailLogin(); }); });
   const regConfirm=document.getElementById('regConfirmInput'); if(regConfirm) regConfirm.addEventListener('keydown', e=>{ if(e.key==='Enter') handleCreateAccount(); });
   const resetEmail=document.getElementById('resetEmailInput'); if(resetEmail) resetEmail.addEventListener('keydown', e=>{ if(e.key==='Enter') handlePasswordReset(); });
-  bindClick('centerLiveBtn', centerLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => { setHubTab('live'); document.getElementById('liveTracker')?.scrollIntoView({behavior:'smooth', block:'start'}); });
+  bindClick('overviewCenterBtn', centerOverviewLiveLocation); bindClick('showMikeLaurenBtn', showMikeAndLauren); bindClick('driverModeBtn', () => { setHubTab('live'); document.getElementById('liveTracker')?.scrollIntoView({behavior:'smooth', block:'start'}); });
   bindClick('startTrackingBtn', startDriverTracking); bindClick('stopTrackingBtn', stopDriverTracking); bindClick('adminPanelBtn', () => document.getElementById('adminPanel')?.classList.toggle('hidden'));
   bindClick('sendMessageBtn', sendTripMessage); const input=document.getElementById('messageInput'); if(input) input.addEventListener('keydown',e=>{if(e.key==='Enter') sendTripMessage();});
   bindClick('adminBadge', () => setHubTab('admin'));
@@ -2524,7 +2496,7 @@ function bindHubControls(){
   bindClick('manualRemoveAccessBtn', manualRemoveAccess);
   bindClick('manualRemoveAdminBtn', manualRemoveAdmin);
   document.querySelectorAll('[data-hub-tab]').forEach(btn => {
-    btn.addEventListener('click', () => setHubTab(btn.getAttribute('data-hub-tab') || 'progress'));
+    btn.addEventListener('click', () => setHubTab(btn.getAttribute('data-hub-tab') || 'live'));
   });
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
@@ -3271,17 +3243,6 @@ function setHubTab(tab){
   });
 }
 window.setHubTab = setHubTab;
-function openActiveDayRouteLink(kind){
-  const day = currentActiveDayNumber();
-  const dayObj = TRIP.days.find(x => Number(x.day) === Number(day));
-  if(!dayObj) return;
-  let href = '';
-  if(kind === 'waze') href = dayObj.waze_final || '';
-  else if(kind === 'full') href = dayObj.google_full || '';
-  else href = dayObj.google_full || '';
-  if(href) window.open(href, '_blank', 'noopener');
-}
-window.openActiveDayRouteLink = openActiveDayRouteLink;
 function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
 function showProtectedHub(show){
   document.getElementById('protectedHub')?.classList.toggle('hidden', !show);
@@ -3781,7 +3742,6 @@ function syncOverviewDisclosure(){
   const panel = document.getElementById('overviewDisclosure');
   if(!panel) return;
   if(!overviewDisclosureInitialized){
-    panel.open = false;
     overviewDisclosureInitialized = true;
   }
 }
@@ -3816,40 +3776,27 @@ function updateMissionAndToday(progress, primary){
   if(dayChip){
     dayChip.className = 'mission-chip ' + (pct === null ? 'warn' : (pct >= 80 ? 'good' : (pct >= 40 ? 'warn' : 'bad')));
   }
-  setMetricText('todayTitle', `Today's Route - Day ${day}`);
-  setMetricText('todayStatus', `Status: ${areWeThereStatus(pct)}`);
-  setMetricText('todayNextStop', `Next stop: ${stops.next}`);
-  setMetricText('todayAfterStop', `After that: ${stops.after}`);
-  const mike = mikeLaurenTargetFromSlug('mike');
-  const lauren = mikeLaurenTargetFromSlug('lauren');
-  setMetricText('todayVibeMike', `Mike: ${((mike.uid && vibeChecksData[mike.uid]) ? vibeChecksData[mike.uid].vibe : '--') || '--'}`);
-  setMetricText('todayVibeLauren', `Lauren: ${((lauren.uid && vibeChecksData[lauren.uid]) ? vibeChecksData[lauren.uid].vibe : '--') || '--'}`);
-  const goBtn = document.getElementById('todayGoBtn');
   const missionGoBtn = document.getElementById('missionGoBtn');
   const dayObj = TRIP.days.find(x => Number(x.day) === Number(day));
   const nextStop = dayObj && Array.isArray(dayObj.stops) ? (dayObj.stops.find(s => s && s.kind !== 'start') || dayObj.stops[0]) : null;
   const goHref = nextStop && nextStop.google ? nextStop.google : (dayObj ? dayObj.google_full : '');
-  if(goBtn){
-    goBtn.onclick = () => { if(goHref) window.open(goHref, '_blank', 'noopener'); };
-    goBtn.disabled = !goHref;
-  }
   if(missionGoBtn){
     missionGoBtn.onclick = () => { if(goHref) window.open(goHref, '_blank', 'noopener'); };
     missionGoBtn.disabled = !goHref;
   }
 }
-function toggleMoreMenuFromBottom(){
-  const panel = document.getElementById('moreMenuPanel');
-  const btn = document.getElementById('missionMoreBtn');
+function toggleFunInformation(){
+  const panel = document.getElementById('tripSuperlativesPanel');
+  const btn = document.getElementById('funInfoBanner');
   if(!panel || !btn) return;
   const open = panel.classList.contains('hidden');
   panel.classList.toggle('hidden', !open);
   btn.classList.toggle('is-open', open);
-  btn.textContent = open ? 'Close More' : 'More';
-  document.body.classList.toggle('more-open', open);
+  btn.textContent = open ? 'Close Fun Information' : 'Fun Information';
+  document.body.classList.toggle('fun-info-open', open);
   if(open) panel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
-window.toggleMoreMenuFromBottom = toggleMoreMenuFromBottom;
+window.toggleFunInformation = toggleFunInformation;
 function toggleSuperlativesExpanded(){
   const body = document.getElementById('tripSuperlativesBody');
   const btn = document.getElementById('toggleSuperlativesBtn');
@@ -3860,18 +3807,18 @@ function toggleSuperlativesExpanded(){
 }
 window.toggleSuperlativesExpanded = toggleSuperlativesExpanded;
 function resetHubDisclosureDefaults(){
-  ['hubNextStopPanel','hubTodayPanel','tripSuperlativesPanel'].forEach(id => {
-    const panel = document.getElementById(id);
-    if(panel) panel.open = false;
-  });
-  const morePanel = document.getElementById('moreMenuPanel');
-  const moreBtn = document.getElementById('missionMoreBtn');
-  if(morePanel) morePanel.classList.add('hidden');
-  if(moreBtn){
-    moreBtn.classList.remove('is-open');
-    moreBtn.textContent = 'More';
+  const funPanel = document.getElementById('tripSuperlativesPanel');
+  const funBtn = document.getElementById('funInfoBanner');
+  const superBody = document.getElementById('tripSuperlativesBody');
+  const superBtn = document.getElementById('toggleSuperlativesBtn');
+  if(funPanel) funPanel.classList.add('hidden');
+  if(funBtn){
+    funBtn.classList.remove('is-open');
+    funBtn.textContent = 'Fun Information';
   }
-  document.body.classList.remove('more-open');
+  if(superBody) superBody.classList.add('collapsed');
+  if(superBtn) superBtn.textContent = 'Show all';
+  document.body.classList.remove('fun-info-open');
 }
 let tripHubOpen = false;
 function setTripHubOpen(open){
@@ -3894,19 +3841,12 @@ function setTripHubOpen(open){
     banner.setAttribute('aria-label', banner.title);
   }
   if(next){
-    const panel = document.getElementById('overviewDisclosure');
-    if(panel) panel.open = false;
     resetHubDisclosureDefaults();
     setHubTab('live');
     try{
-      const contentTop = document.getElementById('tripMetricsShell');
-      const top = contentTop ? Math.max(0, contentTop.offsetTop - 6) : 0;
-      drawer?.scrollTo({top, behavior:'auto'});
+      drawer?.scrollTo({top:0, behavior:'auto'});
     }catch(_){
-      if(drawer){
-        const contentTop = document.getElementById('tripMetricsShell');
-        drawer.scrollTop = contentTop ? Math.max(0, contentTop.offsetTop - 6) : 0;
-      }
+      if(drawer) drawer.scrollTop = 0;
     }
     document.querySelectorAll('.progress-mini,.top-progress-strip,.day-progress-banner,#progressMini,#dayProgressBanner').forEach(el => {
       if(el) el.classList.remove('show');
@@ -3935,8 +3875,10 @@ function refreshOverviewMapLayout(){
 }
 function openHubFullMap(){
   openHubDrawer();
-  const panel = document.getElementById('overviewDisclosure');
-  if(panel) panel.open = true;
+  const card = document.getElementById('overviewMapCard');
+  const btn = card ? card.querySelector('.map-toggle-button') : null;
+  if(card) card.classList.add('map-expanded');
+  if(btn) btn.textContent = 'Close map';
   setTimeout(()=>refreshOverviewMapLayout(), 280);
 }
 window.openHubDrawer = openHubDrawer;
@@ -4944,6 +4886,20 @@ function centerLiveLocation(){
   const day=primary.computedDay||primary.progress?.activeDay||primary.activeDay||1; initDayMap(Number(day));
   const sec=document.getElementById('day-'+day)||document.getElementById('overview'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(()=>{ const map=dayMaps.get(Number(day))||overviewMapRef||Array.from(trackableMaps.values())[0]; fitTrackersOnMap(map,[primary]); updateLiveMarkerEverywhere(displayedLiveTrackers.length?displayedLiveTrackers:[primary]); setTrackerMessage('Centered ' + liveTrackerDisplayName(primary) + '.'); }, 350);
+}
+function centerOverviewLiveLocation(){
+  const status = document.getElementById('overviewCenterStatus');
+  const primary = choosePrimaryTracker(displayedLiveTrackers.length ? displayedLiveTrackers : latestLiveTrackers);
+  if(!primary || !overviewMapRef){
+    if(status){
+      status.textContent = 'Current location not available yet.';
+      status.classList.remove('hidden');
+    }
+    return;
+  }
+  if(status) status.classList.add('hidden');
+  fitTrackersOnMap(overviewMapRef, [primary]);
+  setTrackerMessage('Centered ' + liveTrackerDisplayName(primary) + ' on Hub map.');
 }
 function showMikeAndLauren(){
   const trackers = displayedLiveTrackers.length ? displayedLiveTrackers : trackersForDisplay(latestLiveTrackers);
