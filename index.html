@@ -12,12 +12,12 @@
 :root{
   --ink:#0f172a;--muted:#61718a;--line:#d9e3f0;--bg:#f4f7fb;--card:#ffffff;
   --blue:#1666d8;--blue2:#0f4ea9;--green:#16a34a;--green2:#0f7a37;--orange:#f97316;--amber:#f59e0b;--red:#dc2626;--shadow:0 18px 55px rgba(8,20,38,.14);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);--safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);--safe-top: env(safe-area-inset-top, 0px);--keyboard-offset:0px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:rgba(22,102,216,.15)}
 html{scroll-behavior:smooth;background:var(--bg);max-width:100%;overflow-x:hidden}
 body{margin:0;color:var(--ink);background:linear-gradient(180deg,#eef5ff 0,#f7fafc 240px,var(--bg) 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.35;max-width:100%;overflow-x:hidden}
-body.hub-open{overflow:hidden}
+body.hub-open,body.trip-hub-open{overflow:hidden}
 a{color:inherit;text-decoration:none}button,a{touch-action:manipulation}.wrap{max-width:1180px;margin:0 auto;padding:calc(14px + var(--safe-top)) 14px calc(88px + var(--safe-bottom));display:flex;flex-direction:column}
 #dayRail{order:1}
 #days{order:2}
@@ -49,7 +49,7 @@ h1{font-size:clamp(34px,7vw,64px);line-height:.98;margin:14px 0 10px;letter-spac
 .todo{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:13px}.todo h3{margin:0 0 8px;font-size:15px}.todo ul{margin:0;padding-left:19px;color:#334155;font-size:14px;line-height:1.5}.route-list{display:grid;gap:7px}.route-item{display:flex;gap:9px;align-items:flex-start;padding:8px;background:white;border:1px solid var(--line);border-radius:14px}.pin-dot{min-width:42px;height:28px;padding:0 8px;border-radius:999px;display:grid;place-items:center;color:white;font-weight:950;font-size:12px;flex:0 0 auto;box-shadow:0 6px 14px rgba(15,23,42,.15)}.route-item b{font-size:13px}.route-item p{margin:1px 0 0;color:var(--muted);font-size:12px;font-weight:650}
 .food-section{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.food-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}.food-head h3{font-size:19px;margin:0}.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.food-card{overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 25px rgba(15,23,42,.05)}.food-photo{height:172px;background:#e2e8f0;position:relative;overflow:hidden}.food-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.03)}.photo-badge{position:absolute;left:10px;top:10px;background:rgba(15,23,42,.78);color:white;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;backdrop-filter:blur(10px)}.food-body{padding:12px}.food-body h4{margin:0 0 4px;font-size:16px}.food-body p{margin:0 0 10px;color:var(--muted);font-size:12px;font-weight:700;min-height:32px}.food-links{display:flex;gap:7px;flex-wrap:wrap}
 .drawer{margin-top:12px}.drawer summary{cursor:pointer;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px;font-weight:950}.drawer .drawer-body{padding:10px 0 0}
-.bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:6px 8px calc(6px + var(--safe-bottom));background:rgba(8,20,38,.92);backdrop-filter:blur(18px);display:none;gap:6px;align-items:center}.bottom-bar a{flex:1}.bottom-day{color:white;font-weight:900;font-size:12px;min-width:64px;text-align:center}
+.bottom-bar{position:fixed;left:0;right:0;bottom:var(--keyboard-offset);z-index:50;padding:6px 8px calc(6px + var(--safe-bottom));background:rgba(8,20,38,.92);backdrop-filter:blur(18px);display:none;gap:6px;align-items:center}.bottom-bar a{flex:1}.bottom-day{color:white;font-weight:900;font-size:12px;min-width:64px;text-align:center}
 .gm-info{max-width:260px}.gm-info img{width:100%;height:110px;object-fit:cover;border-radius:12px;margin:0 0 8px;background:#e2e8f0}.gm-info h3{margin:0 0 4px;font-size:15px}.gm-info p{margin:0 0 8px;color:#475569;font-size:12px}.gm-info .mini{display:flex;gap:6px;flex-wrap:wrap}.gm-info .mini a{font-weight:900;border-radius:10px;padding:7px 9px;font-size:12px;background:#eff6ff;color:#174ea6;border:1px solid #bfdbfe}
 .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.legend span{display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--line);border-radius:999px;padding:7px 9px;font-size:12px;font-weight:800;color:#334155}.legend i{display:block;width:11px;height:11px;border-radius:99px}.day-pin-legend{background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:12px}.day-pin-legend h3{margin:0 0 8px;font-size:15px}.day-pin-key{display:grid;gap:7px}.day-pin-entry{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px}.day-pin-chip{min-width:42px;height:28px;border-radius:999px;color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:950;padding:0 8px}.day-pin-entry b{display:block;font-size:13px}.day-pin-entry span{display:block;color:var(--muted);font-size:12px;font-weight:700}.kind-key{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.kind-key span{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 7px;font-size:11px;font-weight:850;color:#334155}.kind-key i{width:10px;height:10px;border-radius:999px;display:block}
 .footer{color:#64748b;text-align:center;font-size:12px;font-weight:700;padding:18px 0 4px}
@@ -300,6 +300,42 @@ body.hub-open .bottom-bar{
 .bottom-day{display:none}
 .bottom-hub-btn{display:inline-flex;justify-content:center;align-items:center;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#16a34a;color:#fff;text-decoration:none;font-size:13px;font-weight:900;min-height:42px;padding:0 10px}
 @media(max-width:700px){.top-hub .auth-row{width:100%;}.top-hub #showMikeLaurenBtn{width:100%;}.hub-progress-card{padding:16px;border-radius:22px}.hub-progress-head{align-items:flex-start}.hub-progress-head h3{font-size:clamp(20px,7vw,28px)}.hub-progress-day{font-size:13px;padding:7px 10px}}
+
+/* PATCH v5.23: mobile-first hub sheet + compact legends */
+:root{--hub-banner-height:52px}
+.hub-drawer{bottom:calc(var(--hub-banner-height) + var(--safe-bottom) + var(--keyboard-offset));max-height:calc(100dvh - var(--hub-banner-height) - (var(--safe-bottom) * 2) - var(--keyboard-offset) - 8px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.protected-hub{display:grid;gap:8px;padding-bottom:4px}
+.hub-tabs{display:flex;margin-top:4px;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+.hub-tabs::-webkit-scrollbar{display:none}
+.hub-tab{display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:7px 10px;min-height:34px}
+.trip-metrics-shell{margin-top:2px;gap:6px}
+.hub-section{margin-top:8px}
+.hub-progress-sticky{position:sticky;top:0;z-index:24;background:rgba(8,20,38,.98);margin-top:0}
+.section-btn-row .btn,.more-menu-links .btn,.tracker-modes .btn{text-align:center;justify-content:center}
+.bottom-bar{z-index:170;padding:6px 8px calc(6px + var(--safe-bottom))}
+.hub-bottom-banner{width:100%;min-height:46px;border-radius:12px;background:#16a34a;border:1px solid #22c55e;color:#fff;font-size:14px;font-weight:950}
+.hub-bottom-banner.is-open{background:#dc2626;border-color:#ef4444}
+.trip-hub-open .hub-bottom-banner{background:#dc2626;border-color:#ef4444}
+.compact-map-legend,.map-legend{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-bottom:2px}
+.compact-map-legend::-webkit-scrollbar,.map-legend::-webkit-scrollbar{display:none}
+.compact-map-legend span,.map-legend span{flex:0 0 auto;max-width:132px;padding:5px 7px;font-size:11px;gap:5px}
+.compact-map-legend .legend-icon,.map-legend .legend-icon{min-width:14px;height:14px;font-size:12px}
+.compact-map-legend i,.map-legend i{width:9px;height:9px}
+.keyboard-open .hub-drawer{transition:none}
+@media(max-width:430px){
+  .hub-drawer{left:0;right:0;border-radius:14px 14px 0 0}
+  .hub-tabs{gap:5px}
+  .hub-tab{font-size:11px;padding:6px 8px;min-height:32px}
+  .compact-map-legend span,.map-legend span{max-width:46px;padding:5px 6px}
+  .compact-map-legend .legend-label,.map-legend .legend-label{display:none}
+}
+@media(max-height:740px){
+  :root{--hub-banner-height:50px}
+  .tracker-panel{padding:10px;border-radius:16px}
+  .hub-progress-sticky{padding:9px}
+  .trip-metrics-shell{gap:5px}
+  .hub-section{margin-top:6px}
+}
 
 
 
@@ -671,7 +707,6 @@ html,body{max-width:100%;overflow-x:hidden}
       <div class="tracker-top">
         <div><h2>Trip Hub</h2><p>Open only when you need tracker, messages, notifications, or admin tools.</p></div>
         <div class="auth-row">
-          <button class="hub-close" type="button" id="hubCloseBtn" onclick="closeHubDrawer()">Close Hub ✕</button>
           <span class="admin-badge" id="adminBadge">0 waiting</span>
           <span class="tracker-status-pill"><i class="tracker-dot" id="trackerDot"></i><span id="trackerStatus">Sign in to continue</span></span>
           <button class="btn btn-go hidden" type="button" id="showMikeLaurenBtn" onclick="showMikeAndLauren()">Show me Mike and Lauren</button>
@@ -696,12 +731,23 @@ html,body{max-width:100%;overflow-x:hidden}
         <button class="btn btn-go" type="button" id="requestAccessBtn">Request Access</button>
       </div>
       <div class="protected-hub hidden" id="protectedHub">
+        <div class="progress-panel hub-progress-sticky" id="progressPanel">
+          <div class="progress-line"><strong id="tripProgressTitle">Trip progress: calculating route miles</strong><span id="tripProgressPct">—</span></div>
+          <div class="progress-track"><div class="progress-fill" id="tripProgressFill"></div></div>
+          <div class="progress-line"><strong id="dayProgressTitle">Today: waiting for live location</strong><span id="dayProgressPct">—</span></div>
+          <div class="progress-track"><div class="progress-fill" id="dayProgressFill"></div></div>
+          <div class="progress-meta">
+            <div class="tracker-card"><b>Trip mileage</b><span id="tripMileageText">—</span></div>
+            <div class="tracker-card"><b>Today mileage</b><span id="dayMileageText">—</span></div>
+          </div>
+        </div>
         <details class="hub-full-map-card" id="overviewDisclosure">
           <summary>Full Trip Map</summary>
           <div class="hub-full-map-body">
             <p class="hub-full-map-copy">View the whole route and live locations.</p>
             <div class="map-shell overview-map" data-map-shell><div class="map-chip">Overall trip map</div><div class="map-loading">Loading Google map…</div><div id="overviewMap" class="map"></div></div>
-            <div class="legend map-legend" id="overviewLegend"><span><span class="legend-icon">🚗</span><i style="background:#0f172a"></i>Start</span><span><span class="legend-icon">⛽</span><i style="background:#64748b"></i>Fuel / utility</span><span><span class="legend-icon">🌄</span><i style="background:#16a34a"></i>Scenic / activity</span><span><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i>Pet stop</span><span><span class="legend-icon">🏌️</span><i style="background:#15803d"></i>Golf</span><span><span class="legend-icon">💆</span><i style="background:#db2777"></i>Spa</span><span><span class="legend-icon">🏨</span><i style="background:#1666d8"></i>Hotel / overnight</span><span><span class="legend-icon">🍽️</span><i style="background:#f97316"></i>Food</span><span><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i>Final finish / home</span></div>
+            <div class="legend map-legend compact-map-legend" id="overviewLegend"><span title="Start" aria-label="Start"><span class="legend-icon">🚗</span><i style="background:#0f172a"></i><span class="legend-label">Start</span></span><span title="Fuel / utility" aria-label="Fuel / utility"><span class="legend-icon">⛽</span><i style="background:#64748b"></i><span class="legend-label">Fuel / utility</span></span><span title="Scenic / activity" aria-label="Scenic / activity"><span class="legend-icon">🌄</span><i style="background:#16a34a"></i><span class="legend-label">Scenic / activity</span></span><span title="Pet stop" aria-label="Pet stop"><span class="legend-icon">🐕</span><i style="background:#7c3aed"></i><span class="legend-label">Pet stop</span></span><span title="Golf" aria-label="Golf"><span class="legend-icon">🏌️</span><i style="background:#15803d"></i><span class="legend-label">Golf</span></span><span title="Spa" aria-label="Spa"><span class="legend-icon">💆</span><i style="background:#db2777"></i><span class="legend-label">Spa</span></span><span title="Hotel / overnight" aria-label="Hotel / overnight"><span class="legend-icon">🏨</span><i style="background:#1666d8"></i><span class="legend-label">Hotel / overnight</span></span><span title="Food" aria-label="Food"><span class="legend-icon">🍽️</span><i style="background:#f97316"></i><span class="legend-label">Food</span></span><span title="Final finish / home" aria-label="Final finish / home"><span class="legend-icon">🏁🏠</span><i style="background:#0f172a"></i><span class="legend-label">Final finish / home</span></span></div>
+            <button class="btn btn-ghost btn-small" type="button" onclick="openHubFullMap()">Expand map</button>
           </div>
         </details>
         <div class="hub-tabs" id="hubTabs" role="tablist" aria-label="Secure hub sections">
@@ -829,7 +875,7 @@ html,body{max-width:100%;overflow-x:hidden}
             </div>
           </details>
         </div>
-        <div class="hub-section hidden" id="hubSectionProgress" data-hub-section="progress"></div>
+  <div class="hub-section hidden" id="hubSectionProgress" data-hub-section="progress"></div>
         <div class="hub-section hidden" id="hubSectionLive" data-hub-section="live">
         <div class="tracker-grid">
           <div class="tracker-card"><b>Last update</b><span id="trackerLast">No signal</span></div>
@@ -838,7 +884,7 @@ html,body{max-width:100%;overflow-x:hidden}
           <div class="tracker-card"><b>Active day</b><span id="trackerDay">—</span></div>
         </div>
         <div class="tracker-modes">
-          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Center live marker</button>
+          <button class="btn btn-ghost" type="button" id="centerLiveBtn">Zoom in to current location</button>
           <button class="btn btn-google" type="button" id="enablePushBtn">Turn on notifications</button>
           <button class="btn btn-dark hidden" type="button" id="driverModeBtn">Driver Mode</button>
         </div>
@@ -962,7 +1008,7 @@ html,body{max-width:100%;overflow-x:hidden}
 </div>
 <div class="bottom-bar" id="bottomBar">
   <span class="bottom-day" id="bottomDay">Day 1</span>
-  <button class="bottom-hub-btn" id="bottomHubBtn" type="button" onclick="toggleHubDrawer()">Hub</button>
+  <button class="bottom-hub-btn hub-bottom-banner" id="bottomHubBtn" type="button" onclick="toggleHubDrawer()">Hub</button>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -1244,7 +1290,7 @@ function renderKindLegend(items, extraClass){
   const used = new Set((items || []).map(s => s.kind || 'stop'));
   const kinds = order.filter(k => used.has(k));
   if(!kinds.length) return '';
-  return `<div class="legend ${esc(extraClass || '')}">${kinds.map(k => `<span><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i>${esc(pinKindName(k))}</span>`).join('')}</div>`;
+  return `<div class="legend compact-map-legend ${esc(extraClass || '')}">${kinds.map(k => `<span title="${esc(pinKindName(k))}" aria-label="${esc(pinKindName(k))}"><span class="legend-icon">${esc(iconForKind(k))}</span><i style="background:${colorFor(k)}"></i><span class="legend-label">${esc(pinKindName(k))}</span></span>`).join('')}</div>`;
 }
 function renderDayPinLegend(d){
   // Legacy detailed pin list kept as a no-op so older references cannot break.
@@ -1719,6 +1765,7 @@ let redirectHandled = false;
 let authStateObserved = false;
 let authObserverStarted = false;
 let redirectUserCache = null;
+let viewportTuningBound = false;
 let googleAuthProvider = null;
 let googleSignInPending = false;
 let googleIdentityInitPromise = null;
@@ -2387,7 +2434,7 @@ async function initFirebaseTracker(){
       console.warn('[TripGuide] Foreground messaging handler not active:', err);
     }
 
-    bindHubControls(); createPhotoModal(); createProgressMini(); createWatcherStrip(); createWatcherModal();
+    bindHubControls(); createPhotoModal(); createWatcherStrip(); createWatcherModal(); setupMobileViewportTuning();
 
     authReady = false;
     redirectHandled = false;
@@ -2452,6 +2499,48 @@ function bindHubControls(){
   });
 }
 function bindClick(id, fn){ const el=document.getElementById(id); if(el) el.addEventListener('click', fn); }
+
+function updateMobileViewportVars(){
+  const root = document.documentElement;
+  let keyboardOffset = 0;
+  const vv = window.visualViewport;
+  if(vv){
+    const delta = Number(window.innerHeight || 0) - Number(vv.height || 0) - Number(vv.offsetTop || 0);
+    if(delta > 0) keyboardOffset = Math.round(delta);
+  }
+  const keyboardOpen = keyboardOffset > 110;
+  document.body.classList.toggle('keyboard-open', keyboardOpen);
+  root.style.setProperty('--keyboard-offset', `${Math.max(0, keyboardOffset)}px`);
+}
+
+function setupMobileViewportTuning(){
+  if(viewportTuningBound) return;
+  viewportTuningBound = true;
+  const refresh = () => updateMobileViewportVars();
+  refresh();
+  window.addEventListener('resize', refresh, {passive:true});
+  window.addEventListener('orientationchange', () => setTimeout(refresh, 120), {passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', refresh);
+    window.visualViewport.addEventListener('scroll', refresh);
+  }
+  document.addEventListener('focusin', (e) => {
+    const target = e && e.target;
+    if(!target || !(target instanceof HTMLElement)) return;
+    if(!target.matches('input, textarea, select, [contenteditable="true"]')) return;
+    setTimeout(() => {
+      refresh();
+      if(!document.body.classList.contains('trip-hub-open')) return;
+      const drawer = document.getElementById('liveTracker');
+      if(!drawer) return;
+      try{ target.scrollIntoView({block:'nearest', inline:'nearest'}); }catch(_){ }
+      const fieldRect = target.getBoundingClientRect();
+      const drawerRect = drawer.getBoundingClientRect();
+      if(fieldRect.bottom > (drawerRect.bottom - 16)) drawer.scrollTop += (fieldRect.bottom - drawerRect.bottom) + 24;
+    }, 140);
+  }, true);
+  document.addEventListener('focusout', () => setTimeout(refresh, 140), true);
+}
 
 async function sendPasswordResetFromGate(){
   try{
@@ -3156,7 +3245,6 @@ window.setHubTab = setHubTab;
 function showAccessPanel(show){ document.getElementById('accessPanel')?.classList.toggle('hidden', !show); }
 function showProtectedHub(show){
   document.getElementById('protectedHub')?.classList.toggle('hidden', !show);
-  document.getElementById('progressMini')?.classList.toggle('show', !!show && !!lastValidProgress);
   document.getElementById('showMikeLaurenBtn')?.classList.add('hidden');
   document.getElementById('authPanel')?.classList.toggle('hidden', !!show);
   if(show){
@@ -3733,19 +3821,27 @@ function openHubProgressDetails(){
 }
 window.openHubProgressDetails = openHubProgressDetails;
 function openHubDrawer(){
-  document.getElementById('liveTracker')?.classList.add('open');
+  const drawer = document.getElementById('liveTracker');
+  drawer?.classList.add('open');
   document.getElementById('hubDrawerBackdrop')?.classList.add('show');
   document.body.classList.add('hub-open');
   const panel = document.getElementById('overviewDisclosure');
   if(panel) panel.open = true;
   resetHubDisclosureDefaults();
   document.querySelectorAll('[data-hub-section]').forEach(section => section.classList.add('hidden'));
+  document.body.classList.add('trip-hub-open');
+  try{ drawer?.scrollTo({top:0, behavior:'auto'}); }catch(_){ if(drawer) drawer.scrollTop = 0; }
+  updateMobileViewportVars();
+  updateBottomNavActive();
   setTimeout(()=>refreshOverviewMapLayout(), 260);
 }
 function closeHubDrawer(){
   document.getElementById('liveTracker')?.classList.remove('open');
   document.getElementById('hubDrawerBackdrop')?.classList.remove('show');
   document.body.classList.remove('hub-open');
+  document.body.classList.remove('trip-hub-open');
+  setTimeout(()=>updateMobileViewportVars(), 80);
+  updateBottomNavActive();
 }
 function toggleHubDrawer(){
   const drawer = document.getElementById('liveTracker');
@@ -3773,7 +3869,13 @@ window.openHubFullMap = openHubFullMap;
 window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeHubDrawer(); });
 function updateBottomNavActive(){
   const hub = document.getElementById('bottomHubBtn');
-  if(hub) hub.classList.toggle('active', !!document.getElementById('liveTracker')?.classList.contains('open'));
+  if(!hub) return;
+  const isOpen = !!document.getElementById('liveTracker')?.classList.contains('open');
+  hub.classList.toggle('active', isOpen);
+  hub.classList.toggle('is-open', isOpen);
+  hub.textContent = isOpen ? 'Close Hub' : 'Hub';
+  hub.title = isOpen ? 'Close Trip Hub' : 'Open Trip Hub';
+  hub.setAttribute('aria-label', hub.title);
 }
 function authErrorMessage(e){
   const code = (e && e.code) ? e.code : '';
@@ -4628,11 +4730,10 @@ function projectPointOnPath(point, path){
   return best;
 }
 function updateProgressBanner(progress, data){
-  const tripTitle=document.getElementById('tripProgressTitle'), tripPct=document.getElementById('tripProgressPct'), tripFill=document.getElementById('tripProgressFill'), dayTitle=document.getElementById('dayProgressTitle'), dayPct=document.getElementById('dayProgressPct'), dayFill=document.getElementById('dayProgressFill'), tripMiles=document.getElementById('tripMileageText'), dayMiles=document.getElementById('dayMileageText'), mini=document.getElementById('progressMini');
+  const tripTitle=document.getElementById('tripProgressTitle'), tripPct=document.getElementById('tripProgressPct'), tripFill=document.getElementById('tripProgressFill'), dayTitle=document.getElementById('dayProgressTitle'), dayPct=document.getElementById('dayProgressPct'), dayFill=document.getElementById('dayProgressFill'), tripMiles=document.getElementById('tripMileageText'), dayMiles=document.getElementById('dayMileageText');
   const railTripLabel=document.getElementById('railTripLabel'), railTripPct=document.getElementById('railTripPct'), railTripFill=document.getElementById('railTripFill'), railDayLabel=document.getElementById('railDayLabel'), railDayPct=document.getElementById('railDayPct'), railDayFill=document.getElementById('railDayFill');
   if(!routeTotalsReady){
     if(tripTitle)tripTitle.textContent='Trip progress: calculating Google route miles';
-    if(mini)mini.textContent='Calculating route miles…';
     if(railTripLabel) railTripLabel.textContent = 'Trip';
     if(railTripPct) railTripPct.textContent = '--%';
     if(railTripFill) railTripFill.style.width = '0%';
@@ -4647,7 +4748,6 @@ function updateProgressBanner(progress, data){
   if(!progress || !progress.totalTripMeters){
     if(tripTitle)tripTitle.textContent='Trip progress: waiting for driver location';
     if(dayTitle)dayTitle.textContent='Today: waiting for live location';
-    if(mini)mini.textContent='Waiting for live location';
     if(railTripLabel) railTripLabel.textContent = 'Trip';
     if(railTripPct) railTripPct.textContent = '--%';
     if(railTripFill) railTripFill.style.width = '0%';
@@ -4672,12 +4772,10 @@ function updateProgressBanner(progress, data){
   updateHubProgressCard(tripP, dayP, progress.activeDay || currentActiveDayNumber());
   if(tripMiles)tripMiles.textContent=`${fmtMi(progress.tripCompletedMeters)} / ${fmtMi(progress.totalTripMeters)} mi • ${fmtMi(progress.totalTripMeters-progress.tripCompletedMeters)} mi left`;
   if(dayMiles)dayMiles.textContent=`${fmtMi(progress.dayCompletedMeters)} / ${fmtMi(progress.dayTotalMeters)} mi • ${fmtMi(progress.dayTotalMeters-progress.dayCompletedMeters)} mi left`;
-  if(mini){ mini.classList.toggle('show', isAdmin||isApproved); mini.textContent = `${progress.offRoute?'Off route • ':''}Trip ${Math.round(tripP)}% • Day ${progress.activeDay} ${Math.round(dayP)}%`; }
   renderAreWeThere(progress);
   updateDayCardStates();
   updateMissionAndToday(progress, data || null);
 }
-function createProgressMini(){ if(document.getElementById('progressMini')) return; const el=document.createElement('div'); el.id='progressMini'; el.className='progress-mini'; el.textContent='Waiting for live location'; document.body.appendChild(el); }
 function createWatcherStrip(){ const shell=document.querySelector('.overview-map'); if(shell && !document.getElementById('watcherStrip')){ const el=document.createElement('div'); el.id='watcherStrip'; el.className='watcher-strip'; shell.appendChild(el); } }
 function createWatcherModal(){
   if(document.getElementById('watcherModal')) return;
